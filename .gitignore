@@ -1,0 +1,15 @@
+# Node
+node_modules/
+npm-debug.log
+dist/
+.env
+
+# Laravel
+/vendor
+/storage/*.key
+.env
+.phpunit.result.cache
+
+# OS
+.DS_Store
+Thumbs.db
