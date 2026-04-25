@@ -4,13 +4,13 @@ import { useAuth } from "../../context/AuthContext";
 
 const RegisterPage = () => {
   const { register } = useAuth();
-  const navigate     = useNavigate();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "", email: "", password: "",
     password_confirmation: "", role: "student",
   });
-  const [error, setError]     = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
@@ -40,94 +40,127 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Create Account 🚀</h2>
-        <p style={styles.subtitle}>Join InternHub today</p>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-sm">
 
-        {error && <div style={styles.error}>{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div style={styles.field}>
-            <label style={styles.label}>Full Name</label>
-            <input style={styles.input} type="text" name="name"
-              placeholder="John Doe" value={form.name}
-              onChange={handleChange} required />
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 rounded-xl mb-4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
           </div>
+          <h1 className="text-2xl font-bold text-gray-900">Intern<span className="text-blue-300">Hub</span></h1>
+          <p className="text-sm text-gray-500 mt-1">Create your account</p>
+        </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>Email</label>
-            <input style={styles.input} type="email" name="email"
-              placeholder="you@example.com" value={form.email}
-              onChange={handleChange} required />
-          </div>
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
 
-          <div style={styles.field}>
-            <label style={styles.label}>I am a...</label>
-            <select style={styles.input} name="role"
-              value={form.role} onChange={handleChange}>
-              <option value="student">🎓 Student</option>
-              <option value="company">🏢 Company</option>
-            </select>
-          </div>
+          {error && (
+            <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-5 border border-red-100">
+              {error}
+            </div>
+          )}
 
-          <div style={styles.field}>
-            <label style={styles.label}>Password</label>
-            <input style={styles.input} type="password" name="password"
-              placeholder="Min 6 characters" value={form.password}
-              onChange={handleChange} required />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
 
-          <div style={styles.field}>
-            <label style={styles.label}>Confirm Password</label>
-            <input style={styles.input} type="password" name="password_confirmation"
-              placeholder="Repeat password" value={form.password_confirmation}
-              onChange={handleChange} required />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Full Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              />
+            </div>
 
-          <button style={styles.button} type="submit" disabled={loading}>
-            {loading ? "Creating account..." : "Register"}
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              />
+            </div>
 
-        <p style={styles.link}>
-          Already have an account? <Link to="/login">Login here</Link>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                I am a...
+              </label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              >
+                <option value="student">🎓 Student</option>
+                <option value="company">🏢 Company</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Min 6 characters"
+                value={form.password}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="password_confirmation"
+                placeholder="Repeat password"
+                value={form.password_confirmation}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed mt-1"
+            >
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-gray-500 mt-5">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-600 font-medium hover:text-indigo-700">
+            Login here
+          </Link>
         </p>
+
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: "100vh", display: "flex",
-    alignItems: "center", justifyContent: "center",
-    backgroundColor: "#f0f4ff",
-  },
-  card: {
-    backgroundColor: "#fff", padding: "40px",
-    borderRadius: "16px", width: "100%", maxWidth: "420px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
-  },
-  title:    { fontSize: "24px", fontWeight: "700", marginBottom: "4px" },
-  subtitle: { color: "#666", marginBottom: "24px" },
-  field:    { marginBottom: "16px" },
-  label:    { display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "14px" },
-  input: {
-    width: "100%", padding: "10px 14px", borderRadius: "8px",
-    border: "1px solid #ddd", fontSize: "14px",
-    boxSizing: "border-box", outline: "none",
-  },
-  button: {
-    width: "100%", padding: "12px", backgroundColor: "#4f46e5",
-    color: "#fff", border: "none", borderRadius: "8px",
-    fontSize: "16px", fontWeight: "600", cursor: "pointer", marginTop: "8px",
-  },
-  error: {
-    backgroundColor: "#fee2e2", color: "#b91c1c",
-    padding: "10px 14px", borderRadius: "8px", marginBottom: "16px", fontSize: "14px",
-  },
-  link: { textAlign: "center", marginTop: "20px", fontSize: "14px", color: "#555" },
 };
 
 export default RegisterPage;
