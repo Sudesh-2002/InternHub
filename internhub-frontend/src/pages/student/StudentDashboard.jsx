@@ -44,16 +44,22 @@ const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex">
 
+      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/30 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
+      {/* Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-30
+        fixed inset-y-0 left-0 z-30
         w-60 bg-white border-r border-gray-100 flex flex-col
         transition-transform duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
+        {/* Logo */}
         <div className="px-6 py-5 flex items-center gap-2.5 border-b border-gray-100">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -61,9 +67,10 @@ const StudentDashboard = () => {
               <path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
           </div>
-          <span className="font-bold text-gray-900 text-base">InternHub</span>
+          <span className="font-bold text-gray-900 text-base">Intern<span className="text-blue-300">Hub</span></span>
         </div>
 
+        {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map(item => (
             <button key={item.id}
@@ -84,6 +91,7 @@ const StudentDashboard = () => {
           ))}
         </nav>
 
+        {/* User + Logout */}
         <div className="px-3 py-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
@@ -102,9 +110,13 @@ const StudentDashboard = () => {
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-60">
+        {/* Top bar */}
         <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-          <button className="lg:hidden text-gray-500 hover:text-gray-700" onClick={() => setSidebarOpen(true)}>
+          <button
+            className="lg:hidden text-gray-500 hover:text-gray-700"
+            onClick={() => setSidebarOpen(true)}
+          >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M3 12h18M3 6h18M3 18h18" />
             </svg>
@@ -124,6 +136,7 @@ const StudentDashboard = () => {
           </div>
         </header>
 
+        {/* Page content */}
         <main className="flex-1 p-6 lg:p-8 max-w-3xl w-full mx-auto">
           {renderPage()}
         </main>
