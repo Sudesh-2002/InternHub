@@ -1,30 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Icon from "../components/Icon";
 import { icons } from "../components/data/mockData";
-
-const INITIAL = {
-  name: "Ashan Perera",
-  email: "ashan@example.com",
-  phone: "+94 77 123 4567",
-  location: "Colombo, Sri Lanka",
-  avatar: "",
-  summary: "Final year Software Engineering student with a passion for AI and Web Development. Looking for opportunities to apply my skills in real-world projects.",
-  skills: ["React", "Laravel", "Python", "JavaScript", "Docker", "Git", "Node.js", "MySQL"],
-  education: [
-    { id: 1, degree: "BSc Software Engineering", university: "University of Colombo", start: "2022", end: "2026", gpa: "3.7" },
-  ],
-  projects: [
-    { id: 1, title: "InternHub", description: "A full-stack internship portal connecting students with companies. Features job posting, application tracking, and profile management.", tech: "React, Laravel, MySQL", github: "https://github.com" },
-    { id: 2, title: "AI Chat Assistant", description: "A conversational AI chatbot built with Python and integrated with OpenAI API.", tech: "Python, FastAPI, OpenAI", github: "" },
-  ],
-  experience: [
-    { id: 1, title: "Frontend Developer Intern", company: "TechCorp", duration: "Jun 2024 – Aug 2024", description: "Built responsive UI components with React and Tailwind CSS. Collaborated with the design team on new features." },
-  ],
-  resume: null,
-  github: "https://github.com",
-  linkedin: "https://linkedin.com",
-  portfolio: "https://myportfolio.dev",
-};
+import { fetchProfile, updateProfile, uploadResume, deleteResume } from "../../../services/api";
+import Toast from "../../../components/Toast";
 
 // ── Reusable section wrapper ──────────────────────────────────────────────────
 const Section = ({ title, action, children }) => (
@@ -93,22 +71,66 @@ const Textarea = (props) => (
 
 // ══════════════════════════════════════════════════════════════════════════════
 const ProfilePage = ({ user }) => {
-  const [data, setData]     = useState({ ...INITIAL, name: user?.name || INITIAL.name, email: user?.email || INITIAL.email });
-  const [modal, setModal]   = useState(null); // "basic"|"summary"|"skills"|"education"|"project"|"experience"|"social"
+  const [data, setData]     = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]   = useState(null);
+  const [modal, setModal]   = useState(null);
   const [draft, setDraft]   = useState({});
-  const [saved, setSaved]   = useState(false);
+  const [toast, setToast]   = useState(null); // { message, type }
+  const [saving, setSaving] = useState(false);
   const [skillInput, setSkillInput] = useState("");
 
-  const openModal = (key, initial = {}) => { setDraft(initial); setModal(key); };
+  // ── Load profile on mount ──
+  useEffect(() => {
+    fetchProfile()
+      .then((profile) => {
+        setData({
+          ...profile,
+          skills:     profile.skills     || [],
+          education:  profile.education  || [],
+          experience: profile.experience || [],
+          projects:   profile.projects   || [],
+        });
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  const openModal  = (key, initial = {}) => { setDraft(initial); setModal(key); };
   const closeModal = () => setModal(null);
 
-  const saveModal = (key, value) => {
-    setData(prev => ({ ...prev, [key]: value }));
-    closeModal();
-    flashSaved();
-  };
+  const showToast = (message, type = "success") => setToast({ message, type });
+  const hideToast = () => setToast(null);
 
-  const flashSaved = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+  // ── Sync to server ──
+  const syncToServer = async (newData) => {
+    setSaving(true);
+    showToast("Saving…", "loading");
+    try {
+      await updateProfile({
+        name:       newData.name,
+        phone:      newData.phone,
+        location:   newData.location,
+        summary:    newData.summary,
+        skills:     newData.skills,
+        education:  newData.education,
+        experience: newData.experience,
+        projects:   newData.projects,
+        github:     newData.github,
+        linkedin:   newData.linkedin,
+        portfolio:  newData.portfolio,
+      });
+      setData(newData);
+      showToast("Changes saved", "success");
+    } catch (err) {
+      showToast("Failed to save. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const editBtn = (key, initial) => (
     <button onClick={() => openModal(key, initial)}
@@ -120,33 +142,92 @@ const ProfilePage = ({ user }) => {
   // ── Skills helpers ──
   const addSkill = () => {
     const s = skillInput.trim();
-    if (s && !data.skills.includes(s)) {
-      setData(prev => ({ ...prev, skills: [...prev.skills, s] }));
-    }
+    if (!s || data.skills.includes(s)) { setSkillInput(""); return; }
+    const newData = { ...data, skills: [...data.skills, s] };
+    syncToServer(newData);
     setSkillInput("");
   };
-  const removeSkill = (s) => setData(prev => ({ ...prev, skills: prev.skills.filter(x => x !== s) }));
+
+  const removeSkill = (s) => {
+    const newData = { ...data, skills: data.skills.filter((x) => x !== s) };
+    syncToServer(newData);
+  };
 
   // ── List item helpers ──
-  const removeItem = (key, id) => setData(prev => ({ ...prev, [key]: prev[key].filter(i => i.id !== id) }));
-  const saveItem   = (key, item) => {
-    setData(prev => {
-      const list = prev[key];
-      const exists = list.find(i => i.id === item.id);
-      return { ...prev, [key]: exists ? list.map(i => i.id === item.id ? item : i) : [...list, { ...item, id: Date.now() }] };
-    });
-    closeModal();
-    flashSaved();
+  const removeItem = (key, id) => {
+    const newData = { ...data, [key]: data[key].filter((i) => i.id !== id) };
+    syncToServer(newData);
   };
+
+  const saveItem = (key, item) => {
+    const list   = data[key];
+    const exists = list.find((i) => i.id === item.id);
+    const updated = exists
+      ? list.map((i) => (i.id === item.id ? item : i))
+      : [...list, { ...item, id: Date.now() }];
+    const newData = { ...data, [key]: updated };
+    syncToServer(newData);
+    closeModal();
+  };
+
+  // ── Resume helpers ──
+  const handleResumeUpload = async (file) => {
+    if (!file) return;
+    setSaving(true);
+    showToast("Saving…", "loading");
+    try {
+      const res = await uploadResume(file);
+      setData((prev) => ({ ...prev, resume_name: res.resume_name, resume_url: res.resume_url }));
+      showToast("Changes saved", "success");
+    } catch (err) {
+      showToast("Resume upload failed. Please try again.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleResumeDelete = async () => {
+    if (!window.confirm("Remove your uploaded resume?")) return;
+    setSaving(true);
+    showToast("Saving…", "loading");
+    try {
+      await deleteResume();
+      setData((prev) => ({ ...prev, resume_name: null, resume_url: null }));
+      showToast("Changes saved", "success");
+    } catch (err) {
+      showToast("Failed to delete resume.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ── Loading / error states ──
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-400 text-sm">
+        Loading your profile…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-24 text-red-500 text-sm">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-10">
 
-      {/* Saved toast */}
-      {saved && (
-        <div className="fixed top-5 right-5 z-50 bg-green-600 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2">
-          <Icon d={icons.check} size={15} stroke="white" /> Changes saved
-        </div>
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={hideToast}
+        />
       )}
 
       {/* ── TOP CARD ── */}
@@ -158,14 +239,6 @@ const ProfilePage = ({ user }) => {
             <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
               {data.name?.charAt(0) || "S"}
             </div>
-            <label className="absolute -bottom-1.5 -right-1.5 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-50 shadow-sm">
-              <Icon d={icons.edit} size={11} stroke="#6366f1" />
-              <input type="file" accept="image/*" className="hidden"
-                onChange={e => {
-                  const f = e.target.files[0];
-                  if (f) setData(prev => ({ ...prev, avatar: URL.createObjectURL(f) }));
-                }} />
-            </label>
           </div>
 
           {/* Info */}
@@ -182,10 +255,12 @@ const ProfilePage = ({ user }) => {
                 <Icon d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6" size={13} />
                 {data.email}
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                <Icon d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.27 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" size={13} />
-                {data.phone}
-              </span>
+              {data.phone && (
+                <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <Icon d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.36 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.27 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.13 6.13l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" size={13} />
+                  {data.phone}
+                </span>
+              )}
             </div>
 
             {/* Social links */}
@@ -318,7 +393,7 @@ const ProfilePage = ({ user }) => {
               </div>
             </div>
           ))}
-          {data.experience.length === 0 && <p className="text-sm text-gray-300 italic">No experience added.</p>}
+          {data.experience.length === 0 && <p className="text-sm text-gray-500 italic">No experience added.</p>}
         </div>
       </Section>
 
@@ -346,7 +421,7 @@ const ProfilePage = ({ user }) => {
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed mt-1">{p.description}</p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
-                    {p.tech.split(",").map(t => (
+                    {p.tech && p.tech.split(",").map(t => (
                       <span key={t} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">
                         {t.trim()}
                       </span>
@@ -371,27 +446,33 @@ const ProfilePage = ({ user }) => {
       {/* ── RESUME ── */}
       <Section title="Resume / CV">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          {data.resume ? (
+          {data.resume_name ? (
             <div className="flex items-center gap-3 flex-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
               <Icon d={icons.apps} size={18} stroke="#6366f1" />
-              <span className="text-sm text-indigo-700 font-medium truncate">{data.resume.name}</span>
+              <span className="text-sm text-indigo-700 font-medium truncate">{data.resume_name}</span>
             </div>
           ) : (
             <div className="flex-1 text-sm text-gray-400 italic">No resume uploaded yet.</div>
           )}
           <div className="flex gap-2 flex-shrink-0">
-            {data.resume && (
-              <a href={URL.createObjectURL(data.resume)} download={data.resume.name}
-                className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-indigo-300 hover:text-indigo-600 transition">
-                <Icon d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]} size={13} />
-                Download
-              </a>
+            {data.resume_url && (
+              <>
+                <a href={data.resume_url} download={data.resume_name} target="_blank" rel="noreferrer"
+                  className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl text-xs font-semibold text-gray-600 hover:border-indigo-300 hover:text-indigo-600 transition">
+                  <Icon d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]} size={13} />
+                  Download
+                </a>
+                <button onClick={handleResumeDelete}
+                  className="flex items-center gap-1.5 px-4 py-2 border border-red-100 rounded-xl text-xs font-semibold text-red-500 hover:bg-red-50 transition">
+                  Remove
+                </button>
+              </>
             )}
             <label className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition">
               <Icon d={icons.upload} size={13} stroke="white" />
-              {data.resume ? "Replace" : "Upload PDF"}
+              {data.resume_name ? "Replace" : "Upload PDF"}
               <input type="file" accept=".pdf" className="hidden"
-                onChange={e => { if (e.target.files[0]) setData(prev => ({ ...prev, resume: e.target.files[0] })); flashSaved(); }} />
+                onChange={e => { if (e.target.files[0]) handleResumeUpload(e.target.files[0]); }} />
             </label>
           </div>
         </div>
@@ -402,7 +483,7 @@ const ProfilePage = ({ user }) => {
       {/* Basic Info */}
       {modal === "basic" && (
         <Modal title="Edit Basic Info" onClose={closeModal}
-          onSave={() => saveModal("_basic", null) || setData(prev => ({ ...prev, ...draft })) || closeModal() || flashSaved()}>
+          onSave={() => { syncToServer({ ...data, ...draft }); closeModal(); }}>
           <Field label="Full Name"><Input value={draft.name || ""} onChange={e => setDraft(p => ({ ...p, name: e.target.value }))} /></Field>
           <Field label="Email"><Input type="email" value={draft.email || ""} onChange={e => setDraft(p => ({ ...p, email: e.target.value }))} /></Field>
           <Field label="Phone"><Input value={draft.phone || ""} onChange={e => setDraft(p => ({ ...p, phone: e.target.value }))} /></Field>
@@ -413,7 +494,7 @@ const ProfilePage = ({ user }) => {
       {/* Summary */}
       {modal === "summary" && (
         <Modal title="Edit Summary" onClose={closeModal}
-          onSave={() => { setData(prev => ({ ...prev, summary: draft.summary })); closeModal(); flashSaved(); }}>
+          onSave={() => { syncToServer({ ...data, summary: draft.summary }); closeModal(); }}>
           <Field label="Professional Summary">
             <Textarea rows={5} value={draft.summary || ""} onChange={e => setDraft(p => ({ ...p, summary: e.target.value }))} />
           </Field>
@@ -423,7 +504,7 @@ const ProfilePage = ({ user }) => {
       {/* Social Links */}
       {modal === "social" && (
         <Modal title="Edit Social Links" onClose={closeModal}
-          onSave={() => { setData(prev => ({ ...prev, github: draft.github, linkedin: draft.linkedin, portfolio: draft.portfolio })); closeModal(); flashSaved(); }}>
+          onSave={() => { syncToServer({ ...data, github: draft.github, linkedin: draft.linkedin, portfolio: draft.portfolio }); closeModal(); }}>
           <Field label="GitHub URL"><Input value={draft.github || ""} onChange={e => setDraft(p => ({ ...p, github: e.target.value }))} /></Field>
           <Field label="LinkedIn URL"><Input value={draft.linkedin || ""} onChange={e => setDraft(p => ({ ...p, linkedin: e.target.value }))} /></Field>
           <Field label="Portfolio URL"><Input value={draft.portfolio || ""} onChange={e => setDraft(p => ({ ...p, portfolio: e.target.value }))} /></Field>

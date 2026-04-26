@@ -52,7 +52,7 @@ const StudentDashboard = () => {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — always fixed */}
       <aside className={`
         fixed inset-y-0 left-0 z-30
         w-60 bg-white border-r border-gray-100 flex flex-col
@@ -110,7 +110,9 @@ const StudentDashboard = () => {
         </div>
       </aside>
 
+      {/* Main — offset by sidebar width on desktop */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-60">
+
         {/* Top bar */}
         <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
           <button
