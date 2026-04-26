@@ -17,4 +17,26 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+export const fetchProfile = () =>
+  API.get("/profile").then((res) => res.data);
+
+export const updateProfile = (payload) =>
+  API.put("/profile", payload).then((res) => res.data);
+
+export const uploadResume = (file) => {
+  const formData = new FormData();
+  formData.append("resume", file);
+
+  return API.post("/profile/resume", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // override for file upload
+    },
+  }).then((res) => res.data);
+};
+
+export const deleteResume = () =>
+  API.delete("/profile/resume").then((res) => res.data);
+
 export default API;

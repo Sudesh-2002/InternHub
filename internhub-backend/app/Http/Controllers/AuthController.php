@@ -51,7 +51,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // ✅ LOGIN
+    // LOGIN
     public function login(Request $request)
     {
         $request->validate([
@@ -84,7 +84,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // ✅ LOGOUT
+    // LOGOUT
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
@@ -94,7 +94,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // ✅ GET LOGGED IN USER
+    // GET LOGGED IN USER
     public function me(Request $request)
     {
         $user = $request->user()->load(
