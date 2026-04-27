@@ -26,7 +26,7 @@ function App() {
           } />
 
           {/* Company */}
-          <Route path="/company/dashboard" element={
+          <Route path="/company/dashboard/*" element={
             <ProtectedRoute allowedRoles={["company"]}>
               <CompanyDashboard />
             </ProtectedRoute>
