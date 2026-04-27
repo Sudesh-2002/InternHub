@@ -13,10 +13,20 @@ return new class extends Migration
     {
         Schema::create('applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('job_id')->constrained()->onDelete('cascade');
-            $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+
+            $table->foreignId('internship_listing_id')
+                ->constrained('internship_listings')
+                ->cascadeOnDelete();
+
+            $table->foreignId('student_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->string('resume_path');
-            $table->enum('status', ['pending', 'reviewed', 'accepted', 'rejected'])->default('pending');
+
+            $table->enum('status', ['pending', 'reviewed', 'accepted', 'rejected'])
+                ->default('pending');
+
             $table->timestamps();
         });
     }
