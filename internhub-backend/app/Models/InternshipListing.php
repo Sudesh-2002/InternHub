@@ -43,7 +43,10 @@ class InternshipListing extends Model
     /** Applications submitted for this listing */
     public function applications()
     {
-        return $this->hasMany(Application::class, 'listing_id');
+        return $this->hasMany(
+            Application::class,
+            'internship_listing_id'
+        );
     }
 
     // ── Scopes ───────────────────────────────────────────────────────────────

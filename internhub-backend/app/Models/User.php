@@ -35,7 +35,15 @@ class User extends Authenticatable
         return $this->hasOne(StudentProfile::class);
     }
 
-    public function jobs() 
+    /**
+     * Admin profile — separate table, not polluting users.
+     */
+    public function adminProfile()
+    {
+        return $this->hasOne(AdminProfile::class);
+    }
+
+    public function jobs()
     {
         return $this->hasMany(InternshipListing::class, 'company_id');
     }
@@ -50,6 +58,11 @@ class User extends Authenticatable
     public function scopeStudents($query)
     {
         return $query->where('role', 'student');
+    }
+
+    public function scopeCompanies($query)
+    {
+        return $query->where('role', 'company');
     }
 
     public function scopeWithStatus($query, string $status)
@@ -67,5 +80,10 @@ class User extends Authenticatable
     public function isSuspended(): bool
     {
         return $this->status === 'suspended';
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }
