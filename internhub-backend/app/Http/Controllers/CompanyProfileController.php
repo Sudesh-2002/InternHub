@@ -167,6 +167,7 @@ class CompanyProfileController extends Controller
             'company_size'     => $profile->company_size,
             'headquarters'     => $profile->headquarters,
             'website'          => $profile->website,
+            'verification_status' => $profile->verification_status ?? 'pending',
 
             // Description
             'about'            => $profile->about,

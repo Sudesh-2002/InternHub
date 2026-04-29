@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { Ico } from "../components/Shared";
 import { createListing } from "../../../services/api";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Field = ({ label, optional, children }) => (
   <div className="group">
@@ -49,6 +50,7 @@ const PostJob = ({ onPosted, toast }) => {
   const [errors,  setErrors]  = useState({});
   const [loading, setLoading] = useState(false);
   const [step,    setStep]    = useState(0);   // 0,1,2
+  const [isVerified, setIsVerified] = useState(null);
 
   const set = (k, v) => {
     setForm(p => ({ ...p, [k]: v }));
@@ -83,6 +85,24 @@ const PostJob = ({ onPosted, toast }) => {
     setErrors({});
     setStep(s => s + 1);
   };
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/api/company/profile", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        setIsVerified(res.data.data?.verification_status === "verified");
+      } catch (err) {
+        setIsVerified(false);
+      }
+    };
+
+    fetchStatus();
+  }, []);
 
   // ── Submit ──
   const submit = async () => {
@@ -146,6 +166,21 @@ const PostJob = ({ onPosted, toast }) => {
     "On-site": "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
     "Hybrid":  "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
   };
+
+  if (isVerified === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md p-6 bg-white rounded-2xl shadow">
+          <div className="text-red-500 text-lg font-bold mb-2">
+            Access Restricted
+          </div>
+          <p className="text-gray-500 text-sm">
+            Your company is not verified yet. You cannot post internships until admin approval.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full flex flex-col items-center justify-start py-6">

@@ -1,16 +1,37 @@
-// src/pages/company/components/Sidebar.jsx
-
 import { NavLink, useNavigate } from "react-router-dom";
 import { Ico } from "./Shared";
 import { NAV, COMPANY } from "../data/mockData";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Sidebar = ({ unread, isOpen, onClose }) => {
   const navigate = useNavigate();
-
+  const [isVerified, setIsVerified] = useState(null);
   const handleLogout = () => {
     // Replace with your actual logout logic, e.g. useAuth().logout()
     navigate("/login");
   };
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/company/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        setIsVerified(res.data.data?.verification_status === "verified");
+      } catch (err) {
+        setIsVerified(false);
+      }
+    };
+
+    fetchStatus();
+  }, []);
 
   return (
     <aside className={`
@@ -36,32 +57,58 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {NAV.map(n => (
-          <NavLink
-            key={n.id}
-            to={n.path}
-            end={n.path === "/dashboard"}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
-              }`
-            }>
-            {({ isActive }) => (
-              <>
-                <Ico d={n.icon} size={17} color="currentColor" sw={isActive ? 2.2 : 1.7} />
-                {n.label}
-                {n.id === "notifs" && unread > 0 && (
-                  <span className="ml-auto w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center font-semibold">
-                    {unread}
-                  </span>
+        {NAV.map(n => {
+          const isPostJob = n.path === "/company/dashboard/post";
+
+          return (
+            <div
+              key={n.id}
+              className={
+                isPostJob && isVerified === false
+                  ? "pointer-events-none opacity-40"
+                  : ""
+              }
+            >
+              <NavLink
+                to={n.path}
+                end={n.path === "/dashboard"}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+                    isActive
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Ico
+                      d={n.icon}
+                      size={17}
+                      color="currentColor"
+                      sw={isActive ? 2.2 : 1.7}
+                    />
+                    {n.label}
+
+                    {n.id === "notifs" && unread > 0 && (
+                      <span className="ml-auto w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                        {unread}
+                      </span>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-          </NavLink>
-        ))}
+              </NavLink>
+
+              {/* Lock badge */}
+              {isPostJob && isVerified === false && (
+                <div className="text-[10px] text-red-500 ml-9 -mt-1">
+                  Verification required
+                </div>
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       {/* User card + Logout */}

@@ -148,6 +148,7 @@ const CompanyProfile = ({ toast }) => {
     companySize:      "50-100",
     headquarters:     "",
     website:          "",
+    verificationStatus: "pending",
   });
 
   /* ── State: Step 2 – Description ── */
@@ -210,6 +211,7 @@ const CompanyProfile = ({ toast }) => {
           companySize:     d.company_size    ?? "50-100",
           headquarters:    d.headquarters    ?? "",
           website:         d.website         ?? "",
+          verificationStatus: d.verification_status ?? "pending",
         }));
 
         setDesc({
@@ -560,9 +562,21 @@ const CompanyProfile = ({ toast }) => {
               }
             </div>
             <div>
-              <h1 className="cp-heading text-xl font-bold text-slate-900 leading-tight">
-                {id.companyName || "Your Company"}
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="cp-heading text-xl font-bold text-slate-900 leading-tight">
+                  {id.companyName || "Your Company"}
+                </h1>
+                <span className={`text-xs font-bold px-3 py-1 rounded-full border
+                  ${
+                    id.verificationStatus === "verified"
+                      ? "bg-green-50 text-green-700 border-green-200"
+                      : id.verificationStatus === "pending"
+                      ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                      : "bg-red-50 text-red-700 border-red-200"
+                  }`}>
+                  {id.verificationStatus?.toUpperCase()}
+                </span>
+              </div>
               <p className="text-xs text-slate-400 font-medium mt-0.5">
                 {[id.headquarters, id.industry].filter(Boolean).join(" · ")}
               </p>

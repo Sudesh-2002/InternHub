@@ -38,6 +38,14 @@ class InternshipListingController extends Controller
     // Creates a new listing (status defaults to 'pending')
     public function store(StoreInternshipRequest $request): JsonResponse
     {
+        $company = Auth::user()->companyProfile;
+
+        if (!$company || $company->verification_status !== 'verified') {
+            return response()->json([
+                'message' => 'Only verified companies can post internships.'
+            ], 403);
+        }
+
         $listing = InternshipListing::create([
             ...$request->validated(),
             'company_id' => Auth::id(),
