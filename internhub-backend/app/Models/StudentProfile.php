@@ -33,4 +33,14 @@ class StudentProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Full public URL for the resume download.
+     */
+    public function getResumeUrlAttribute(): ?string
+    {
+        return $this->resume_path
+            ? asset('storage/' . $this->resume_path)
+            : null;
+    }
 }
