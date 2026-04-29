@@ -2,58 +2,70 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; 
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-    use HasApiTokens;
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    use HasFactory, Notifiable, HasApiTokens;
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-     protected $hidden = ['password'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'status'];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $hidden = ['password'];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
-    public function companyProfile() {
+    /* ── Relationships ───────────────────────────── */
+
+    public function companyProfile()
+    {
         return $this->hasOne(CompanyProfile::class);
     }
 
-    public function studentProfile() {
+    public function studentProfile()
+    {
         return $this->hasOne(StudentProfile::class);
     }
 
-    public function jobs() {
-        return $this->hasMany(Job::class, 'company_id');
+    public function jobs() 
+    {
+        return $this->hasMany(InternshipListing::class, 'company_id');
     }
 
-    public function applications() {
+    public function applications()
+    {
         return $this->hasMany(Application::class, 'student_id');
+    }
+
+    /* ── Scopes ──────────────────────────────────── */
+
+    public function scopeStudents($query)
+    {
+        return $query->where('role', 'student');
+    }
+
+    public function scopeWithStatus($query, string $status)
+    {
+        return $query->where('status', $status);
+    }
+
+    /* ── Helpers ─────────────────────────────────── */
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->status === 'suspended';
     }
 }

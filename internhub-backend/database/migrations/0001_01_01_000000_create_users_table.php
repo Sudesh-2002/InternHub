@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('role', ['student', 'company', 'admin']);
+            $table->enum('status', ['active', 'suspended', 'inactive'])
+                  ->default('active');
             $table->timestamps();
         });
 
