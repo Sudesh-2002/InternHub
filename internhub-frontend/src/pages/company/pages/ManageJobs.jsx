@@ -1,128 +1,432 @@
-// src/pages/company/pages/ManageJobs.jsx
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ico, StatusBadge, ConfirmModal } from "../components/Shared";
+import api from "../../../services/api";
+
+import {
+  Ico,
+  StatusBadge,
+  ConfirmModal,
+} from "../components/Shared";
+
 import { typeColors } from "../data/mockData";
 
-const ManageJobs = ({ jobs, setJobs, toast }) => {
+const emptyForm = {
+  title: "",
+  location: "",
+  type: "",
+  salary: "",
+  deadline: "",
+  duration: "",
+  vacancies: "",
+  description: "",
+  requirements: "",
+};
+
+const ManageJobs = ({ toast }) => {
   const navigate = useNavigate();
-  const [search, setSearch]   = useState("");
-  const [filter, setFilter]   = useState("all");
+
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+
   const [confirm, setConfirm] = useState(null);
 
-  const filtered = jobs.filter(j =>
-    (filter === "all" || j.status === filter) &&
-    j.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(emptyForm);
 
-  const deleteJob = (id) => {
-    setJobs(p => p.filter(j => j.id !== id));
-    toast("Job deleted successfully", "success");
-    setConfirm(null);
+  // ─────────────────────────────
+  // FETCH
+  // ─────────────────────────────
+  useEffect(() => {
+    fetchJobs();
+  }, [search, filter]);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/company/manage-jobs", {
+        params: { search, status: filter },
+      });
+
+      setJobs(res.data.data);
+
+    } catch {
+      toast("Failed to load jobs", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const goToApplicants = (jobId) => {
-    navigate(`/company/dashboard/applicants?jobId=${jobId}`);
+  // ─────────────────────────────
+  // DELETE
+  // ─────────────────────────────
+  const deleteJob = async (id) => {
+    try {
+      await api.delete(`/company/manage-jobs/${id}`);
+      toast("Job deleted", "success");
+      setConfirm(null);
+      fetchJobs();
+    } catch {
+      toast("Delete failed", "error");
+    }
   };
 
+  // ─────────────────────────────
+  // OPEN EDIT (PRE-FILL)
+  // ─────────────────────────────
+  const openEdit = (job) => {
+    setEditingId(job.id);
+
+    setForm({
+      title: job.title || "",
+      location: job.location || "",
+      type: job.type || "",
+      salary: job.salary || "",
+      deadline: job.deadline || "",
+      duration: job.duration || "",
+      vacancies: job.vacancies || "",
+      description: job.description || "",
+      requirements: job.requirements || "",
+    });
+
+    setEditOpen(true);
+  };
+
+  // ─────────────────────────────
+  // UPDATE
+  // ─────────────────────────────
+  const updateJob = async () => {
+    try {
+      await api.put(`/company/manage-jobs/${editingId}`, form);
+
+      toast("Job updated", "success");
+
+      setEditOpen(false);
+      setEditingId(null);
+      setForm(emptyForm);
+
+      fetchJobs();
+
+    } catch {
+      toast("Update failed", "error");
+    }
+  };
+
+  const goToApplicants = (id) => {
+    navigate(`/company/dashboard/applicants?jobId=${id}`);
+  };
+
+  // ─────────────────────────────
   return (
     <div className="space-y-6">
 
+      {/* CONFIRM DELETE */}
       {confirm && (
         <ConfirmModal
           title="Delete Job?"
-          body={`Are you sure you want to delete "${confirm.title}"? This cannot be undone.`}
+          body={`Delete "${confirm.title}" permanently?`}
           danger
           onConfirm={() => deleteJob(confirm.id)}
           onCancel={() => setConfirm(null)}
         />
       )}
 
-      {/* Search + filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Ico
-            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-            size={15} color="#9ca3af"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
-          />
-          <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search job titles…"
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition" />
+      {/* EDIT MODAL */}
+      {editOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+          <div className="bg-white w-[650px] max-h-[90vh] overflow-y-auto rounded-2xl p-6 space-y-5">
+
+            <h2 className="text-lg font-bold text-gray-800">
+              Edit Job Posting
+            </h2>
+
+            {/* GRID FORM */}
+            <div className="grid grid-cols-2 gap-4">
+
+              {/* TITLE */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Job Title
+                </label>
+                <input
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* LOCATION */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Location
+                </label>
+                <input
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.location}
+                  onChange={(e) =>
+                    setForm({ ...form, location: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* TYPE */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Job Type
+                </label>
+                <input
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.type}
+                  onChange={(e) =>
+                    setForm({ ...form, type: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* SALARY */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Salary
+                </label>
+                <input
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.salary}
+                  onChange={(e) =>
+                    setForm({ ...form, salary: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* DEADLINE */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Deadline
+                </label>
+                <input
+                  type="date"
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.deadline}
+                  onChange={(e) =>
+                    setForm({ ...form, deadline: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* VACANCIES */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Vacancies
+                </label>
+                <input
+                  type="number"
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.vacancies}
+                  onChange={(e) =>
+                    setForm({ ...form, vacancies: e.target.value })
+                  }
+                />
+              </div>
+
+              {/* DURATION */}
+              <div>
+                <label className="text-xs text-gray-500 font-semibold">
+                  Duration
+                </label>
+                <input
+                  className="w-full border p-2 rounded-lg mt-1"
+                  value={form.duration}
+                  onChange={(e) =>
+                    setForm({ ...form, duration: e.target.value })
+                  }
+                />
+              </div>
+
+            </div>
+
+            {/* DESCRIPTION */}
+            <div>
+              <label className="text-xs text-gray-500 font-semibold">
+                Job Description
+              </label>
+              <textarea
+                className="w-full border p-2 rounded-lg mt-1"
+                rows={3}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+              />
+            </div>
+
+            {/* REQUIREMENTS */}
+            <div>
+              <label className="text-xs text-gray-500 font-semibold">
+                Requirements
+              </label>
+              <textarea
+                className="w-full border p-2 rounded-lg mt-1"
+                rows={3}
+                value={form.requirements}
+                onChange={(e) =>
+                  setForm({ ...form, requirements: e.target.value })
+                }
+              />
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-2 pt-2">
+
+              <button
+                onClick={() => setEditOpen(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={updateJob}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+              >
+                Save Changes
+              </button>
+
+            </div>
+
+          </div>
+
         </div>
-        <div className="flex gap-2">
-          {["all", "approved", "pending", "rejected"].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-xl text-xs font-semibold capitalize transition ${
-                filter === f
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white text-gray-500 hover:text-gray-800 border border-gray-200"
-              }`}>
-              {f}
-            </button>
-          ))}
-        </div>
+      )}
+
+      {/* FILTER */}
+      <div className="flex gap-3">
+
+        <input
+          className="border p-2 rounded-lg w-full"
+          placeholder="Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        {["all", "approved", "pending", "rejected"].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-3 py-2 rounded-lg text-sm ${
+              filter === f
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-100"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                {["Position", "Type", "Status", "Applicants", "Posted", ""].map((h, i) => (
-                  <th key={i} className="text-left px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-widest">
+      {/* TABLE */}
+      <div className="bg-white border rounded-2xl overflow-hidden">
+
+        <table className="w-full text-sm">
+
+          <thead className="bg-gray-50">
+            <tr>
+              {["Job", "Type", "Status", "Applicants", "Posted", "Actions"].map(
+                (h) => (
+                  <th
+                    key={h}
+                    className="text-left px-5 py-3 text-xs text-gray-500 font-semibold"
+                  >
                     {h}
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(j => (
-                <tr key={j.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition">
-                  <td className="px-6 py-4">
-                    <p className="text-gray-800 font-medium">{j.title}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">{j.location}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${typeColors[j.type] || "bg-gray-100 text-gray-500"}`}>
-                      {j.type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4"><StatusBadge status={j.status} /></td>
-                  <td className="px-6 py-4">
-                    <span className="text-gray-800 font-semibold">{j.applicants}</span>
-                    <span className="text-gray-400 text-xs ml-1">applicants</span>
-                  </td>
-                  <td className="px-6 py-4 text-gray-400 text-xs">{j.posted}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button onClick={() => goToApplicants(j.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-medium transition">
-                        <Ico d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" size={13} />
-                        Applicants
-                      </button>
-                      <button onClick={() => setConfirm(j)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg text-xs font-medium transition">
-                        <Ico d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" size={13} />
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-6 py-16 text-center text-gray-400 text-sm">
-                    No jobs found.
-                  </td>
-                </tr>
+                )
               )}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+
+          <tbody>
+            {jobs.map((j) => (
+              <tr key={j.id} className="border-t hover:bg-gray-50">
+
+                {/* JOB */}
+                <td className="px-5 py-4 align-middle">
+                  <p className="font-semibold text-gray-800">
+                    {j.title}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {j.location}
+                  </p>
+                </td>
+
+                {/* TYPE */}
+                <td className="px-5 py-4 align-middle">
+                  <span
+                    className={`px-2 py-1 rounded text-xs ${
+                      typeColors[j.type] ||
+                      "bg-gray-100 text-gray-500"
+                    }`}
+                  >
+                    {j.type}
+                  </span>
+                </td>
+
+                {/* STATUS */}
+                <td className="px-5 py-4 align-middle">
+                  <StatusBadge status={j.status} />
+                </td>
+
+                {/* APPLICANTS */}
+                <td className="px-5 py-4 align-middle font-semibold">
+                  {j.applicants}
+                </td>
+
+                {/* POSTED */}
+                <td className="px-5 py-4 text-gray-500 text-xs align-middle">
+                  {j.posted}
+                </td>
+
+                {/* ACTIONS */}
+                <td className="px-5 py-4 align-middle">
+                  <div className="flex gap-2">
+
+                    <button
+                      onClick={() => goToApplicants(j.id)}
+                      className="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-lg text-xs"
+                    >
+                      Applicants
+                    </button>
+
+                    <button
+                      onClick={() => openEdit(j)}
+                      className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => setConfirm(j)}
+                      className="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+
       </div>
+
     </div>
   );
 };

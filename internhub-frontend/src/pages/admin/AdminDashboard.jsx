@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { AdminLayout }     from "./components/Shared";
 
 import DashboardOverview   from "./pages/DashboardOverview";
-// import AdminProfile        from "./pages/AdminProfile";
+import AdminProfile        from "./pages/AdminProfile";
 import StudentManagement   from "./pages/StudentManagement";
 import CompanyManagement   from "./pages/CompanyManagement";
 import CompanyVerification from "./pages/CompanyVerification";
@@ -22,7 +22,7 @@ const AdminDashboard = () => (
   <AdminLayout>
     <Routes>
       <Route index                   element={<DashboardOverview />} />
-      {/* <Route path="profile"          element={<AdminProfile />} /> */}
+      <Route path="profile"          element={<AdminProfile />} />
       <Route path="students"         element={<StudentManagement />} />
       <Route path="companies"        element={<CompanyManagement />} />
       <Route path="verification"     element={<CompanyVerification />} />
