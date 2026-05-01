@@ -19,7 +19,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Student */}
-          <Route path="/student/dashboard" element={
+          <Route path="/student/dashboard/*" element={
             <ProtectedRoute allowedRoles={["student"]}>
               <StudentDashboard />
             </ProtectedRoute>

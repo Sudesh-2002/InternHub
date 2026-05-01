@@ -1,19 +1,25 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { Ico } from "./Shared";
-import { NAV, COMPANY } from "../data/mockData";
+import { NAV } from "../data/mockData";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Sidebar = ({ unread, isOpen, onClose }) => {
   const navigate = useNavigate();
+
   const [isVerified, setIsVerified] = useState(null);
+  const [company, setCompany] = useState({
+    name: "",
+    email: "",
+    initials: "",
+  });
+
   const handleLogout = () => {
-    // Replace with your actual logout logic, e.g. useAuth().logout()
     navigate("/login");
   };
 
   useEffect(() => {
-    const fetchStatus = async () => {
+    const fetchProfile = async () => {
       try {
         const res = await axios.get(
           "http://127.0.0.1:8000/api/company/profile",
@@ -24,13 +30,38 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
           }
         );
 
-        setIsVerified(res.data.data?.verification_status === "verified");
+        const data = res.data.data;
+
+        // ✅ Verification status
+        setIsVerified(data?.verification_status === "verified");
+
+        // ✅ Company name (fallback if empty)
+        const name = data?.company_name || "Company";
+
+        // ✅ Email (you may need to return this from backend user)
+        const email = data?.official_email || "no-email@company.com";
+
+        // ✅ Generate initials
+        const initials = name
+          .split(" ")
+          .map(w => w[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase();
+
+        setCompany({
+          name,
+          email,
+          initials,
+        });
+
       } catch (err) {
+        console.error("Profile fetch error:", err);
         setIsVerified(false);
       }
     };
 
-    fetchStatus();
+    fetchProfile();
   }, []);
 
   return (
@@ -42,21 +73,21 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
     `}>
 
       {/* Logo */}
-      <div className="px-6 py-5 flex items-center gap-2.5 border-b border-gray-100 flex-shrink-0">
-        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+      <div className="px-6 py-5 flex items-center gap-2.5 border-b border-gray-100">
+        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            stroke="white" strokeWidth="2.5">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
         </div>
-        <span className="font-bold text-gray-900 text-base">
+        <span className="font-bold text-gray-900">
           Intern<span className="text-indigo-500">Hub</span>
         </span>
       </div>
 
-      {/* Nav links */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {NAV.map(n => {
           const isPostJob = n.path === "/company/dashboard/post";
 
@@ -71,28 +102,22 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
             >
               <NavLink
                 to={n.path}
-                end={n.path === "/dashboard"}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
                     isActive
                       ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                      : "text-gray-500 hover:bg-gray-50"
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Ico
-                      d={n.icon}
-                      size={17}
-                      color="currentColor"
-                      sw={isActive ? 2.2 : 1.7}
-                    />
+                    <Ico d={n.icon} size={17} sw={isActive ? 2.2 : 1.7} />
                     {n.label}
 
                     {n.id === "notifs" && unread > 0 && (
-                      <span className="ml-auto w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                      <span className="ml-auto w-5 h-5 bg-indigo-600 text-white text-xs rounded-full flex items-center justify-center">
                         {unread}
                       </span>
                     )}
@@ -100,9 +125,8 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
                 )}
               </NavLink>
 
-              {/* Lock badge */}
               {isPostJob && isVerified === false && (
-                <div className="text-[10px] text-red-500 ml-9 -mt-1">
+                <div className="text-[10px] text-red-500 ml-9">
                   Verification required
                 </div>
               )}
@@ -111,23 +135,28 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
         })}
       </nav>
 
-      {/* User card + Logout */}
-      <div className="px-3 py-4 border-t border-gray-100 flex-shrink-0">
-        <div className="flex items-center gap-3 px-3 py-2 mb-1">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-            {COMPANY.initials}
+      {/* ✅ USER CARD (DYNAMIC) */}
+      <div className="px-3 py-4 border-t">
+        <div className="flex items-center gap-3 px-3 py-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+            {company.initials || "C"}
           </div>
+
           <div className="overflow-hidden">
-            <p className="text-xs font-semibold text-gray-800 truncate">{COMPANY.name}</p>
-            <p className="text-xs text-gray-400 truncate">{COMPANY.email}</p>
+            <p className="text-xs font-semibold truncate">
+              {company.name || "Loading..."}
+            </p>
+            <p className="text-xs text-gray-400 truncate">
+              {company.email || "Loading..."}
+            </p>
           </div>
         </div>
-        <button onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition">
-          <Ico
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"
-            size={17} color="currentColor" sw={1.8}
-          />
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl"
+        >
+          <Ico d="M17 16l4-4m0 0l-4-4m4 4H7" size={17} />
           Logout
         </button>
       </div>

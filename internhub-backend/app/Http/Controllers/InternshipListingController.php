@@ -1,5 +1,7 @@
 <?php
 
+// app/Http/Controllers/InternshipListingController.php
+
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
@@ -11,38 +13,100 @@ use Illuminate\Support\Facades\Auth;
 
 class InternshipListingController extends Controller
 {
-    // ── GET /company/internships ─────────────────────────────────────────────
-    // Returns all listings for the authenticated company
+    // ── COMPANY: Get own internships ──────────────────────────────────────────
     public function index(Request $request): JsonResponse
     {
         $query = InternshipListing::forCompany(Auth::id())
             ->withCount('applications')
             ->latest();
 
-        // Optional status filter: ?status=approved
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Optional search: ?search=frontend
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        $listings = $query->paginate(15);
-
-        return response()->json($listings);
+        return response()->json($query->paginate(15));
     }
 
-    // ── POST /company/internships ────────────────────────────────────────────
-    // Creates a new listing (status defaults to 'pending')
+    // ── STUDENT: Browse approved internships ──────────────────────────────────
+    //
+    // IMPORTANT: We do NOT use with('company') here because the 'company'
+    // relationship returns a full User object, which React cannot render directly.
+    // Instead we join the company_profiles table and return a flat string field
+    // called 'company_name' so the frontend never receives a nested object.
+    //
+    public function browse(Request $request): JsonResponse
+    {
+        $query = InternshipListing::approved()
+            ->select('internship_listings.*')
+            ->leftJoin('company_profiles', 'company_profiles.user_id', '=', 'internship_listings.company_id')
+            ->selectRaw(
+                'COALESCE(company_profiles.company_name, company_profiles.registered_name, (
+                    SELECT name FROM users WHERE users.id = internship_listings.company_id
+                )) AS company_name'
+            )
+            ->latest('internship_listings.created_at');
+
+        // Search by title or company name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('internship_listings.title', 'like', "%{$search}%")
+                  ->orWhere('company_profiles.company_name', 'like', "%{$search}%")
+                  ->orWhereExists(function ($sub) use ($search) {
+                      $sub->selectRaw(1)
+                          ->from('users')
+                          ->whereColumn('users.id', 'internship_listings.company_id')
+                          ->where('users.name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter by location
+        if ($request->filled('location')) {
+            $query->where('internship_listings.location', $request->location);
+        }
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('internship_listings.type', $request->type);
+        }
+
+        $paginated = $query->paginate(6);
+
+        // Transform: ensure all fields are primitives (no nested objects)
+        $paginated->getCollection()->transform(function ($item) {
+            return [
+                'id'           => $item->id,
+                'title'        => $item->title,
+                'company_name' => $item->company_name ?? 'Unknown Company',
+                'location'     => $item->location,
+                'type'         => $item->type,
+                'salary'       => $item->salary,
+                'deadline'     => $item->deadline?->toDateString(),
+                'requirements' => $item->requirements,
+                'description'  => $item->description,
+                'duration'     => $item->duration,
+                'vacancies'    => $item->vacancies,
+                'status'       => $item->status,
+                'created_at'   => $item->created_at?->toDateString(),
+            ];
+        });
+
+        return response()->json($paginated);
+    }
+
+    // ── COMPANY: Create internship ─────────────────────────────────────────────
     public function store(StoreInternshipRequest $request): JsonResponse
     {
         $company = Auth::user()->companyProfile;
 
         if (!$company || $company->verification_status !== 'verified') {
             return response()->json([
-                'message' => 'Only verified companies can post internships.'
+                'message' => 'Only verified companies can post internships.',
             ], 403);
         }
 
@@ -58,18 +122,14 @@ class InternshipListingController extends Controller
         ], 201);
     }
 
-    // ── GET /company/internships/{id} ────────────────────────────────────────
+    // ── COMPANY: Show single ───────────────────────────────────────────────────
     public function show(InternshipListing $internshipListing): JsonResponse
     {
         $this->authorizeOwner($internshipListing);
-
-        return response()->json(
-            $internshipListing->loadCount('applications')
-        );
+        return response()->json($internshipListing->loadCount('applications'));
     }
 
-    // ── PUT /company/internships/{id} ────────────────────────────────────────
-    // Companies can only edit pending listings (approved listings are locked)
+    // ── COMPANY: Update ───────────────────────────────────────────────────────
     public function update(StoreInternshipRequest $request, InternshipListing $internshipListing): JsonResponse
     {
         $this->authorizeOwner($internshipListing);
@@ -88,17 +148,15 @@ class InternshipListingController extends Controller
         ]);
     }
 
-    // ── DELETE /company/internships/{id} ─────────────────────────────────────
+    // ── COMPANY: Delete ───────────────────────────────────────────────────────
     public function destroy(InternshipListing $internshipListing): JsonResponse
     {
         $this->authorizeOwner($internshipListing);
-
-        $internshipListing->delete(); // soft delete
-
+        $internshipListing->delete();
         return response()->json(['message' => 'Listing deleted successfully.']);
     }
 
-    // ── Helper ───────────────────────────────────────────────────────────────
+    // ── Private ───────────────────────────────────────────────────────────────
     private function authorizeOwner(InternshipListing $listing): void
     {
         abort_if($listing->company_id !== Auth::id(), 403, 'Unauthorized.');
