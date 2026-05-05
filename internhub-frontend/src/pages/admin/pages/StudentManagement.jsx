@@ -29,8 +29,8 @@ const apiFetch = (url, opts = {}) =>
    SECTION BLOCK (used inside modal)
 ───────────────────────────────────────── */
 const DetailBlock = ({ label, children }) => (
-  <div className="bg-white/[0.03] border border-white/5 rounded-xl p-3.5">
-    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">{label}</p>
+  <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5">
+    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">{label}</p>
     {children}
   </div>
 );
@@ -73,7 +73,7 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
       {loading && (
         <div className="space-y-3 animate-pulse py-2">
           {[72, 48, 48, 80].map((h, i) => (
-            <div key={i} className="rounded-xl bg-white/5" style={{ height: h }} />
+            <div className="rounded-xl bg-gray-100" style={{ height: h }} />
           ))}
         </div>
       )}
@@ -91,12 +91,12 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
           <div className="flex items-center gap-4">
             <Avatar name={s.name} size={14} />
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-base truncate">{s.name}</h3>
-              <p className="text-zinc-400 text-sm">{s.email}</p>
+              <h3 className="text-gray-900 font-bold text-base truncate">{s.name}</h3>
+              <p className="text-gray-500 text-sm">{s.email}</p>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <Badge status={s.status} />
                 {s.location && (
-                  <span className="text-xs text-zinc-500">{s.location}</span>
+                  <span className="text-xs text-gray-500">{s.location}</span>
                 )}
               </div>
             </div>
@@ -109,9 +109,9 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
               ["Applications",  s.applications_count ?? 0],
               ["Phone",         s.phone              ?? "—"],
             ].map(([k, v]) => (
-              <div key={k} className="bg-white/[0.03] rounded-xl p-3 text-center">
-                <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">{k}</p>
-                <p className="text-zinc-200 text-sm font-semibold">{v}</p>
+              <div key={k} className="bg-gray-50 rounded-xl p-3 text-center">
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{k}</p>
+                <p className="text-gray-700 text-sm font-semibold">{v}</p>
               </div>
             ))}
           </div>
@@ -119,7 +119,7 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
           {/* Summary */}
           {s.summary && (
             <DetailBlock label="Summary">
-              <p className="text-zinc-300 text-sm leading-relaxed">{s.summary}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">{s.summary}</p>
             </DetailBlock>
           )}
 
@@ -129,7 +129,7 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
               <div className="flex flex-wrap gap-1.5">
                 {s.skills.map((sk) => (
                   <span key={sk}
-                    className="px-2.5 py-1 bg-violet-500/10 text-violet-300 text-xs font-semibold rounded-lg ring-1 ring-violet-500/20">
+                    className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-semibold rounded-lg ring-1 ring-indigo-200">
                     {sk}
                   </span>
                 ))}
@@ -143,9 +143,9 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
               <div className="space-y-2">
                 {s.education.map((e, i) => (
                   <div key={i} className="text-sm">
-                    <p className="text-zinc-200 font-semibold">{e.degree}</p>
-                    <p className="text-zinc-400 text-xs">{e.university}</p>
-                    <p className="text-zinc-600 text-xs">
+                    <p className="text-gray-800 font-semibold">{e.degree}</p>
+                    <p className="text-gray-500 text-xs">{e.university}</p>
+                    <p className="text-gray-400 text-xs">
                       {e.start} – {e.end ?? "Present"}
                       {e.gpa ? ` · GPA: ${e.gpa}` : ""}
                     </p>
@@ -161,10 +161,10 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
               <div className="space-y-2">
                 {s.experience.map((ex, i) => (
                   <div key={i} className="text-sm">
-                    <p className="text-zinc-200 font-semibold">{ex.title}</p>
-                    <p className="text-zinc-400 text-xs">{ex.company} · {ex.duration}</p>
+                    <p className="text-gray-800 font-semibold">{ex.title}</p>
+                    <p className="text-gray-500 text-xs">{ex.company} · {ex.duration}</p>
                     {ex.description && (
-                      <p className="text-zinc-500 text-xs mt-0.5 leading-relaxed">{ex.description}</p>
+                      <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">{ex.description}</p>
                     )}
                   </div>
                 ))}
@@ -178,16 +178,16 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
               <div className="space-y-2">
                 {s.projects.map((pr, i) => (
                   <div key={i} className="text-sm">
-                    <p className="text-zinc-200 font-semibold">{pr.title}</p>
+                    <p className="text-gray-800 font-semibold">{pr.title}</p>
                     {pr.description && (
-                      <p className="text-zinc-500 text-xs mt-0.5 leading-relaxed">{pr.description}</p>
+                      <p className="text-gray-400 text-xs mt-0.5 leading-relaxed">{pr.description}</p>
                     )}
                     {pr.tech && (
-                      <p className="text-zinc-600 text-xs mt-0.5">Tech: {pr.tech}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Tech: {pr.tech}</p>
                     )}
                     {pr.github && (
                       <a href={pr.github} target="_blank" rel="noreferrer"
-                        className="text-xs text-violet-400 hover:underline mt-0.5 block">
+                        className="text-xs text-indigo-600 hover:underline mt-0.5 block">
                         {pr.github}
                       </a>
                     )}
@@ -207,7 +207,7 @@ const StudentDetail = ({ studentId, onClose, onStatusChange }) => {
                   ["Portfolio", s.portfolio],
                 ].filter(([, v]) => v).map(([label, url]) => (
                   <div key={label} className="flex items-center gap-2 text-xs">
-                    <span className="text-zinc-500 w-16">{label}</span>
+                    <span className="text-gray-500 w-16">{label}</span>
                     <a href={url} target="_blank" rel="noreferrer"
                       className="text-violet-400 hover:underline truncate max-w-[200px]">
                       {url}
@@ -357,14 +357,14 @@ const StudentManagement = () => {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Total",     value: stats.total,     color: "text-white"       },
-          { label: "Active",    value: stats.active,    color: "text-emerald-400" },
-          { label: "Suspended", value: stats.suspended, color: "text-red-400"     },
-          { label: "Inactive",  value: stats.inactive,  color: "text-zinc-400"    },
+          { label: "Total",     value: stats.total,     color: "text-gray-900"       },
+          { label: "Active",    value: stats.active,    color: "text-emerald-600" },
+          { label: "Suspended", value: stats.suspended, color: "text-red-600"     },
+          { label: "Inactive",  value: stats.inactive,  color: "text-gray-400"    },
         ].map((s) => (
-          <div key={s.label} className="bg-[#161b27] border border-white/5 rounded-2xl p-4 text-center">
+          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-zinc-600 font-medium mt-0.5">{s.label}</p>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
@@ -381,7 +381,7 @@ const StudentManagement = () => {
 
       {/* Error */}
       {pageError && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-4">
+        <div className="rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm p-4">
           {pageError}
         </div>
       )}
@@ -393,7 +393,7 @@ const StudentManagement = () => {
               <Tr key={i}>
                 {Array.from({ length: 7 }).map((__, j) => (
                   <Td key={j}>
-                    <div className="h-4 bg-white/5 rounded animate-pulse w-3/4" />
+                    <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4" />
                   </Td>
                 ))}
               </Tr>
@@ -402,7 +402,7 @@ const StudentManagement = () => {
           ? (
             <Tr>
               <Td colSpan={7}>
-                <p className="text-center text-zinc-600 py-8 text-sm">No students found.</p>
+                <p className="text-center text-gray-400 py-8 text-sm">No students found.</p>
               </Td>
             </Tr>
           )
@@ -412,8 +412,8 @@ const StudentManagement = () => {
                 <div className="flex items-center gap-3">
                   <Avatar name={s.name} size={9} />
                   <div>
-                    <p className="text-white font-semibold text-sm">{s.name}</p>
-                    <p className="text-zinc-500 text-xs">{s.email}</p>
+                    <p className="text-gray-800 font-semibold text-sm">{s.name}</p>
+                    <p className="text-gray-500 text-xs">{s.email}</p>
                   </div>
                 </div>
               </Td>
@@ -421,9 +421,7 @@ const StudentManagement = () => {
               <Td><span className="text-xs">{s.degree ?? "—"}</span></Td>
               <Td><Badge status={s.status} /></Td>
               <Td><span className="text-xs">{s.registered}</span></Td>
-              <Td>
-                <span className="text-xs text-zinc-400">{s.applications_count}</span>
-              </Td>
+              <Td><span className="text-xs text-gray-500">{s.applications_count}</span></Td>
               <Td>
                 <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                   <Btn variant="ghost" size="sm" onClick={() => setSelectedId(s.id)}>
@@ -446,7 +444,7 @@ const StudentManagement = () => {
 
       {/* Pagination info */}
       {pagination && pagination.total > pagination.per_page && (
-        <p className="text-xs text-zinc-600 text-center pt-1">
+        <p className="text-xs text-gray-400 text-center pt-1">
           Showing {pagination.from}–{pagination.to} of {pagination.total} students
         </p>
       )}

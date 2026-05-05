@@ -102,6 +102,7 @@ class AdminCompanyVerificationController extends Controller
         $base = [
             'id'          => $c->id,
             'name'        => $c->company_name,
+            'logo_url'    => $c->logo_url,
             'email'       => $c->hr_email ?? $c->official_email ?? $c->user?->email,
             'industry'    => $c->industry,
             'website'     => $c->website,

@@ -97,9 +97,19 @@ class AuthController extends Controller
     // GET LOGGED IN USER
     public function me(Request $request)
     {
-        $user = $request->user()->load(
-            $request->user()->role === 'student' ? 'studentProfile' : 'companyProfile'
-        );
+        $user = $request->user();
+
+        // Load the correct profile relation based on role
+        $relation = match ($user->role) {
+            'student' => 'studentProfile',
+            'company' => 'companyProfile',
+            'admin'   => 'adminProfile',
+            default   => null,
+        };
+
+        if ($relation) {
+            $user->load($relation);
+        }
 
         return response()->json(['user' => $user]);
     }

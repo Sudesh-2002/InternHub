@@ -44,7 +44,7 @@ const Notices = () => {
     toast("Notice deleted","success");
   };
 
-  const typeColor = { general:"text-sky-400 bg-sky-500/10", maintenance:"text-amber-400 bg-amber-500/10", "internship alerts":"text-violet-400 bg-violet-500/10", "university updates":"text-emerald-400 bg-emerald-500/10" };
+  const typeColor = { general:"text-sky-700 bg-sky-50", maintenance:"text-amber-700 bg-amber-50", "internship alerts":"text-indigo-700 bg-indigo-50", "university updates":"text-emerald-700 bg-emerald-50" };
 
   return (
     <Page>
@@ -69,20 +69,20 @@ const Notices = () => {
 
       <div className="grid gap-4">
         {notices.map(n => (
-          <div key={n.id} className="bg-[#161b27] border border-white/5 rounded-2xl p-5 flex items-start gap-4">
-            <div className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex-shrink-0 ${typeColor[n.type] || "text-zinc-400 bg-zinc-500/10"}`}>
+          <div key={n.id} className="bg-white border border-gray-100 rounded-2xl p-5 flex items-start gap-4 shadow-sm">
+            <div className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex-shrink-0 ${typeColor[n.type] || "text-gray-500 bg-gray-100"}`}>
               {n.type}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-white font-semibold text-sm">{n.title}</h3>
+                <h3 className="text-gray-900 font-semibold text-sm">{n.title}</h3>
                 <div className="flex gap-2 flex-shrink-0">
                   <Badge status={n.status} />
                 </div>
               </div>
-              <p className="text-zinc-500 text-sm mt-1 leading-relaxed">{n.body}</p>
+              <p className="text-gray-500 text-sm mt-1 leading-relaxed">{n.body}</p>
               {n.scheduled && (
-                <p className="text-xs text-violet-400 mt-2 flex items-center gap-1">
+                <p className="text-xs text-indigo-600 mt-2 flex items-center gap-1">
                   <Ico d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" size={12} />
                   Scheduled: {n.scheduled}
                 </p>

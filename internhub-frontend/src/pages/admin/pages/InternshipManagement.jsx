@@ -165,11 +165,11 @@ const InternshipManagement = () => {
           <div className="space-y-4">
 
             <div>
-              <h3 className="text-white font-bold text-base">
+              <h3 className="text-gray-900 font-bold text-base">
                 {selected.title}
               </h3>
 
-              <p className="text-zinc-400 text-sm mt-0.5">
+              <p className="text-gray-500 text-sm mt-0.5">
                 {selected.company} · {selected.location}
               </p>
 
@@ -190,13 +190,13 @@ const InternshipManagement = () => {
               ].map(([k, v]) => (
                 <div
                   key={k}
-                  className="bg-white/[0.03] rounded-xl p-3"
+                  className="bg-gray-50 rounded-xl p-3"
                 >
-                  <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">
                     {k}
                   </p>
 
-                  <p className="text-zinc-200 text-sm font-medium">
+                  <p className="text-gray-700 text-sm font-medium">
                     {v}
                   </p>
                 </div>
@@ -205,11 +205,11 @@ const InternshipManagement = () => {
             </div>
 
             <div>
-              <p className="text-sm text-zinc-400 mb-2">
+              <p className="text-sm text-gray-500 mb-2">
                 Description
               </p>
 
-              <div className="bg-white/[0.03] rounded-xl p-4 text-sm text-zinc-300">
+              <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700">
                 {selected.description || "No description"}
               </div>
             </div>
@@ -242,36 +242,20 @@ const InternshipManagement = () => {
       <div className="grid grid-cols-4 gap-4">
 
         {[
-          {
-            label: "Total",
-            value: stats.total || 0,
-            color: "text-white",
-          },
-          {
-            label: "Approved",
-            value: stats.approved || 0,
-            color: "text-emerald-400",
-          },
-          {
-            label: "Pending",
-            value: stats.pending || 0,
-            color: "text-amber-400",
-          },
-          {
-            label: "Flagged",
-            value: stats.flagged || 0,
-            color: "text-orange-400",
-          },
+          { label: "Total",    value: stats.total    || 0, color: "text-gray-900"    },
+          { label: "Approved", value: stats.approved  || 0, color: "text-emerald-600" },
+          { label: "Pending",  value: stats.pending   || 0, color: "text-amber-600"   },
+          { label: "Flagged",  value: stats.flagged   || 0, color: "text-orange-600"  },
         ].map((s) => (
           <div
             key={s.label}
-            className="bg-[#161b27] border border-white/5 rounded-2xl p-4 text-center"
+            className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm"
           >
             <p className={`text-2xl font-bold ${s.color}`}>
               {s.value}
             </p>
 
-            <p className="text-xs text-zinc-600 font-medium mt-0.5">
+            <p className="text-xs text-gray-500 font-medium mt-0.5">
               {s.label}
             </p>
           </div>
@@ -304,7 +288,7 @@ const InternshipManagement = () => {
 
       {/* Table */}
       {loading ? (
-        <div className="text-zinc-400 text-sm">
+        <div className="text-gray-400 text-sm">
           Loading internships...
         </div>
       ) : (
@@ -325,7 +309,7 @@ const InternshipManagement = () => {
               onClick={() => setSelected(j)}
             >
               <Td>
-                <p className="text-white font-semibold text-sm">
+                <p className="text-gray-800 font-semibold text-sm">
                   {j.title}
                 </p>
               </Td>
@@ -353,7 +337,7 @@ const InternshipManagement = () => {
               </Td>
 
               <Td>
-                <span className="text-white font-semibold text-sm">
+                <span className="text-gray-800 font-semibold text-sm">
                   {j.applications}
                 </span>
               </Td>

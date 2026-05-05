@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("token", res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
-    return res.data.user; // return user so we can redirect by role
+    return res.data.user;
   };
 
   const register = async (formData) => {
@@ -43,11 +43,19 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  /** Re-fetch /me and update user state (call after avatar upload etc.) */
+  const refreshUser = async () => {
+    try {
+      const res = await API.get("/me");
+      setUser(res.data.user);
+    } catch (_) {}
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);

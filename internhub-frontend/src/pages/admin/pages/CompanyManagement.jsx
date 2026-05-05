@@ -26,20 +26,20 @@ const useDebounce = (value, delay = 400) => {
 const DocRow = ({ label, doc }) => (
   <div className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${
     doc?.uploaded
-      ? "bg-white/[0.03] border-white/5"
-      : "bg-red-500/5 border-red-500/15"
+      ? "bg-gray-50 border-gray-100"
+      : "bg-red-50 border-red-100"
   }`}>
     <div className="flex items-center gap-2.5">
       <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-        doc?.uploaded ? "bg-emerald-500/15" : "bg-red-500/15"
+        doc?.uploaded ? "bg-emerald-50" : "bg-red-50"
       }`}>
         <Ico
           d={doc?.uploaded ? "M20 6L9 17l-5-5" : "M18 6L6 18M6 6l12 12"}
           size={11} color=""
-          className={doc?.uploaded ? "text-emerald-400" : "text-red-400"}
+          className={doc?.uploaded ? "text-emerald-600" : "text-red-500"}
         />
       </div>
-      <span className="text-sm text-zinc-300 font-medium">{label}</span>
+      <span className="text-sm text-gray-700 font-medium">{label}</span>
     </div>
     {doc?.uploaded && doc?.url ? (
       <a href={doc.url} target="_blank" rel="noreferrer">
@@ -99,8 +99,8 @@ const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
           <Avatar name={company.name} size={14} />
         )}
         <div>
-          <h3 className="text-white font-bold text-base">{company.name}</h3>
-          <p className="text-zinc-400 text-sm">{company.email}</p>
+          <h3 className="text-gray-800 font-bold text-base">{company.name}</h3>
+          <p className="text-gray-500 text-sm">{company.email}</p>
           <div className="mt-1.5"><Badge status={company.status} /></div>
         </div>
       </div>
@@ -116,16 +116,16 @@ const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
           ["Listings",     company.listings_count ?? 0],
           ["Registered",   company.registered   ?? "—"],
         ].map(([k, v]) => (
-          <div key={k} className="bg-white/[0.03] rounded-xl p-3">
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">{k}</p>
-            <p className="text-zinc-200 text-sm font-medium truncate">{v}</p>
+          <div key={k} className="bg-gray-50 rounded-xl p-3">
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{k}</p>
+            <p className="text-gray-700 text-sm font-medium truncate">{v}</p>
           </div>
         ))}
       </div>
 
       {/* Documents */}
       <div>
-        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-3">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
           Uploaded Documents
         </p>
         <div className="space-y-2">
@@ -247,14 +247,14 @@ const CompanyManagement = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total",     value: stats.total,     color: "text-white" },
-          { label: "Verified",  value: stats.verified,  color: "text-emerald-400" },
-          { label: "Pending",   value: stats.pending,   color: "text-amber-400" },
-          { label: "Suspended", value: stats.suspended, color: "text-red-400" },
+          { label: "Total",     value: stats.total,     color: "text-gray-900" },
+          { label: "Verified",  value: stats.verified,  color: "text-emerald-600" },
+          { label: "Pending",   value: stats.pending,   color: "text-amber-600" },
+          { label: "Suspended", value: stats.suspended, color: "text-red-600" },
         ].map(s => (
-          <div key={s.label} className="bg-[#161b27] border border-white/5 rounded-2xl p-4 text-center">
+          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
             <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-zinc-600 font-medium mt-0.5">{s.label}</p>
+            <p className="text-xs text-gray-500 font-medium mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
@@ -271,7 +271,7 @@ const CompanyManagement = () => {
 
       {/* Loading state */}
       {fetching ? (
-        <div className="flex items-center justify-center py-24 text-zinc-600 text-sm gap-3">
+        <div className="flex items-center justify-center py-24 text-gray-400 text-sm gap-3">
           <span className="w-5 h-5 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin" />
           Loading companies…
         </div>
@@ -289,14 +289,14 @@ const CompanyManagement = () => {
                       <Avatar name={c.name} size={9} />
                     )}
                     <div>
-                      <p className="text-white font-semibold text-sm">{c.name}</p>
-                      <p className="text-zinc-500 text-xs">{c.email}</p>
+                      <p className="text-gray-800 font-semibold text-sm">{c.name}</p>
+                      <p className="text-gray-500 text-xs">{c.email}</p>
                     </div>
                   </div>
                 </Td>
                 <Td><span className="text-xs">{c.industry ?? "—"}</span></Td>
                 <Td><Badge status={c.status} /></Td>
-                <Td><span className="text-white font-semibold">{c.listings_count ?? 0}</span></Td>
+                <Td><span className="text-gray-800 font-semibold">{c.listings_count ?? 0}</span></Td>
                 <Td><span className="text-xs">{c.registered}</span></Td>
                 <Td>
                   <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
@@ -327,7 +327,7 @@ const CompanyManagement = () => {
           {/* Pagination */}
           {meta && meta.last_page > 1 && (
             <div className="flex items-center justify-between pt-2">
-              <p className="text-xs text-zinc-600">
+              <p className="text-xs text-gray-500">
                 Showing {meta.from}–{meta.to} of {meta.total} companies
               </p>
               <div className="flex gap-2">
@@ -335,7 +335,7 @@ const CompanyManagement = () => {
                   disabled={page <= 1} onClick={() => setPage(p => p - 1)}>
                   ← Prev
                 </Btn>
-                <span className="px-3 py-1.5 text-xs text-zinc-400 bg-[#161b27] border border-white/5 rounded-lg">
+                <span className="px-3 py-1.5 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg">
                   {meta.current_page} / {meta.last_page}
                 </span>
                 <Btn variant="secondary" size="sm"

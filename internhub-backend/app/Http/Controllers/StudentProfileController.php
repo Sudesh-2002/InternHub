@@ -35,9 +35,8 @@ class StudentProfileController extends Controller
             'linkedin'    => $profile->linkedin,
             'portfolio'   => $profile->portfolio,
             'resume_name' => $profile->resume_name,
-            'resume_url'  => $profile->resume_path
-                                ? Storage::url($profile->resume_path)
-                                : null,
+            'resume_url'  => $profile->resume_url,   // model accessor: asset('storage/...')
+            'avatar_url'  => $profile->avatar_url,   // model accessor: asset('storage/...')
         ]);
     }
 
@@ -121,8 +120,8 @@ class StudentProfileController extends Controller
         $profile = StudentProfile::firstOrCreate(['user_id' => $user->id]);
 
         // Delete old resume if it exists
-        if ($profile->resume_path && Storage::exists($profile->resume_path)) {
-            Storage::delete($profile->resume_path);
+        if ($profile->resume_path && Storage::disk('public')->exists($profile->resume_path)) {
+            Storage::disk('public')->delete($profile->resume_path);
         }
 
         $file = $request->file('resume');
@@ -150,12 +149,58 @@ class StudentProfileController extends Controller
         $profile = StudentProfile::where('user_id', $user->id)->first();
 
         if ($profile && $profile->resume_path) {
-            if (Storage::exists($profile->resume_path)) {
-                Storage::delete($profile->resume_path);
+            if (Storage::disk('public')->exists($profile->resume_path)) {
+                Storage::disk('public')->delete($profile->resume_path);
             }
             $profile->update(['resume_path' => null, 'resume_name' => null]);
         }
 
         return response()->json(['message' => 'Resume deleted successfully.']);
+    }
+
+    /**
+     * POST /api/profile/avatar
+     * Upload or replace the student's profile avatar image.
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // 2 MB max
+        ]);
+
+        $user    = Auth::user();
+        $profile = StudentProfile::firstOrCreate(['user_id' => $user->id]);
+
+        // Delete old avatar if it exists
+        if ($profile->avatar_path && Storage::disk('public')->exists($profile->avatar_path)) {
+            Storage::disk('public')->delete($profile->avatar_path);
+        }
+
+        $path = $request->file('avatar')->store("avatars/{$user->id}", 'public');
+        $profile->update(['avatar_path' => $path]);
+
+        return response()->json([
+            'message'    => 'Avatar uploaded successfully.',
+            'avatar_url' => Storage::url($path),
+        ]);
+    }
+
+    /**
+     * DELETE /api/profile/avatar
+     * Remove the student's profile avatar.
+     */
+    public function deleteAvatar()
+    {
+        $user    = Auth::user();
+        $profile = StudentProfile::where('user_id', $user->id)->first();
+
+        if ($profile && $profile->avatar_path) {
+            if (Storage::disk('public')->exists($profile->avatar_path)) {
+                Storage::disk('public')->delete($profile->avatar_path);
+            }
+            $profile->update(['avatar_path' => null]);
+        }
+
+        return response()->json(['message' => 'Avatar deleted successfully.']);
     }
 }

@@ -1,5 +1,8 @@
 import axios from "axios";
 
+// NOTE: The raw `axios` import below is kept intentionally —
+// it is used to create the shared API instance. Do not remove.
+
 const API = axios.create({
   baseURL: "http://127.0.0.1:8000/api",
   headers: {
@@ -46,6 +49,15 @@ export const uploadAvatar = (file) => {
 
 export const deleteAvatar = () =>
   API.delete("/profile/avatar").then((res) => res.data);
+
+export const getJobs = (params) =>
+  API.get("/student/internships", { params });
+
+export const applyJob = (formData) => {
+  return API.post("/student/apply", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
 
 // ── Company: Internship Listings ──────────────────────────────────────────────
 

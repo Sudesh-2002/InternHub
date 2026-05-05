@@ -19,6 +19,9 @@ class AdminProfile extends Model
         'timezone',
     ];
 
+    // Expose avatar_url accessor in JSON (/me response)
+    protected $appends = ['avatar_url'];
+
     /* ── Boot: auto-generate admin_id on create ─── */
 
     protected static function booted(): void

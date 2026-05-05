@@ -68,7 +68,7 @@ class AdminDashboardController extends Controller
     private function recentStudents(): array
     {
         return User::students()
-            ->with('studentProfile:user_id,location')
+            ->with('studentProfile:user_id,location,avatar_path')
             ->select('id', 'name', 'email', 'created_at')
             ->latest()
             ->take(4)
@@ -77,6 +77,7 @@ class AdminDashboardController extends Controller
                 'id'         => $u->id,
                 'name'       => $u->name,
                 'email'      => $u->email,
+                'avatar_url' => optional($u->studentProfile)->avatar_url,
                 'university' => optional($u->studentProfile)->location ?? '—',
                 'date'       => $u->created_at->format('M d'),
             ])

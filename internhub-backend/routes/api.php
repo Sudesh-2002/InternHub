@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminInternshipController;
 use App\Http\Controllers\CompanyManageJobsController;
+use App\Http\Controllers\ApplicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,6 +32,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put   ('/profile',        [StudentProfileController::class, 'update']);
     Route::post  ('/profile/resume', [StudentProfileController::class, 'uploadResume']);
     Route::delete('/profile/resume', [StudentProfileController::class, 'deleteResume']);
+    Route::post  ('/profile/avatar', [StudentProfileController::class, 'uploadAvatar']);
+    Route::delete('/profile/avatar', [StudentProfileController::class, 'deleteAvatar']);
+
+    Route::prefix('student')->middleware('role:student')->group(function () {
+        // Browse internships
+        Route::get('/internships', [InternshipListingController::class, 'browse']);
+        Route::post('/apply', [ApplicationController::class, 'apply']);
+        Route::get('/applications/check/{id}', [ApplicationController::class, 'myApplication']);
+    });
 
     // ── Company Routes ────────────────────────────────
     Route::prefix('company')->middleware('role:company')->group(function () {
