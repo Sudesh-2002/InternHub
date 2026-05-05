@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminInternshipController;
 use App\Http\Controllers\CompanyManageJobsController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\AdminApplicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -58,6 +59,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/manage-jobs', [CompanyManageJobsController::class, 'index']);
         Route::delete('/manage-jobs/{id}', [CompanyManageJobsController::class, 'destroy']);
         Route::put('/manage-jobs/{id}', [CompanyManageJobsController::class, 'update']);
+
+        // Applications received by this company
+        Route::get  ('/applications',              [ApplicationController::class, 'companyIndex']);
+        Route::patch('/applications/{id}/status',  [ApplicationController::class, 'companyUpdateStatus']);
     });
 
     // ── Admin Routes ──────────────────────────────────
@@ -89,5 +94,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get   ('/internships',             [AdminInternshipController::class, 'index']);
         Route::patch ('/internships/{id}/status',[AdminInternshipController::class, 'updateStatus']);
         Route::delete('/internships/{id}',        [AdminInternshipController::class, 'destroy']);
+
+        // Applications
+        Route::get   ('/applications',           [AdminApplicationController::class, 'index']);
+        Route::patch ('/applications/{id}/flag', [AdminApplicationController::class, 'toggleFlag']);
     });
 });

@@ -5,6 +5,7 @@ import { Routes, Route, NavLink, useNavigate, useLocation, Navigate } from "reac
 import { useAuth } from "../../context/AuthContext";
 import Icon from "./components/Icon";
 import { icons, MOCK_NOTIFICATIONS } from "./components/data/mockData";
+import LogoutConfirmModal from "../../components/LogoutConfirmModal";
 
 import DashboardHome   from "./pages/DashboardHome";
 import BrowseJobs      from "./pages/BrowseJobs";
@@ -25,11 +26,19 @@ const NAV = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 const StudentDashboard = () => {
-  const { user, logout }            = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, logout }              = useAuth();
+  const [sidebarOpen,   setSidebarOpen]   = useState(false);
+  const [showLogout,    setShowLogout]    = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
   const notifCount = MOCK_NOTIFICATIONS.length;
+
+  const confirmLogout = async () => {
+    setLogoutLoading(true);
+    await logout();
+    navigate("/login");
+  };
 
   // Highlight "Browse Jobs" when on job-detail or apply sub-routes
   const browseActive = [
@@ -116,7 +125,13 @@ const StudentDashboard = () => {
               <p className="text-xs text-gray-400 truncate">{user?.email}</p>
             </div>
           </div>
-          <button onClick={logout}
+          <LogoutConfirmModal
+            isOpen={showLogout}
+            onCancel={() => setShowLogout(false)}
+            onConfirm={confirmLogout}
+            loading={logoutLoading}
+          />
+          <button onClick={() => setShowLogout(true)}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition">
             <Icon d={icons.logout} size={17} />
             Logout

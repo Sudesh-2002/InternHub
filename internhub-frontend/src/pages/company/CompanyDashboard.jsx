@@ -28,14 +28,13 @@ import Applicants     from "./pages/Applicants";
 import CompanyProfile from "./pages/CompanyProfile";
 import Notifications  from "./pages/Notifications";
 
-import { MOCK_JOBS, MOCK_APPLICANTS, MOCK_NOTIFS } from "./data/mockData";
+import { MOCK_JOBS, MOCK_NOTIFS } from "./data/mockData";
 
 export default function CompanyDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [jobs, setJobs]               = useState(MOCK_JOBS);
-  const [applicants, setApplicants]   = useState(MOCK_APPLICANTS);
-  const [notifs, setNotifs]           = useState(MOCK_NOTIFS);
-  const { toasts, add: toast }        = useToast();
+  const [jobs, setJobs]             = useState(MOCK_JOBS);
+  const [notifs, setNotifs]         = useState(MOCK_NOTIFS);
+  const { toasts, add: toast }      = useToast();
 
   const unread = notifs.filter(n => !n.read).length;
 
@@ -86,7 +85,7 @@ export default function CompanyDashboard() {
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <Routes>
             <Route index element={
-              <DashboardHome jobs={jobs} applicants={applicants} />
+              <DashboardHome jobs={jobs} />
             } />
             <Route path="post" element={
               <PostJob
@@ -102,12 +101,7 @@ export default function CompanyDashboard() {
               />
             } />
             <Route path="applicants" element={
-              <Applicants
-                applicants={applicants}
-                setApplicants={setApplicants}
-                jobs={jobs}
-                toast={toast}
-              />
+              <Applicants toast={toast} />
             } />
             <Route path="profile" element={
               <CompanyProfile toast={toast} />

@@ -4,6 +4,7 @@ import { NAV } from "../data/mockData";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import axios from "axios";
+import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
 
 const Sidebar = ({ unread, isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -16,7 +17,11 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
     initials: "",
   });
 
-  const handleLogout = async () => {
+  const [showLogout,    setShowLogout]    = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+
+  const confirmLogout = async () => {
+    setLogoutLoading(true);
     await logout();
     navigate("/login");
   };
@@ -159,8 +164,14 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
           </div>
         </div>
 
+        <LogoutConfirmModal
+          isOpen={showLogout}
+          onCancel={() => setShowLogout(false)}
+          onConfirm={confirmLogout}
+          loading={logoutLoading}
+        />
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogout(true)}
           className="w-full flex items-center gap-3 px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl"
         >
           <Ico d="M17 16l4-4m0 0l-4-4m4 4H7" size={17} />
