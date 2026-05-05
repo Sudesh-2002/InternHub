@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put   ('/profile',        [StudentProfileController::class, 'update']);
     Route::post  ('/profile/resume', [StudentProfileController::class, 'uploadResume']);
     Route::delete('/profile/resume', [StudentProfileController::class, 'deleteResume']);
+    Route::post  ('/profile/avatar', [StudentProfileController::class, 'uploadAvatar']);
+    Route::delete('/profile/avatar', [StudentProfileController::class, 'deleteAvatar']);
 
     Route::prefix('student')->middleware('role:student')->group(function () {
         // Browse internships

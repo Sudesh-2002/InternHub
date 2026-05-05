@@ -325,7 +325,23 @@ const CompanyProfile = ({ toast }) => {
         return;
       }
 
+      const json = await res.json();
+
+      // Update logo preview from server URL so it persists across refresh
+      if (json.data?.logo_url) {
+        setId(p => ({
+          ...p,
+          existingLogoUrl: json.data.logo_url,
+          logoPreview:     json.data.logo_url,
+          logoFile:        null,   // clear pending file
+        }));
+      }
+
       toast?.("Company profile saved successfully!", "success");
+
+      // Go back to step 1 and scroll to top
+      setStep(1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error(err);
       toast?.("Network error. Please try again.", "error");

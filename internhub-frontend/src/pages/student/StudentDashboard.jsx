@@ -105,8 +105,11 @@ const StudentDashboard = () => {
         {/* User + Logout */}
         <div className="px-3 py-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-              {user?.name?.charAt(0) || "S"}
+            <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+              {user?.student_profile?.avatar_url
+                ? <img src={user.student_profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                : user?.name?.charAt(0) || "S"
+              }
             </div>
             <div className="overflow-hidden">
               <p className="text-xs font-semibold text-gray-800 truncate">{user?.name}</p>

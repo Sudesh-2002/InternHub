@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Icon from "../../student/components/Icon";
 import { icons } from "../../student/components/data/mockData";
 import Toast from "../../../components/Toast";
+import { useAuth } from "../../../context/AuthContext";
 
 const apiFetch = async (url, options = {}) => {
   const csrf = decodeURIComponent(
@@ -141,6 +142,7 @@ const AdminProfile = () => {
   const [toast,   setToast]   = useState(null);
   const [saving,  setSaving]  = useState(false);
   const avatarRef = useRef();
+  const { refreshUser } = useAuth();
 
   /* ── Fetch from API ── */
   const loadProfile = () => {
@@ -224,6 +226,7 @@ const AdminProfile = () => {
       fd.append("avatar", file);
       const res = await apiFetch("/admin/profile/avatar", { method: "POST", body: fd });
       setData((prev) => ({ ...prev, avatar_url: res.avatar_url }));
+      await refreshUser(); // update sidebar avatar
       showToast("Profile picture updated.", "success");
     } catch (e) {
       showToast(e.message, "error");

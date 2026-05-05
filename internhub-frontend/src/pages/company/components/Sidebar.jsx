@@ -2,10 +2,12 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Ico } from "./Shared";
 import { NAV } from "../data/mockData";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
 import axios from "axios";
 
 const Sidebar = ({ unread, isOpen, onClose }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [isVerified, setIsVerified] = useState(null);
   const [company, setCompany] = useState({
@@ -14,7 +16,8 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
     initials: "",
   });
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -53,6 +56,7 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
           name,
           email,
           initials,
+          logoUrl: data?.logo_url ?? null,
         });
 
       } catch (err) {
@@ -138,8 +142,11 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
       {/* ✅ USER CARD (DYNAMIC) */}
       <div className="px-3 py-4 border-t">
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-            {company.initials || "C"}
+          <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+            {company.logoUrl
+              ? <img src={company.logoUrl} alt="logo" className="w-full h-full object-cover" />
+              : company.initials || "C"
+            }
           </div>
 
           <div className="overflow-hidden">

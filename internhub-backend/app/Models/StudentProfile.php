@@ -20,6 +20,7 @@ class StudentProfile extends Model
         'portfolio',
         'resume_path',
         'resume_name',
+        'avatar_path',
     ];
 
     protected $casts = [
@@ -28,6 +29,9 @@ class StudentProfile extends Model
         'experience' => 'array',
         'projects'   => 'array',
     ];
+
+    // Expose avatar_url accessor in JSON (/me response)
+    protected $appends = ['avatar_url', 'resume_url'];
 
     public function user()
     {
@@ -41,6 +45,16 @@ class StudentProfile extends Model
     {
         return $this->resume_path
             ? asset('storage/' . $this->resume_path)
+            : null;
+    }
+
+    /**
+     * Full public URL for the avatar image.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->avatar_path
+            ? asset('storage/' . $this->avatar_path)
             : null;
     }
 }

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Icon from "../components/Icon";
 import { icons } from "../components/data/mockData";
-import { fetchProfile, updateProfile, uploadResume, deleteResume } from "../../../services/api";
+import { fetchProfile, updateProfile, uploadResume, deleteResume, uploadAvatar, deleteAvatar } from "../../../services/api";
 import Toast from "../../../components/Toast";
+import { useAuth } from "../../../context/AuthContext";
 
 // ── Reusable section wrapper ──────────────────────────────────────────────────
 const Section = ({ title, action, children }) => (
@@ -71,14 +72,16 @@ const Textarea = (props) => (
 
 // ══════════════════════════════════════════════════════════════════════════════
 const ProfilePage = ({ user }) => {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
-  const [modal, setModal]   = useState(null);
-  const [draft, setDraft]   = useState({});
-  const [toast, setToast]   = useState(null); // { message, type }
-  const [saving, setSaving] = useState(false);
+  const [data, setData]         = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState(null);
+  const [modal, setModal]       = useState(null);
+  const [draft, setDraft]       = useState({});
+  const [toast, setToast]       = useState(null);
+  const [saving, setSaving]     = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const avatarRef               = useRef();
+  const { refreshUser }         = useAuth();
 
   // ── Load profile on mount ──
   useEffect(() => {
@@ -170,6 +173,39 @@ const ProfilePage = ({ user }) => {
     closeModal();
   };
 
+  // ── Avatar handlers ──
+  const handleAvatarUpload = async (file) => {
+    if (!file) return;
+    setSaving(true);
+    showToast("Uploading…", "loading");
+    try {
+      const res = await uploadAvatar(file);
+      setData((prev) => ({ ...prev, avatar_url: res.avatar_url }));
+      await refreshUser(); // update sidebar
+      showToast("Profile photo updated.", "success");
+    } catch {
+      showToast("Avatar upload failed.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    if (!window.confirm("Remove your profile photo?")) return;
+    setSaving(true);
+    showToast("Removing…", "loading");
+    try {
+      await deleteAvatar();
+      setData((prev) => ({ ...prev, avatar_url: null }));
+      await refreshUser(); // update sidebar
+      showToast("Profile photo removed.", "success");
+    } catch {
+      showToast("Failed to remove photo.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   // ── Resume helpers ──
   const handleResumeUpload = async (file) => {
     if (!file) return;
@@ -234,12 +270,36 @@ const ProfilePage = ({ user }) => {
       <div className="bg-white border border-gray-100 rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
 
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
-            <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold">
-              {data.name?.charAt(0) || "S"}
+          {/* Avatar with upload overlay */}
+          <div className="relative flex-shrink-0 group">
+            <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-sm">
+              {data.avatar_url
+                ? <img src={data.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                : data.name?.charAt(0) || "S"
+              }
             </div>
+            {/* Hover overlay — click triggers file input */}
+            <label className="absolute inset-0 flex flex-col items-center justify-center gap-0.5
+                              bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100
+                              transition cursor-pointer">
+              <Icon d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 12l-4-4-4 4M12 8v8" size={15} stroke="white" />
+              <span className="text-white text-[9px] font-semibold">Change</span>
+              <input
+                ref={avatarRef}
+                type="file"
+                accept="image/jpeg,image/png,image/jpg,image/webp"
+                className="hidden"
+                onChange={(e) => { if (e.target.files[0]) handleAvatarUpload(e.target.files[0]); }}
+              />
+            </label>
           </div>
+          {/* Remove photo link below avatar */}
+          {data.avatar_url && (
+            <button onClick={handleAvatarDelete}
+              className="text-[10px] text-red-400 hover:text-red-600 transition -mt-3 sm:hidden">
+              Remove photo
+            </button>
+          )}
 
           {/* Info */}
           <div className="flex-1 min-w-0">

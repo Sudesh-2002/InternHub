@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
 
 export const Ico = ({ d, size = 18, sw = 1.7, color = "currentColor", fill = "none", className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color}
@@ -246,51 +247,52 @@ export const Page = ({ children, className = "" }) => (
 );
 
 // ── Sidebar nav items ─────────────────────────────────────────────────────────
+// Items with disabled:true are not yet implemented — they render greyed out.
 const NAV_GROUPS = [
   {
     label: "Overview",
     items: [
-      { to: "/admin/dashboard",          label: "Dashboard",       icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", end: true },
-      { to: "/admin/dashboard/profile",  label: "Admin Profile",   icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-      { to: "/admin/dashboard/notifications", label: "Notifications", icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0", badge: 5 },
+      { to: "/admin/dashboard",               label: "Dashboard",      icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", end: true },
+      { to: "/admin/dashboard/profile",        label: "Admin Profile",  icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
+      { to: "/admin/dashboard/notifications",  label: "Notifications",  icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0", disabled: true },
     ],
   },
   {
     label: "Users",
     items: [
-      { to: "/admin/dashboard/students",  label: "Students",       icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-      { to: "/admin/dashboard/companies", label: "Companies",      icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" },
-      { to: "/admin/dashboard/verification", label: "Verification", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z", badge: 3 },
-      { to: "/admin/dashboard/roles",     label: "Roles & Perms",  icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z" },
+      { to: "/admin/dashboard/students",       label: "Students",       icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
+      { to: "/admin/dashboard/companies",      label: "Companies",      icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" },
+      { to: "/admin/dashboard/verification",   label: "Verification",   icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
+      { to: "/admin/dashboard/roles",          label: "Roles & Perms",  icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z", disabled: true },
     ],
   },
   {
     label: "Internships",
     items: [
-      { to: "/admin/dashboard/internships",   label: "Internships",  icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" },
-      { to: "/admin/dashboard/applications",  label: "Applications", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" },
-      { to: "/admin/dashboard/moderation",    label: "Moderation",   icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
+      { to: "/admin/dashboard/internships",    label: "Internships",    icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" },
+      { to: "/admin/dashboard/applications",   label: "Applications",   icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" },
+      { to: "/admin/dashboard/moderation",     label: "Moderation",     icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z", disabled: true },
     ],
   },
   {
     label: "Communication",
     items: [
-      { to: "/admin/dashboard/notices",   label: "Announcements",  icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
-      { to: "/admin/dashboard/messages",  label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
-      { to: "/admin/dashboard/complaints",label: "Complaints",     icon: "M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", badge: 2 },
+      { to: "/admin/dashboard/notices",        label: "Announcements",  icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
+      { to: "/admin/dashboard/messages",       label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z", disabled: true },
+      { to: "/admin/dashboard/complaints",     label: "Complaints",     icon: "M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", disabled: true },
     ],
   },
   {
     label: "Analytics",
     items: [
-      { to: "/admin/dashboard/reports",   label: "Reports",        icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2" },
-      { to: "/admin/dashboard/audit",     label: "Audit Logs",     icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
+      { to: "/admin/dashboard/reports",        label: "Reports",        icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2" },
+      { to: "/admin/dashboard/audit",          label: "Audit Logs",     icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01", disabled: true },
     ],
   },
   {
     label: "System",
     items: [
-      { to: "/admin/dashboard/settings",  label: "Settings",       icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
+      { to: "/admin/dashboard/settings",       label: "Settings",       icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z", disabled: true },
     ],
   },
 ];
@@ -299,9 +301,11 @@ const NAV_GROUPS = [
 export const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const { logout, user } = useAuth();
+  const { toasts, add: toast, remove } = useToast();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -339,6 +343,16 @@ export const AdminLayout = ({ children }) => {
               <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-2 mb-1.5">{group.label}</p>
               <div className="space-y-0.5">
                 {group.items.map(item => (
+                  item.disabled ? (
+                    // Not yet implemented — render greyed out, not clickable
+                    <div key={item.to}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-700 cursor-not-allowed select-none"
+                      title="Coming soon">
+                      <Ico d={item.icon} size={15} sw={1.7} />
+                      <span className="flex-1 truncate">{item.label}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-700 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
+                    </div>
+                  ) : (
                   <NavLink key={item.to} to={item.to} end={item.end}
                     className={({ isActive }) =>
                       `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
@@ -349,12 +363,8 @@ export const AdminLayout = ({ children }) => {
                     }>
                     <Ico d={item.icon} size={15} sw={1.7} />
                     <span className="flex-1 truncate">{item.label}</span>
-                    {item.badge && (
-                      <span className="bg-violet-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                        {item.badge}
-                      </span>
-                    )}
                   </NavLink>
+                  )
                 ))}
               </div>
             </div>
@@ -364,10 +374,15 @@ export const AdminLayout = ({ children }) => {
         {/* Admin user */}
         <div className="px-3 py-3 border-t border-white/5 flex-shrink-0">
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition cursor-pointer">
-            <div className="w-7 h-7 rounded-lg bg-violet-700 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">AD</div>
+            <div className="w-7 h-7 rounded-lg bg-violet-700 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 overflow-hidden">
+              {user?.admin_profile?.avatar_url
+                ? <img src={user.admin_profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                : user?.name?.slice(0, 2).toUpperCase() || "AD"
+              }
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-xs font-semibold truncate">Admin</p>
-              <p className="text-zinc-600 text-[10px] truncate">admin@internhub.io</p>
+              <p className="text-white text-xs font-semibold truncate">{user?.name || "Admin"}</p>
+              <p className="text-zinc-600 text-[10px] truncate">{user?.email || "admin@internhub.io"}</p>
             </div>
           </div>
           <button onClick={handleLogout}
@@ -387,12 +402,12 @@ export const AdminLayout = ({ children }) => {
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <NavLink to="/admin/notifications"
+            <NavLink to="/admin/dashboard/notifications"
               className="relative w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition">
               <Ico d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" size={16} />
               <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-violet-400 rounded-full" />
             </NavLink>
-            <NavLink to="/admin/settings"
+            <NavLink to="/admin/dashboard/settings"
               className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-zinc-500 hover:text-white transition">
               <Ico d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" size={16} />
             </NavLink>
@@ -404,6 +419,9 @@ export const AdminLayout = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Global toast notifications for admin */}
+      <Toast toasts={toasts} remove={remove} />
     </div>
   );
 };
