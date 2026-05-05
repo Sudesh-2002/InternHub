@@ -1,5 +1,6 @@
 // src/components/LogoutConfirmModal.jsx
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * Beautiful logout confirmation dialog — works for admin, student & company.
@@ -21,7 +22,7 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[999] flex items-center justify-center p-4"
       style={{ fontFamily: "'Inter', 'DM Sans', sans-serif" }}
@@ -115,7 +116,8 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
         @keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
         @keyframes slideUp { from { opacity:0; transform:translateY(20px) scale(0.96) } to { opacity:1; transform:translateY(0) scale(1) } }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 };
 

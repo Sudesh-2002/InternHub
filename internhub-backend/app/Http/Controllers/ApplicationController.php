@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\StudentProfile;
 use App\Models\InternshipListing;
+use App\Models\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,9 +52,20 @@ class ApplicationController extends Controller
             'student_id'            => Auth::id(),
             'internship_listing_id' => $request->internship_listing_id,
             'resume_path'           => $resumePath,
-            'cover_note'            => $request->cover_note,
             'status'                => 'pending',
         ]);
+
+        // Notify the company
+        $listing = InternshipListing::find($request->internship_listing_id);
+        if ($listing) {
+            $studentName = Auth::user()->name;
+            Notification::notify(
+                $listing->company_id,
+                'application',
+                '🎓 New Application Received',
+                "$studentName applied for your listing \"" . $listing->title . "\"."
+            );
+        }
 
         return response()->json([
             'message' => 'Application submitted successfully.',
@@ -124,6 +136,26 @@ class ApplicationController extends Controller
         }
 
         $app->update(['status' => $request->status]);
+
+        // Notify the student
+        $titleMap = [
+            'accepted' => '🎉 Application Accepted',
+            'rejected' => '❌ Application Rejected',
+            'reviewed' => '👀 Application Under Review',
+            'pending'  => '⏳ Application Pending',
+        ];
+        $msgMap = [
+            'accepted' => 'Congratulations! Your application for "' . $app->internship?->title . '" has been accepted.',
+            'rejected' => 'Unfortunately, your application for "' . $app->internship?->title . '" was not selected.',
+            'reviewed' => 'Your application for "' . $app->internship?->title . '" is being reviewed by the company.',
+            'pending'  => 'Your application for "' . $app->internship?->title . '" has been moved back to pending.',
+        ];
+        Notification::notify(
+            $app->student_id,
+            'application',
+            $titleMap[$request->status] ?? 'Application Updated',
+            $msgMap[$request->status] ?? 'Your application status has changed.'
+        );
 
         return response()->json(['message' => 'Status updated.', 'status' => $app->status]);
     }

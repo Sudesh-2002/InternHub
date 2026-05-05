@@ -14,6 +14,10 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminInternshipController;
 use App\Http\Controllers\CompanyManageJobsController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\CompanyDashboardController;
+use App\Http\Controllers\CompanyNotificationController;
+use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\StudentNotificationController;
 use App\Http\Controllers\AdminApplicationController;
 
 Route::get('/user', function (Request $request) {
@@ -41,10 +45,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/internships', [InternshipListingController::class, 'browse']);
         Route::post('/apply', [ApplicationController::class, 'apply']);
         Route::get('/applications/check/{id}', [ApplicationController::class, 'myApplication']);
+
+        // Student dashboard & applications
+        Route::get('/dashboard',    [StudentDashboardController::class, 'index']);
+        Route::get('/applications', [StudentDashboardController::class, 'applications']);
+
+        // Student notifications
+        Route::get  ('/notifications',           [StudentNotificationController::class, 'index']);
+        Route::patch('/notifications/read-all',  [StudentNotificationController::class, 'markAllRead']);
+        Route::patch('/notifications/{id}/read', [StudentNotificationController::class, 'markRead']);
     });
 
     // ── Company Routes ────────────────────────────────
     Route::prefix('company')->middleware('role:company')->group(function () {
+        Route::get   ('/dashboard', [CompanyDashboardController::class, 'index']);
         Route::get   ('/profile',  [CompanyProfileController::class, 'show']);
         Route::post  ('/profile',  [CompanyProfileController::class, 'store']);
         Route::patch ('/profile',  [CompanyProfileController::class, 'update']);
@@ -63,6 +77,11 @@ Route::middleware('auth:sanctum')->group(function () {
         // Applications received by this company
         Route::get  ('/applications',              [ApplicationController::class, 'companyIndex']);
         Route::patch('/applications/{id}/status',  [ApplicationController::class, 'companyUpdateStatus']);
+
+        // Notifications
+        Route::get  ('/notifications',             [CompanyNotificationController::class, 'index']);
+        Route::patch('/notifications/read-all',    [CompanyNotificationController::class, 'markAllRead']);
+        Route::patch('/notifications/{id}/read',   [CompanyNotificationController::class, 'markRead']);
     });
 
     // ── Admin Routes ──────────────────────────────────

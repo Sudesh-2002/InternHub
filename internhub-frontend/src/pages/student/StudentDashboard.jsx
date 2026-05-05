@@ -1,10 +1,11 @@
 // src/pages/student/StudentDashboard.jsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 import Icon from "./components/Icon";
-import { icons, MOCK_NOTIFICATIONS } from "./components/data/mockData";
+import { icons } from "./components/data/mockData";
 import LogoutConfirmModal from "../../components/LogoutConfirmModal";
 
 import DashboardHome   from "./pages/DashboardHome";
@@ -30,9 +31,16 @@ const StudentDashboard = () => {
   const [sidebarOpen,   setSidebarOpen]   = useState(false);
   const [showLogout,    setShowLogout]    = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [notifCount,    setNotifCount]    = useState(0);
   const navigate  = useNavigate();
   const location  = useLocation();
-  const notifCount = MOCK_NOTIFICATIONS.length;
+
+  // Fetch real unread count on mount
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/api/student/notifications", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    }).then(r => setNotifCount(r.data.unread_count ?? 0)).catch(() => {});
+  }, []);
 
   const confirmLogout = async () => {
     setLogoutLoading(true);
@@ -180,7 +188,7 @@ const StudentDashboard = () => {
             {/* Other pages */}
             <Route path="applications"  element={<MyApplications />} />
             <Route path="profile"       element={<ProfilePage user={user} />} />
-            <Route path="notifications" element={<Notifications />} />
+            <Route path="notifications" element={<Notifications setUnread={setNotifCount} />} />
 
             {/* Catch-all → home */}
             <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
