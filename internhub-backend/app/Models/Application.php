@@ -10,7 +10,8 @@ class Application extends Model
         'internship_listing_id',
         'student_id',
         'resume_path',
-        'status'
+        'status',
+        'is_flagged',
     ];
 
     // Internship listing

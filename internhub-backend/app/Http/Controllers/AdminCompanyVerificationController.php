@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\CompanyProfile;
 use App\Models\CompanyVerification;
+use App\Models\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -85,6 +86,24 @@ class AdminCompanyVerificationController extends Controller
 
         $company = CompanyProfile::with(['user:id,name,email', 'verification'])
             ->findOrFail($id);
+
+        // Notify the company
+        $msgMap = [
+            'approve'  => ['Your company has been verified! You can now post internship listings.', 'verification'],
+            'reject'   => ['Your company verification was rejected. Please review the admin notes and reapply.', 'verification'],
+            'resubmit' => ['Admin has requested additional information for your company verification.', 'verification'],
+        ];
+        [$msg, $type] = $msgMap[$request->action];
+        Notification::notify(
+            $company->user_id,
+            $type,
+            match($request->action) {
+                'approve'  => '✅ Company Verified',
+                'reject'   => '❌ Verification Rejected',
+                'resubmit' => '🔄 Resubmission Requested',
+            },
+            $msg
+        );
 
         return response()->json([
             'message' => match($request->action) {

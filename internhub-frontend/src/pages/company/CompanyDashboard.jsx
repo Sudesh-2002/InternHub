@@ -1,21 +1,8 @@
 // src/pages/company/CompanyDashboard.jsx
-//
-// Mount this inside a <BrowserRouter> (or your app-level router).
-// Add these routes in your router config:
-//
-//   <Route path="/dashboard" element={<CompanyDashboard />}>
-//     <Route index          element={<DashboardHome  ... />} />
-//     <Route path="post"        element={<PostJob        ... />} />
-//     <Route path="jobs"        element={<ManageJobs     ... />} />
-//     <Route path="applicants"  element={<Applicants     ... />} />
-//     <Route path="profile"     element={<CompanyProfile ... />} />
-//     <Route path="notifs"      element={<Notifications  ... />} />
-//   </Route>
-//
-// OR use the self-contained <Routes> below (no parent router config needed).
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import axios from "axios";
 
 import Sidebar  from "./components/Sidebar";
 import Topbar   from "./components/Topbar";
@@ -28,16 +15,23 @@ import Applicants     from "./pages/Applicants";
 import CompanyProfile from "./pages/CompanyProfile";
 import Notifications  from "./pages/Notifications";
 
-import { MOCK_JOBS, MOCK_APPLICANTS, MOCK_NOTIFS } from "./data/mockData";
+import { MOCK_JOBS } from "./data/mockData";
+
+const API_BASE   = "http://127.0.0.1:8000/api";
+const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 export default function CompanyDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [jobs, setJobs]               = useState(MOCK_JOBS);
-  const [applicants, setApplicants]   = useState(MOCK_APPLICANTS);
-  const [notifs, setNotifs]           = useState(MOCK_NOTIFS);
+  const [unread, setUnread]           = useState(0);
   const { toasts, add: toast }        = useToast();
 
-  const unread = notifs.filter(n => !n.read).length;
+  // Fetch unread notification count from backend on mount
+  useEffect(() => {
+    axios.get(`${API_BASE}/company/notifications`, { headers: authHeader() })
+      .then(r => setUnread(r.data.unread_count ?? 0))
+      .catch(() => {});
+  }, []);
 
   return (
     <div
@@ -86,7 +80,7 @@ export default function CompanyDashboard() {
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <Routes>
             <Route index element={
-              <DashboardHome jobs={jobs} applicants={applicants} />
+              <DashboardHome jobs={jobs} />
             } />
             <Route path="post" element={
               <PostJob
@@ -102,18 +96,13 @@ export default function CompanyDashboard() {
               />
             } />
             <Route path="applicants" element={
-              <Applicants
-                applicants={applicants}
-                setApplicants={setApplicants}
-                jobs={jobs}
-                toast={toast}
-              />
+              <Applicants toast={toast} />
             } />
             <Route path="profile" element={
               <CompanyProfile toast={toast} />
             } />
             <Route path="notifs" element={
-              <Notifications notifs={notifs} setNotifs={setNotifs} />
+              <Notifications setUnread={setUnread} />
             } />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/company/dashboard" replace />} />

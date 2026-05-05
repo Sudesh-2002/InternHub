@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -101,6 +102,15 @@ class AdminStudentController extends Controller
 
         $user = User::students()->findOrFail($id);
         $user->update(['status' => $request->status]);
+
+        // Notify student of account status change
+        $messages = [
+            'suspended' => ['🚫 Account Suspended',  'Your InternHub account has been suspended by an administrator. Please contact support.'],
+            'active'    => ['✅ Account Reactivated', 'Your InternHub account has been reactivated. You can now browse and apply for internships.'],
+            'inactive'  => ['😴 Account Deactivated', 'Your InternHub account has been marked as inactive by an administrator.'],
+        ];
+        [$title, $msg] = $messages[$request->status] ?? ['Account Updated', 'Your account status has been updated.'];
+        Notification::notify($user->id, 'account', $title, $msg);
 
         return response()->json([
             'success' => true,

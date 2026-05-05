@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InternshipListing;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -87,6 +88,26 @@ class AdminInternshipController extends Controller
 
         $job->status = $validated['status'];
         $job->save();
+
+        // Notify the company
+        $titleMap = [
+            'approved' => '✅ Listing Approved',
+            'rejected' => '❌ Listing Rejected',
+            'pending'  => '⏳ Listing Under Review',
+            'flagged'  => '🚩 Listing Flagged',
+        ];
+        $msgMap = [
+            'approved' => "Your internship listing \"" . $job->title . "\" has been approved and is now live.",
+            'rejected' => "Your internship listing \"" . $job->title . "\" has been rejected by the admin.",
+            'pending'  => "Your internship listing \"" . $job->title . "\" is under review.",
+            'flagged'  => "Your internship listing \"" . $job->title . "\" has been flagged for review.",
+        ];
+        Notification::notify(
+            $job->company_id,
+            'listing',
+            $titleMap[$validated['status']] ?? 'Listing Updated',
+            $msgMap[$validated['status']] ?? 'Your listing status has been updated.'
+        );
 
         return response()->json([
             'success' => true,

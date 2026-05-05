@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
+import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
 
 export const Ico = ({ d, size = 18, sw = 1.7, color = "currentColor", fill = "none", className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color}
@@ -301,18 +302,27 @@ const NAV_GROUPS = [
 
 // ── Admin Layout (Sidebar + Topbar) ───────────────────────────────────────────
 export const AdminLayout = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen,  setSidebarOpen]  = useState(false);
+  const [showLogout,   setShowLogout]   = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toasts, add: toast, remove } = useToast();
 
-  const handleLogout = async () => {
+  const confirmLogout = async () => {
+    setLogoutLoading(true);
     await logout();
     navigate("/login");
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+      <LogoutConfirmModal
+        isOpen={showLogout}
+        onCancel={() => setShowLogout(false)}
+        onConfirm={confirmLogout}
+        loading={logoutLoading}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@600;700;800&display=swap');
         @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -387,7 +397,7 @@ export const AdminLayout = ({ children }) => {
               <p className="text-gray-400 text-[10px] truncate">{user?.email || "admin@internhub.io"}</p>
             </div>
           </div>
-          <button onClick={handleLogout}
+          <button onClick={() => setShowLogout(true)}
             className="w-full flex items-center gap-3 px-3 py-2 mt-1 rounded-xl text-sm font-medium text-red-500/70 hover:text-red-400 hover:bg-red-500/5 transition">
             <Ico d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" size={15} />
             Logout

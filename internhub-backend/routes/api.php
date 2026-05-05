@@ -14,6 +14,11 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminInternshipController;
 use App\Http\Controllers\CompanyManageJobsController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\CompanyDashboardController;
+use App\Http\Controllers\CompanyNotificationController;
+use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\StudentNotificationController;
+use App\Http\Controllers\AdminApplicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,10 +45,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/internships', [InternshipListingController::class, 'browse']);
         Route::post('/apply', [ApplicationController::class, 'apply']);
         Route::get('/applications/check/{id}', [ApplicationController::class, 'myApplication']);
+
+        // Student dashboard & applications
+        Route::get('/dashboard',    [StudentDashboardController::class, 'index']);
+        Route::get('/applications', [StudentDashboardController::class, 'applications']);
+
+        // Student notifications
+        Route::get  ('/notifications',           [StudentNotificationController::class, 'index']);
+        Route::patch('/notifications/read-all',  [StudentNotificationController::class, 'markAllRead']);
+        Route::patch('/notifications/{id}/read', [StudentNotificationController::class, 'markRead']);
     });
 
     // ── Company Routes ────────────────────────────────
     Route::prefix('company')->middleware('role:company')->group(function () {
+        Route::get   ('/dashboard', [CompanyDashboardController::class, 'index']);
         Route::get   ('/profile',  [CompanyProfileController::class, 'show']);
         Route::post  ('/profile',  [CompanyProfileController::class, 'store']);
         Route::patch ('/profile',  [CompanyProfileController::class, 'update']);
@@ -58,6 +73,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/manage-jobs', [CompanyManageJobsController::class, 'index']);
         Route::delete('/manage-jobs/{id}', [CompanyManageJobsController::class, 'destroy']);
         Route::put('/manage-jobs/{id}', [CompanyManageJobsController::class, 'update']);
+
+        // Applications received by this company
+        Route::get  ('/applications',              [ApplicationController::class, 'companyIndex']);
+        Route::patch('/applications/{id}/status',  [ApplicationController::class, 'companyUpdateStatus']);
+
+        // Notifications
+        Route::get  ('/notifications',             [CompanyNotificationController::class, 'index']);
+        Route::patch('/notifications/read-all',    [CompanyNotificationController::class, 'markAllRead']);
+        Route::patch('/notifications/{id}/read',   [CompanyNotificationController::class, 'markRead']);
     });
 
     // ── Admin Routes ──────────────────────────────────
@@ -89,5 +113,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get   ('/internships',             [AdminInternshipController::class, 'index']);
         Route::patch ('/internships/{id}/status',[AdminInternshipController::class, 'updateStatus']);
         Route::delete('/internships/{id}',        [AdminInternshipController::class, 'destroy']);
+
+        // Applications
+        Route::get   ('/applications',           [AdminApplicationController::class, 'index']);
+        Route::patch ('/applications/{id}/flag', [AdminApplicationController::class, 'toggleFlag']);
     });
 });
