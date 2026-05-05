@@ -35,12 +35,8 @@ class StudentProfileController extends Controller
             'linkedin'    => $profile->linkedin,
             'portfolio'   => $profile->portfolio,
             'resume_name' => $profile->resume_name,
-            'resume_url'  => $profile->resume_path
-                                ? Storage::url($profile->resume_path)
-                                : null,
-            'avatar_url'  => $profile->avatar_path
-                                ? Storage::url($profile->avatar_path)
-                                : null,
+            'resume_url'  => $profile->resume_url,   // model accessor: asset('storage/...')
+            'avatar_url'  => $profile->avatar_url,   // model accessor: asset('storage/...')
         ]);
     }
 

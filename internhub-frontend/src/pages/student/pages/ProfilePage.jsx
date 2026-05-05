@@ -503,18 +503,19 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
+
       {/* ── RESUME ── */}
       <Section title="Resume / CV">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-3">
           {data.resume_name ? (
-            <div className="flex items-center gap-3 flex-1 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
-              <Icon d={icons.apps} size={18} stroke="#6366f1" />
-              <span className="text-sm text-indigo-700 font-medium truncate">{data.resume_name}</span>
+            <div className="flex items-center gap-3 min-w-0 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3">
+              <Icon d={icons.apps} size={18} stroke="#6366f1" className="flex-shrink-0" />
+              <span className="text-sm text-indigo-700 font-medium truncate flex-1 min-w-0">{data.resume_name}</span>
             </div>
           ) : (
-            <div className="flex-1 text-sm text-gray-400 italic">No resume uploaded yet.</div>
+            <div className="text-sm text-gray-400 italic">No resume uploaded yet.</div>
           )}
-          <div className="flex gap-2 flex-shrink-0">
+          <div className="flex flex-wrap gap-2">
             {data.resume_url && (
               <>
                 <a href={data.resume_url} download={data.resume_name} target="_blank" rel="noreferrer"
@@ -537,6 +538,9 @@ const ProfilePage = ({ user }) => {
           </div>
         </div>
       </Section>
+
+
+
 
       {/* ══════════ MODALS ══════════ */}
 

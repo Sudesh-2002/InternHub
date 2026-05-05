@@ -30,7 +30,7 @@ const BarChart = ({ data, color = "#7c3aed" }) => {
               opacity: 0.7 + (i / data.length) * 0.3,
             }}
           />
-          <span className="text-[9px] text-zinc-600 font-medium">
+          <span className="text-[9px] text-gray-400 font-medium">
             {d.label}
           </span>
         </div>
@@ -169,7 +169,7 @@ const DashboardOverview = () => {
   if (loading) {
     return (
       <Page>
-        <div className="text-white">Loading dashboard...</div>
+        <div className="text-gray-500">Loading dashboard...</div>
       </Page>
     );
   }
@@ -179,24 +179,21 @@ const DashboardOverview = () => {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1
-            className="text-2xl font-bold text-white tracking-tight"
-            style={{ fontFamily: "Outfit, sans-serif" }}
-          >
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
             Dashboard Overview
           </h1>
 
-          <p className="text-zinc-500 text-sm mt-1">
+          <p className="text-gray-500 text-sm mt-1">
             Welcome back, Admin.
           </p>
         </div>
 
         <div className="text-right">
-          <p className="text-xs text-zinc-600 font-medium">
+          <p className="text-xs text-gray-500 font-medium">
             Last updated
           </p>
 
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-gray-600">
             {new Date().toLocaleString()}
           </p>
         </div>
@@ -212,14 +209,14 @@ const DashboardOverview = () => {
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-5">
         {/* Student registrations */}
-        <div className="bg-[#161b27] border border-white/5 rounded-2xl p-5">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
                 Student Registrations
               </p>
 
-              <p className="text-2xl font-bold text-white mt-1">
+              <p className="text-2xl font-bold text-gray-900 mt-1">
                 +
                 {studentChart.length
                   ? studentChart[studentChart.length - 1].value
@@ -237,14 +234,14 @@ const DashboardOverview = () => {
         </div>
 
         {/* Company Signups */}
-        <div className="bg-[#161b27] border border-white/5 rounded-2xl p-5">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
                 Company Sign-ups
               </p>
 
-              <p className="text-2xl font-bold text-white mt-1">
+              <p className="text-2xl font-bold text-gray-900 mt-1">
                 +
                 {companyChart.length
                   ? companyChart[companyChart.length - 1].value
@@ -265,15 +262,15 @@ const DashboardOverview = () => {
       {/* Lower Widgets */}
       <div className="grid lg:grid-cols-2 gap-5">
         {/* Awaiting verification */}
-        <div className="bg-[#161b27] border border-white/5 rounded-2xl p-5">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
               Awaiting Verification
             </p>
 
             <NavLink
               to="/admin/dashboard/verification"
-              className="text-xs text-violet-400 hover:text-violet-300 font-semibold transition"
+              className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold transition"
             >
               View all →
             </NavLink>
@@ -283,19 +280,20 @@ const DashboardOverview = () => {
             {awaitingVerification.map((company) => (
               <div
                 key={company.id}
-                className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0"
+                className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0"
               >
                 <Avatar
                   name={company.company_name}
+                  src={company.logo_url}
                   size={8}
                 />
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium truncate">
+                  <p className="text-sm text-gray-800 font-medium truncate">
                     {company.company_name}
                   </p>
 
-                  <p className="text-xs text-zinc-600">
+                  <p className="text-xs text-gray-500">
                     Submitted {company.submitted}
                   </p>
                 </div>
@@ -307,15 +305,15 @@ const DashboardOverview = () => {
         </div>
 
         {/* Recent Students */}
-        <div className="bg-[#161b27] border border-white/5 rounded-2xl p-5">
+        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
               Recent Registrations
             </p>
 
             <NavLink
               to="/admin/dashboard/students"
-              className="text-xs text-violet-400 hover:text-violet-300 font-semibold transition"
+              className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold transition"
             >
               View all →
             </NavLink>
@@ -325,16 +323,16 @@ const DashboardOverview = () => {
             {recentStudents.map((student) => (
               <div
                 key={student.id}
-                className="flex items-center gap-3 py-2 border-b border-white/5 last:border-0"
+                className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0"
               >
-                <Avatar name={student.name} size={8} />
+                <Avatar name={student.name} src={student.avatar_url} size={8} />
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium truncate">
+                  <p className="text-sm text-gray-800 font-medium truncate">
                     {student.name}
                   </p>
 
-                  <p className="text-xs text-zinc-600">
+                  <p className="text-xs text-gray-500">
                     {student.university} · {student.date}
                   </p>
                 </div>

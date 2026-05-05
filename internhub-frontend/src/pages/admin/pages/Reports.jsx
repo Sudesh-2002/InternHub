@@ -6,15 +6,15 @@ import { Page, SectionHeader, Btn, Ico } from "../components/Shared";
 const BarChart = ({ data, color, label }) => {
   const max = Math.max(...data.map(d => d.value));
   return (
-    <div className="bg-[#161b27] border border-white/5 rounded-2xl p-5">
-      <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-5">{label}</p>
+    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-5">{label}</p>
       <div className="flex items-end gap-2 h-32">
         {data.map((d, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-            <span className="text-[10px] text-zinc-600 font-semibold">{d.value}</span>
+            <span className="text-[10px] text-gray-500 font-semibold">{d.value}</span>
             <div className="w-full rounded-t-lg transition-all duration-700"
               style={{ height: `${Math.max((d.value / max) * 100, 4)}px`, background: color, opacity: 0.5 + (i/data.length)*0.5 }} />
-            <span className="text-[9px] text-zinc-600 font-medium">{d.label}</span>
+            <span className="text-[9px] text-gray-400 font-medium">{d.label}</span>
           </div>
         ))}
       </div>
@@ -28,12 +28,12 @@ const HBarChart = ({ data, color }) => {
     <div className="space-y-3">
       {data.map((d, i) => (
         <div key={i} className="flex items-center gap-3">
-          <span className="text-xs text-zinc-400 w-28 truncate flex-shrink-0">{d.label}</span>
-          <div className="flex-1 bg-white/5 rounded-full h-2 overflow-hidden">
+          <span className="text-xs text-gray-500 w-28 truncate flex-shrink-0">{d.label}</span>
+          <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
             <div className="h-full rounded-full transition-all duration-700"
               style={{ width: `${(d.value/max)*100}%`, background: color }} />
           </div>
-          <span className="text-xs text-zinc-500 w-8 text-right">{d.value}</span>
+          <span className="text-xs text-gray-400 w-8 text-right">{d.value}</span>
         </div>
       ))}
     </div>
@@ -77,7 +77,7 @@ const Reports = () => {
             <div className="flex gap-1">
               {["1m","3m","6m","1y"].map(p => (
                 <button key={p} onClick={() => setPeriod(p)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${period===p ? "bg-violet-600 text-white" : "bg-[#161b27] border border-white/5 text-zinc-500 hover:text-white"}`}>
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${period===p ? "bg-indigo-600 text-white" : "bg-white border border-gray-200 text-gray-500 hover:text-gray-700"}`}>
                   {p}
                 </button>
               ))}
@@ -97,10 +97,10 @@ const Reports = () => {
       {/* Summary stat tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {SUMMARY_STATS.map(s => (
-          <div key={s.label} className="bg-[#161b27] border border-white/5 rounded-2xl p-4 text-center">
+          <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
             <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-[10px] text-zinc-600 font-medium mt-0.5 leading-snug">{s.label}</p>
-            <p className="text-[10px] text-emerald-400 font-semibold mt-1">{s.delta}</p>
+            <p className="text-[10px] text-gray-500 font-medium mt-0.5 leading-snug">{s.label}</p>
+            <p className="text-[10px] text-emerald-600 font-semibold mt-1">{s.delta}</p>
           </div>
         ))}
       </div>
@@ -118,10 +118,10 @@ const Reports = () => {
       </div>
 
       {/* Popular fields */}
-      <div className="bg-[#161b27] border border-white/5 rounded-2xl p-6">
+      <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-5">
-          <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Most Popular Internship Fields</p>
-          <span className="text-xs text-zinc-600">By applications</span>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Most Popular Internship Fields</p>
+          <span className="text-xs text-gray-400">By applications</span>
         </div>
         <HBarChart data={POPULAR_FIELDS} color="#7c3aed" />
       </div>

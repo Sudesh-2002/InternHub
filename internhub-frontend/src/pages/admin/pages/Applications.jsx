@@ -45,15 +45,14 @@ const Applications = () => {
       <Table headers={["Student","Company","Position","Status","Applied","Spam","Actions"]}>
         {filtered.map(a => (
           <Tr key={a.id}>
-            <Td><div className="flex items-center gap-2"><Avatar name={a.student} size={8} /><span className="text-white font-medium text-sm">{a.student}</span></div></Td>
+            <Td><div className="flex items-center gap-2"><Avatar name={a.student} size={8} /><span className="text-gray-800 font-medium text-sm">{a.student}</span></div></Td>
             <Td><span className="text-xs">{a.company}</span></Td>
             <Td><span className="text-xs">{a.job}</span></Td>
             <Td><Badge status={a.status} /></Td>
             <Td><span className="text-xs">{a.applied}</span></Td>
             <Td>
-              {a.spam
-                ? <span className="text-xs text-orange-400 font-bold">⚠ Spam</span>
-                : <span className="text-xs text-zinc-600">—</span>}
+                ? <span className="text-xs text-orange-600 font-bold">⚠ Spam</span>
+                : <span className="text-xs text-gray-400">—</span>}
             </Td>
             <Td>
               <div className="flex items-center gap-1.5">
