@@ -10,6 +10,7 @@ import InternshipManagement from "./pages/InternshipManagement";
 import Applications        from "./pages/Applications";
 import Notices             from "./pages/Notices";
 import Reports             from "./pages/Reports";
+import LoginLogs           from "./pages/LoginLogs";
 // import RolesPermissions    from "./pages/RolesPermissions";
 // import Complaints          from "./pages/Complaints";
 // import Messages            from "./pages/Messages";
@@ -31,6 +32,7 @@ const AdminDashboard = () => (
       <Route path="applications"     element={<Applications />} />
       <Route path="notices"          element={<Notices />} />
       <Route path="reports"          element={<Reports />} />
+      <Route path="login-logs"       element={<LoginLogs />} />
       {/* <Route path="roles"            element={<RolesPermissions />} />
       <Route path="complaints"       element={<Complaints />} />
       <Route path="messages"         element={<Messages />} />
