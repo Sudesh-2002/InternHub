@@ -2,6 +2,8 @@ import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../context/AuthContext";
 import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
+import SessionTimeoutModal from "../../../components/SessionTimeoutModal";
+import { useSessionTimeout } from "../../../hooks/useSessionTimeout";
 
 export const Ico = ({ d, size = 18, sw = 1.7, color = "currentColor", fill = "none", className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color}
@@ -289,7 +291,8 @@ const NAV_GROUPS = [
     label: "Analytics",
     items: [
       { to: "/admin/dashboard/reports",        label: "Reports",        icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2" },
-      { to: "/admin/dashboard/audit",          label: "Audit Logs",     icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01", disabled: true },
+      { to: "/admin/dashboard/login-logs",     label: "Login Logs",     icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
+      { to: "/admin/dashboard/audit",          label: "Audit Logs",     icon: "M10 21h7a2 2 0 0 0 2-2V9.414a1 1 0 0 0-.293-.707l-5.414-5.414A1 1 0 0 0 13.586 3H7a2 2 0 0 0-2 2v11m0 5l4.879-4.879m0 0a3 3 0 1 0 4.243-4.242 3 3 0 0 0-4.243 4.242z", disabled: true },
     ],
   },
   {
@@ -305,6 +308,7 @@ export const AdminLayout = ({ children }) => {
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
   const [showLogout,   setShowLogout]   = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [showTimeout,  setShowTimeout]  = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toasts, add: toast, remove } = useToast();
@@ -315,6 +319,21 @@ export const AdminLayout = ({ children }) => {
     navigate("/login");
   };
 
+  // ── Session Timeout ──────────────────────────────────────────────────────
+  const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
+    enabled:   !!user,
+    onWarning: () => setShowTimeout(true),
+    onExpire:  async () => {
+      setShowTimeout(false);
+      await logout();
+      navigate("/login");
+    },
+    onReset:   () => setShowTimeout(false),
+  });
+
+  const handleStayLoggedIn = () => { stayLoggedIn(); setShowTimeout(false); };
+  const handleTimeoutLogout = async () => { setShowTimeout(false); await logout(); navigate("/login"); };
+
   return (
     <div className="min-h-screen bg-slate-50 flex" style={{ fontFamily: "'DM Sans', sans-serif" }}>
       <LogoutConfirmModal
@@ -322,6 +341,12 @@ export const AdminLayout = ({ children }) => {
         onCancel={() => setShowLogout(false)}
         onConfirm={confirmLogout}
         loading={logoutLoading}
+      />
+      <SessionTimeoutModal
+        isOpen={showTimeout}
+        secondsLeft={WARNING_SECONDS}
+        onStay={handleStayLoggedIn}
+        onLogout={handleTimeoutLogout}
       />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@600;700;800&display=swap');

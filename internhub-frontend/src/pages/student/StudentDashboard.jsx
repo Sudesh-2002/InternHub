@@ -7,6 +7,8 @@ import axios from "axios";
 import Icon from "./components/Icon";
 import { icons } from "./components/data/mockData";
 import LogoutConfirmModal from "../../components/LogoutConfirmModal";
+import SessionTimeoutModal from "../../components/SessionTimeoutModal";
+import { useSessionTimeout } from "../../hooks/useSessionTimeout";
 
 import DashboardHome   from "./pages/DashboardHome";
 import BrowseJobs      from "./pages/BrowseJobs";
@@ -32,6 +34,7 @@ const StudentDashboard = () => {
   const [showLogout,    setShowLogout]    = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [notifCount,    setNotifCount]    = useState(0);
+  const [showTimeout,   setShowTimeout]   = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
 
@@ -48,6 +51,29 @@ const StudentDashboard = () => {
     navigate("/login");
   };
 
+  // ── Session Timeout ────────────────────────────────────────────────────────
+  const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
+    enabled:   !!user,
+    onWarning: () => setShowTimeout(true),
+    onExpire:  async () => {
+      setShowTimeout(false);
+      await logout();
+      navigate("/login");
+    },
+    onReset:   () => setShowTimeout(false),
+  });
+
+  const handleStayLoggedIn = () => {
+    stayLoggedIn();
+    setShowTimeout(false);
+  };
+
+  const handleTimeoutLogout = async () => {
+    setShowTimeout(false);
+    await logout();
+    navigate("/login");
+  };
+
   // Highlight "Browse Jobs" when on job-detail or apply sub-routes
   const browseActive = [
     "/student/dashboard/browse",
@@ -57,6 +83,14 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+
+      {/* Session Timeout Modal */}
+      <SessionTimeoutModal
+        isOpen={showTimeout}
+        secondsLeft={WARNING_SECONDS}
+        onStay={handleStayLoggedIn}
+        onLogout={handleTimeoutLogout}
+      />
 
       {/* Mobile overlay */}
       {sidebarOpen && (

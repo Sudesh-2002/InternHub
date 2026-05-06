@@ -19,6 +19,7 @@ use App\Http\Controllers\CompanyNotificationController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentNotificationController;
 use App\Http\Controllers\AdminApplicationController;
+use App\Http\Controllers\AdminLoginLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -29,8 +30,9 @@ Route::post('/login',    [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me',      [AuthController::class, 'me']);
+    Route::post('/logout',  [AuthController::class, 'logout']);
+    Route::post('/timeout', [AuthController::class, 'timeout']);
+    Route::get ('/me',      [AuthController::class, 'me']);
 
     // ── Student Profile ───────────────────────────────
     Route::get   ('/profile',        [StudentProfileController::class, 'show']);
@@ -117,5 +119,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Applications
         Route::get   ('/applications',           [AdminApplicationController::class, 'index']);
         Route::patch ('/applications/{id}/flag', [AdminApplicationController::class, 'toggleFlag']);
+
+        // Login Logs
+        Route::get('/login-logs', [AdminLoginLogController::class, 'index']);
     });
 });

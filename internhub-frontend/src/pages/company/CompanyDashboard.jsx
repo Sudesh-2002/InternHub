@@ -1,8 +1,11 @@
 // src/pages/company/CompanyDashboard.jsx
 
 import { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
+import { useSessionTimeout } from "../../hooks/useSessionTimeout";
+import SessionTimeoutModal from "../../components/SessionTimeoutModal";
 
 import Sidebar  from "./components/Sidebar";
 import Topbar   from "./components/Topbar";
@@ -21,10 +24,28 @@ const API_BASE   = "http://127.0.0.1:8000/api";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 export default function CompanyDashboard() {
+  const { user, logout }          = useAuth();
+  const navigate                  = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [jobs, setJobs]               = useState(MOCK_JOBS);
   const [unread, setUnread]           = useState(0);
+  const [showTimeout, setShowTimeout] = useState(false);
   const { toasts, add: toast }        = useToast();
+
+  // ── Session Timeout ──────────────────────────────────────────────────────
+  const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
+    enabled:   !!user,
+    onWarning: () => setShowTimeout(true),
+    onExpire:  async () => {
+      setShowTimeout(false);
+      await logout();
+      navigate("/login");
+    },
+    onReset:   () => setShowTimeout(false),
+  });
+
+  const handleStayLoggedIn = () => { stayLoggedIn(); setShowTimeout(false); };
+  const handleTimeoutLogout = async () => { setShowTimeout(false); await logout(); navigate("/login"); };
 
   // Fetch unread notification count from backend on mount
   useEffect(() => {
@@ -38,6 +59,13 @@ export default function CompanyDashboard() {
       className="min-h-screen bg-slate-50 flex"
       style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }}
     >
+      {/* Session Timeout Modal */}
+      <SessionTimeoutModal
+        isOpen={showTimeout}
+        secondsLeft={WARNING_SECONDS}
+        onStay={handleStayLoggedIn}
+        onLogout={handleTimeoutLogout}
+      />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
         @keyframes slideUp {

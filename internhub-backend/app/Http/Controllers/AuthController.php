@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\LoginLog;
 use App\Models\StudentProfile;
 use App\Models\CompanyProfile;
 use Illuminate\Support\Facades\Hash;
@@ -72,6 +73,9 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Record login event
+        LoginLog::record($user->id, 'login', $request);
+
         return response()->json([
             'message' => 'Login successful',
             'token'   => $token,
@@ -87,10 +91,26 @@ class AuthController extends Controller
     // LOGOUT
     public function logout(Request $request)
     {
+        // Record logout event before revoking token
+        LoginLog::record($request->user()->id, 'logout', $request);
+
         $request->user()->tokens()->delete();
 
         return response()->json([
             'message' => 'Logged out successfully',
+        ]);
+    }
+
+    // SESSION TIMEOUT LOGOUT (records a 'timeout' event)
+    public function timeout(Request $request)
+    {
+        // Record timeout event before revoking token
+        LoginLog::record($request->user()->id, 'timeout', $request);
+
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Session timed out',
         ]);
     }
 
