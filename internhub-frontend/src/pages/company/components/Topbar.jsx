@@ -1,15 +1,13 @@
-// src/pages/company/components/Topbar.jsx
-
 import { useNavigate, useLocation } from "react-router-dom";
 import { Ico } from "./Shared";
 
 const PAGE_TITLES = {
-  "/company/dashboard":             "Dashboard Overview",
-  "/company/dashboard/post":        "Post an Internship",
-  "/company/dashboard/jobs":        "Manage Job Listings",
-  "/company/dashboard/applicants":  "Applicant Management",
-  "/company/dashboard/profile":     "Company Profile",
-  "/company/dashboard/notifs":      "Notifications",
+  "/company/dashboard": "Dashboard Overview",
+  "/company/dashboard/post": "Post an Internship",
+  "/company/dashboard/jobs": "Manage Job Listings",
+  "/company/dashboard/applicants": "Applicant Management",
+  "/company/dashboard/profile": "Company Profile",
+  "/company/dashboard/notifs": "Notifications",
 };
 
 const Topbar = ({ unread, onOpenSidebar }) => {
@@ -25,7 +23,6 @@ const Topbar = ({ unread, onOpenSidebar }) => {
         <Ico d="M3 12h18M3 6h18M3 18h18" size={22} color="currentColor" sw={2} />
       </button>
 
-      {/* Page title */}
       <div className="hidden lg:block">
         <h1 className="text-gray-900 font-semibold text-base">{title}</h1>
       </div>

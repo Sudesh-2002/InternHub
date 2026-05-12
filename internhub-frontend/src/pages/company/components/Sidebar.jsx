@@ -17,7 +17,7 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
     initials: "",
   });
 
-  const [showLogout,    setShowLogout]    = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
   const confirmLogout = async () => {
@@ -39,17 +39,10 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
         );
 
         const data = res.data.data;
-
-        // ✅ Verification status
         setIsVerified(data?.verification_status === "verified");
-
-        // ✅ Company name (fallback if empty)
         const name = data?.company_name || "Company";
-
-        // ✅ Email (you may need to return this from backend user)
         const email = data?.official_email || "no-email@company.com";
 
-        // ✅ Generate initials
         const initials = name
           .split(" ")
           .map(w => w[0])
@@ -113,10 +106,9 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
                 to={n.path}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${
-                    isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-500 hover:bg-gray-50"
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm ${isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-gray-500 hover:bg-gray-50"
                   }`
                 }
               >
@@ -144,17 +136,16 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
         })}
       </nav>
 
-      {/* ✅ USER CARD (DYNAMIC) */}
       <div className="px-3 py-4 border-t">
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
             {company.logoUrl
               ? <img
-                  src={company.logoUrl}
-                  alt="logo"
-                  className="w-full h-full object-cover"
-                  onError={() => setCompany(p => ({ ...p, logoUrl: null }))}
-                />
+                src={company.logoUrl}
+                alt="logo"
+                className="w-full h-full object-cover"
+                onError={() => setCompany(p => ({ ...p, logoUrl: null }))}
+              />
               : company.initials || "C"
             }
           </div>

@@ -5,6 +5,7 @@ import { icons } from "../../student/components/data/mockData";
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
 
+// Authenticated fetch wrapper with CSRF and Bearer token support
 const apiFetch = async (url, options = {}) => {
   const csrf = decodeURIComponent(
     document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ""
@@ -25,6 +26,7 @@ const apiFetch = async (url, options = {}) => {
   return json;
 };
 
+// Shared UI components used throughout this page
 const Section = ({ title, action, children }) => (
   <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-6 shadow-sm">
     <div className="flex items-center justify-between mb-5">
@@ -91,6 +93,7 @@ const Textarea = (props) => (
   />
 );
 
+// Single profile data row: icon, label, value
 const InfoRow = ({ iconPath, label, value }) => (
   <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
     <div className="w-7 h-7 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
@@ -105,6 +108,7 @@ const InfoRow = ({ iconPath, label, value }) => (
   </div>
 );
 
+// Platform statistic tile
 const StatTile = ({ label, value, sub, accent = "indigo" }) => {
   const map = {
     indigo: { num: "text-indigo-600", bg: "bg-indigo-50" },
@@ -121,6 +125,7 @@ const StatTile = ({ label, value, sub, accent = "indigo" }) => {
   );
 };
 
+// Main admin profile component
 const AdminProfile = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -224,11 +229,10 @@ const AdminProfile = () => {
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-5 pb-12">
 
-        {/* ══ TOP CARD ══ */}
+        {/* Profile card */}
         <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-7 shadow-lg shadow-indigo-100/30">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
 
-            {/* Avatar */}
             <div className="relative flex-shrink-0 group">
               <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-sm">
                 {data.avatar_url && !avatarError
@@ -254,7 +258,6 @@ const AdminProfile = () => {
               </label>
             </div>
 
-            {/* Identity */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-xl font-bold text-gray-900">{data.name}</h2>
@@ -287,7 +290,6 @@ const AdminProfile = () => {
           </div>
         </div>
 
-        {/* ══ ACCOUNT INFORMATION ══ */}
         <Section
           title="Account Information"
           action={editBtn("info", {
@@ -335,7 +337,7 @@ const AdminProfile = () => {
           />
         </Section>
 
-        {/* ══ PLATFORM OVERVIEW ══ */}
+        {/* Platform overview stats */}
         <Section title="Platform Overview">
           <div className="flex gap-3">
             <StatTile
@@ -359,16 +361,14 @@ const AdminProfile = () => {
           </div>
         </Section>
 
-        {/* ══ BIO ══ */}
+        {/* Bio */}
         <Section title="Bio / Notes" action={editBtn("bio", { bio: data.bio })}>
           <p className="text-sm text-gray-600 leading-relaxed">
             {data.bio || <span className="text-gray-300 italic">No bio added yet.</span>}
           </p>
         </Section>
 
-        {/* ════════ MODALS ════════ */}
-
-        {/* Account Info modal */}
+        {/* Edit modals */}
         {modal === "info" && (
           <Modal
             title="Edit Account Information"
@@ -423,7 +423,6 @@ const AdminProfile = () => {
           </Modal>
         )}
 
-        {/* Bio modal */}
         {modal === "bio" && (
           <Modal
             title="Edit Bio"

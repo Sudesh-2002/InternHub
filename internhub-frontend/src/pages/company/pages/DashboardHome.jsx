@@ -12,6 +12,7 @@ const AVATAR_COLORS = [
   "bg-violet-500", "bg-rose-500", "bg-amber-500",
 ];
 
+// Shared UI utilities
 const Sk = ({ cls }) => <div className={`animate-pulse bg-gray-100 rounded-xl ${cls}`} />;
 
 const StatusPill = ({ status }) => {
@@ -30,6 +31,7 @@ const StatusPill = ({ status }) => {
   );
 };
 
+// Shown when company verification status is not yet approved
 const ProfileCompletionBanner = ({ status, navigate }) => {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
@@ -122,6 +124,7 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
   );
 };
 
+// Gradient stat card used in the dashboard overview
 const StatCard = ({ label, value, sub, icon, from, to, loading }) => (
   <div className={`relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br ${from} ${to} border border-white shadow-sm`}>
     <div className="flex items-start justify-between mb-4">
@@ -141,6 +144,7 @@ const StatCard = ({ label, value, sub, icon, from, to, loading }) => (
   </div>
 );
 
+// Application status breakdown bar
 const ProgressBar = ({ label, value, max, color }) => {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   const colors = {
@@ -165,6 +169,7 @@ const ProgressBar = ({ label, value, max, color }) => {
   );
 };
 
+// Main dashboard page component
 const DashboardHome = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -189,6 +194,7 @@ const DashboardHome = () => {
   return (
     <div className="space-y-6">
 
+      {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 p-8 shadow-xl shadow-indigo-100">
         <div className="absolute -right-8 -top-8 w-52 h-52 rounded-full bg-white/5" />
         <div className="absolute right-28 -bottom-6 w-28 h-28 rounded-full bg-white/5" />
@@ -205,6 +211,7 @@ const DashboardHome = () => {
         </div>
       </div>
 
+      {/* Profile completion prompt - hidden once verified */}
       {!loading && data && data.verification_status !== "verified" && (
         <ProfileCompletionBanner
           status={data.verification_status}
@@ -212,6 +219,7 @@ const DashboardHome = () => {
         />
       )}
 
+      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard loading={loading} label="Jobs Posted" value={s.total_jobs} sub={`${active} active`} icon="M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" from="from-violet-50" to="to-indigo-50" />
         <StatCard loading={loading} label="Active Listings" value={active} sub={`${pendingJ} pending approval`} icon="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" from="from-emerald-50" to="to-teal-50" />
@@ -219,6 +227,7 @@ const DashboardHome = () => {
         <StatCard loading={loading} label="Pending Review" value={pending} sub="need attention" icon="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" from="from-amber-50" to="to-orange-50" />
       </div>
 
+      {/* Recent listings and applicant panels */}
       <div className="grid lg:grid-cols-5 gap-5">
 
         <div className="lg:col-span-3 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">

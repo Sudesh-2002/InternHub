@@ -37,9 +37,6 @@ const ManageJobs = ({ toast }) => {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
-  // ─────────────────────────────
-  // FETCH
-  // ─────────────────────────────
   useEffect(() => {
     fetchJobs();
   }, [search, filter]);
@@ -61,9 +58,6 @@ const ManageJobs = ({ toast }) => {
     }
   };
 
-  // ─────────────────────────────
-  // DELETE
-  // ─────────────────────────────
   const deleteJob = async (id) => {
     try {
       await api.delete(`/company/manage-jobs/${id}`);
@@ -75,9 +69,6 @@ const ManageJobs = ({ toast }) => {
     }
   };
 
-  // ─────────────────────────────
-  // OPEN EDIT (PRE-FILL)
-  // ─────────────────────────────
   const openEdit = (job) => {
     setEditingId(job.id);
 
@@ -96,9 +87,6 @@ const ManageJobs = ({ toast }) => {
     setEditOpen(true);
   };
 
-  // ─────────────────────────────
-  // UPDATE
-  // ─────────────────────────────
   const updateJob = async () => {
     try {
       await api.put(`/company/manage-jobs/${editingId}`, form);
@@ -120,7 +108,6 @@ const ManageJobs = ({ toast }) => {
     navigate(`/company/dashboard/applicants?jobId=${id}`);
   };
 
-  // ─────────────────────────────
   return (
     <div className="space-y-6">
 
@@ -144,11 +131,7 @@ const ManageJobs = ({ toast }) => {
             <h2 className="text-lg font-bold text-gray-800">
               Edit Job Posting
             </h2>
-
-            {/* GRID FORM */}
             <div className="grid grid-cols-2 gap-4">
-
-              {/* TITLE */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Job Title
@@ -161,8 +144,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* LOCATION */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Location
@@ -175,8 +156,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* TYPE */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Job Type
@@ -189,8 +168,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* SALARY */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Salary
@@ -203,8 +180,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* DEADLINE */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Deadline
@@ -218,8 +193,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* VACANCIES */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Vacancies
@@ -233,8 +206,6 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
-              {/* DURATION */}
               <div>
                 <label className="text-xs text-gray-500 font-semibold">
                   Duration
@@ -247,10 +218,7 @@ const ManageJobs = ({ toast }) => {
                   }
                 />
               </div>
-
             </div>
-
-            {/* DESCRIPTION */}
             <div>
               <label className="text-xs text-gray-500 font-semibold">
                 Job Description
@@ -264,8 +232,6 @@ const ManageJobs = ({ toast }) => {
                 }
               />
             </div>
-
-            {/* REQUIREMENTS */}
             <div>
               <label className="text-xs text-gray-500 font-semibold">
                 Requirements
@@ -279,8 +245,6 @@ const ManageJobs = ({ toast }) => {
                 }
               />
             </div>
-
-            {/* ACTIONS */}
             <div className="flex justify-end gap-2 pt-2">
 
               <button
@@ -289,7 +253,6 @@ const ManageJobs = ({ toast }) => {
               >
                 Cancel
               </button>
-
               <button
                 onClick={updateJob}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
@@ -304,9 +267,7 @@ const ManageJobs = ({ toast }) => {
         </div>
       )}
 
-      {/* FILTER */}
       <div className="flex gap-3">
-
         <input
           className="border p-2 rounded-lg w-full"
           placeholder="Search jobs..."
@@ -318,11 +279,10 @@ const ManageJobs = ({ toast }) => {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-2 rounded-lg text-sm ${
-              filter === f
+            className={`px-3 py-2 rounded-lg text-sm ${filter === f
                 ? "bg-indigo-600 text-white"
                 : "bg-gray-100"
-            }`}
+              }`}
           >
             {f}
           </button>
@@ -353,8 +313,6 @@ const ManageJobs = ({ toast }) => {
           <tbody>
             {jobs.map((j) => (
               <tr key={j.id} className="border-t hover:bg-gray-50">
-
-                {/* JOB */}
                 <td className="px-5 py-4 align-middle">
                   <p className="font-semibold text-gray-800">
                     {j.title}
@@ -363,35 +321,24 @@ const ManageJobs = ({ toast }) => {
                     {j.location}
                   </p>
                 </td>
-
-                {/* TYPE */}
                 <td className="px-5 py-4 align-middle">
                   <span
-                    className={`px-2 py-1 rounded text-xs ${
-                      typeColors[j.type] ||
+                    className={`px-2 py-1 rounded text-xs ${typeColors[j.type] ||
                       "bg-gray-100 text-gray-500"
-                    }`}
+                      }`}
                   >
                     {j.type}
                   </span>
                 </td>
-
-                {/* STATUS */}
                 <td className="px-5 py-4 align-middle">
                   <StatusBadge status={j.status} />
                 </td>
-
-                {/* APPLICANTS */}
                 <td className="px-5 py-4 align-middle font-semibold">
                   {j.applicants}
                 </td>
-
-                {/* POSTED */}
                 <td className="px-5 py-4 text-gray-500 text-xs align-middle">
                   {j.posted}
                 </td>
-
-                {/* ACTIONS */}
                 <td className="px-5 py-4 align-middle">
                   <div className="flex gap-2">
 
