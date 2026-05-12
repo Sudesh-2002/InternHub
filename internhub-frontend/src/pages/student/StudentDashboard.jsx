@@ -1,5 +1,3 @@
-// src/pages/student/StudentDashboard.jsx
-
 import { useState, useEffect } from "react";
 import { Routes, Route, NavLink, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -10,40 +8,39 @@ import LogoutConfirmModal from "../../components/LogoutConfirmModal";
 import SessionTimeoutModal from "../../components/SessionTimeoutModal";
 import { useSessionTimeout } from "../../hooks/useSessionTimeout";
 
-import DashboardHome   from "./pages/DashboardHome";
-import BrowseJobs      from "./pages/BrowseJobs";
-import JobDetail       from "./pages/JobDetail";
-import ApplyJob        from "./pages/ApplyJob";
-import MyApplications  from "./pages/MyApplications";
-import ProfilePage     from "./pages/ProfilePage";
-import Notifications   from "./pages/Notifications";
+import DashboardHome from "./pages/DashboardHome";
+import BrowseJobs from "./pages/BrowseJobs";
+import JobDetail from "./pages/JobDetail";
+import ApplyJob from "./pages/ApplyJob";
+import MyApplications from "./pages/MyApplications";
+import ProfilePage from "./pages/ProfilePage";
+import Notifications from "./pages/Notifications";
 
-// ── Nav items ─────────────────────────────────────────────────────────────────
+//  Nav items 
 const NAV = [
-  { to: "/student/dashboard",              label: "Home",         icon: icons.home,    end: true },
-  { to: "/student/dashboard/browse",       label: "Browse Jobs",  icon: icons.browse },
+  { to: "/student/dashboard", label: "Home", icon: icons.home, end: true },
+  { to: "/student/dashboard/browse", label: "Browse Jobs", icon: icons.browse },
   { to: "/student/dashboard/applications", label: "Applications", icon: icons.apps },
-  { to: "/student/dashboard/profile",      label: "Profile",      icon: icons.profile },
-  { to: "/student/dashboard/notifications",label: "Notifications",icon: icons.bell },
+  { to: "/student/dashboard/profile", label: "Profile", icon: icons.profile },
+  { to: "/student/dashboard/notifications", label: "Notifications", icon: icons.bell },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
 const StudentDashboard = () => {
-  const { user, logout }              = useAuth();
-  const [sidebarOpen,   setSidebarOpen]   = useState(false);
-  const [showLogout,    setShowLogout]    = useState(false);
+  const { user, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const [notifCount,    setNotifCount]    = useState(0);
-  const [showTimeout,   setShowTimeout]   = useState(false);
-  const [avatarError,   setAvatarError]   = useState(false);
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const [notifCount, setNotifCount] = useState(0);
+  const [showTimeout, setShowTimeout] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Fetch real unread count on mount
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/student/notifications", {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    }).then(r => setNotifCount(r.data.unread_count ?? 0)).catch(() => {});
+    }).then(r => setNotifCount(r.data.unread_count ?? 0)).catch(() => { });
   }, []);
 
   const confirmLogout = async () => {
@@ -52,16 +49,16 @@ const StudentDashboard = () => {
     navigate("/login");
   };
 
-  // ── Session Timeout ────────────────────────────────────────────────────────
+  //  Session Timeout 
   const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
-    enabled:   !!user,
+    enabled: !!user,
     onWarning: () => setShowTimeout(true),
-    onExpire:  async () => {
+    onExpire: async () => {
       setShowTimeout(false);
       await logout();
       navigate("/login");
     },
-    onReset:   () => setShowTimeout(false),
+    onReset: () => setShowTimeout(false),
   });
 
   const handleStayLoggedIn = () => {
@@ -99,20 +96,18 @@ const StudentDashboard = () => {
           onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* ── Sidebar ── */}
       <aside className={`
         fixed inset-y-0 left-0 z-30
         w-60 bg-white border-r border-gray-100 flex flex-col
         transition-transform duration-300
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
-        {/* Logo */}
         <div className="px-6 py-5 flex items-center gap-2.5 border-b border-gray-100">
           <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white"
               strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
             </svg>
           </div>
           <span className="font-bold text-gray-900 text-base">
@@ -123,9 +118,8 @@ const StudentDashboard = () => {
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV.map(item => {
-            // Special active logic for browse group
             const isBrowseItem = item.to === "/student/dashboard/browse";
-            const isActive     = isBrowseItem ? browseActive : undefined;
+            const isActive = isBrowseItem ? browseActive : undefined;
 
             return (
               <NavLink
@@ -135,11 +129,10 @@ const StudentDashboard = () => {
                 onClick={() => setSidebarOpen(false)}
                 className={({ isActive: routerActive }) => {
                   const active = isBrowseItem ? browseActive : routerActive;
-                  return `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                    active
+                  return `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${active
                       ? "bg-indigo-50 text-indigo-700"
                       : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
-                  }`;
+                    }`;
                 }}
               >
                 <Icon d={item.icon} size={17} />
@@ -160,11 +153,11 @@ const StudentDashboard = () => {
             <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
               {user?.student_profile?.avatar_url && !avatarError
                 ? <img
-                    src={user.student_profile.avatar_url}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                    onError={() => setAvatarError(true)}
-                  />
+                  src={user.student_profile.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarError(true)}
+                />
                 : user?.name?.charAt(0) || "S"
               }
             </div>
@@ -187,10 +180,8 @@ const StudentDashboard = () => {
         </div>
       </aside>
 
-      {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-60">
 
-        {/* Topbar */}
         <header className="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
           <button className="lg:hidden text-gray-500 hover:text-gray-700"
             onClick={() => setSidebarOpen(true)}>
@@ -217,20 +208,13 @@ const StudentDashboard = () => {
         {/* Page content */}
         <main className="flex-1 p-6 lg:p-8 max-w-3xl w-full mx-auto">
           <Routes>
-            {/* Default → home */}
             <Route index element={<DashboardHome user={user} />} />
-
-            {/* Browse + sub-pages */}
-            <Route path="browse"     element={<BrowseJobs />} />
+            <Route path="browse" element={<BrowseJobs />} />
             <Route path="job-detail" element={<JobDetail />} />
-            <Route path="apply"      element={<ApplyJob />} />
-
-            {/* Other pages */}
-            <Route path="applications"  element={<MyApplications />} />
-            <Route path="profile"       element={<ProfilePage user={user} />} />
+            <Route path="apply" element={<ApplyJob />} />
+            <Route path="applications" element={<MyApplications />} />
+            <Route path="profile" element={<ProfilePage user={user} />} />
             <Route path="notifications" element={<Notifications setUnread={setNotifCount} />} />
-
-            {/* Catch-all → home */}
             <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
           </Routes>
         </main>

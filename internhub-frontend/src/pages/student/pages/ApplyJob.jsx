@@ -1,5 +1,3 @@
-// src/pages/student/pages/ApplyJob.jsx
-
 import { useState } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import Icon from "../components/Icon";
@@ -8,13 +6,13 @@ import { icons } from "../components/data/mockData";
 const ApplyJob = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const job      = location.state?.job;   // passed via navigate(..., { state: { job } })
+  const job = location.state?.job;
 
-  const [resume,    setResume]    = useState(null);
-  const [note,      setNote]      = useState("");
+  const [resume, setResume] = useState(null);
+  const [note, setNote] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [loading,   setLoading]   = useState(false);
-  const [error,     setError]     = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // If no job in state (direct URL access), redirect to browse
   if (!job) return <Navigate to="/student/dashboard/browse" replace />;
@@ -92,9 +90,8 @@ const ApplyJob = () => {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Resume (PDF)
           </label>
-          <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition ${
-            resume ? "border-indigo-300 bg-indigo-50" : "border-gray-200 hover:border-indigo-300 bg-gray-50"
-          }`}>
+          <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-8 cursor-pointer transition ${resume ? "border-indigo-300 bg-indigo-50" : "border-gray-200 hover:border-indigo-300 bg-gray-50"
+            }`}>
             <Icon d={icons.upload} size={24} stroke={resume ? "#6366f1" : "#9ca3af"} />
             <span className={`text-sm mt-2 font-medium ${resume ? "text-indigo-600" : "text-gray-400"}`}>
               {resume ? resume.name : "Click to upload your resume"}
@@ -119,7 +116,6 @@ const ApplyJob = () => {
           />
         </div>
 
-        {/* Error */}
         {error && (
           <p className="text-sm text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
             {error}
