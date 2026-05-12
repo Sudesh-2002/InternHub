@@ -413,7 +413,12 @@ export const AdminLayout = ({ children }) => {
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition cursor-pointer">
             <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 overflow-hidden">
               {user?.admin_profile?.avatar_url
-                ? <img src={user.admin_profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                ? <img
+                    src={user.admin_profile.avatar_url}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
                 : user?.name?.slice(0, 2).toUpperCase() || "AD"
               }
             </div>

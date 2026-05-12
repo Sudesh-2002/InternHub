@@ -181,7 +181,7 @@ class StudentProfileController extends Controller
 
         return response()->json([
             'message'    => 'Avatar uploaded successfully.',
-            'avatar_url' => Storage::url($path),
+            'avatar_url' => asset('storage/' . $path),
         ]);
     }
 

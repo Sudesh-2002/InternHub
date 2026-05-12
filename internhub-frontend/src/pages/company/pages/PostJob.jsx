@@ -18,7 +18,7 @@ const Field = ({ label, optional, children }) => (
 const ErrorMsg = ({ msg }) =>
   msg ? (
     <p className="text-red-500 text-xs mt-1.5 flex items-center gap-1">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
       {msg}
     </p>
   ) : null;
@@ -27,13 +27,12 @@ const steps = ["Basic Info", "Details", "Settings"];
 
 const StepDot = ({ index, current, label }) => (
   <div className="flex flex-col items-center gap-1.5">
-    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-      index < current  ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-      : index === current ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md shadow-indigo-200"
-      : "bg-gray-100 text-gray-400"
-    }`}>
+    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${index < current ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+        : index === current ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md shadow-indigo-200"
+          : "bg-gray-100 text-gray-400"
+      }`}>
       {index < current
-        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
         : index + 1}
     </div>
     <span className={`text-[10px] font-semibold tracking-wide hidden sm:block ${index === current ? "text-indigo-600" : "text-gray-400"}`}>{label}</span>
@@ -46,10 +45,10 @@ const PostJob = ({ onPosted, toast }) => {
     salary: "", deadline: "", requirements: "", duration: "", vacancies: 1,
   };
 
-  const [form,    setForm]    = useState(EMPTY);
-  const [errors,  setErrors]  = useState({});
+  const [form, setForm] = useState(EMPTY);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [step,    setStep]    = useState(0);   // 0,1,2
+  const [step, setStep] = useState(0);   // 0,1,2
   const [isVerified, setIsVerified] = useState(null);
 
   const set = (k, v) => {
@@ -57,13 +56,13 @@ const PostJob = ({ onPosted, toast }) => {
     if (errors[k]) setErrors(p => ({ ...p, [k]: "" }));
   };
 
-  // ── Validation ──
+  //  Validation 
   const validate = () => {
     const e = {};
-    if (!form.title.trim())         e.title       = "Job title is required.";
-    if (!form.description.trim())   e.description = "Description is required.";
-    if (!form.location.trim())      e.location    = "Location is required.";
-    if (Number(form.vacancies) < 1) e.vacancies   = "At least 1 vacancy required.";
+    if (!form.title.trim()) e.title = "Job title is required.";
+    if (!form.description.trim()) e.description = "Description is required.";
+    if (!form.location.trim()) e.location = "Location is required.";
+    if (Number(form.vacancies) < 1) e.vacancies = "At least 1 vacancy required.";
     if (form.deadline) {
       const today = new Date(); today.setHours(0, 0, 0, 0);
       if (new Date(form.deadline) <= today) e.deadline = "Deadline must be a future date.";
@@ -79,7 +78,7 @@ const PostJob = ({ onPosted, toast }) => {
 
   const nextStep = () => {
     const allErrors = validate();
-    const relevant  = {};
+    const relevant = {};
     stepErrors[step].forEach(k => { if (allErrors[k]) relevant[k] = allErrors[k]; });
     if (Object.keys(relevant).length) { setErrors(relevant); return; }
     setErrors({});
@@ -104,7 +103,7 @@ const PostJob = ({ onPosted, toast }) => {
     fetchStatus();
   }, []);
 
-  // ── Submit ──
+  //  Submit 
   const submit = async () => {
     const clientErrors = validate();
     if (Object.keys(clientErrors).length) { setErrors(clientErrors); return; }
@@ -114,15 +113,15 @@ const PostJob = ({ onPosted, toast }) => {
 
     try {
       const payload = {
-        title:       form.title.trim(),
+        title: form.title.trim(),
         description: form.description.trim(),
-        location:    form.location.trim(),
-        type:        form.type,
-        vacancies:   Number(form.vacancies),
-        ...(form.salary.trim()       && { salary:       form.salary.trim() }),
-        ...(form.deadline            && { deadline:      form.deadline }),
+        location: form.location.trim(),
+        type: form.type,
+        vacancies: Number(form.vacancies),
+        ...(form.salary.trim() && { salary: form.salary.trim() }),
+        ...(form.deadline && { deadline: form.deadline }),
         ...(form.requirements.trim() && { requirements: form.requirements.trim() }),
-        ...(form.duration.trim()     && { duration:      form.duration.trim() }),
+        ...(form.duration.trim() && { duration: form.duration.trim() }),
       };
 
       const res = await createListing(payload);
@@ -134,7 +133,7 @@ const PostJob = ({ onPosted, toast }) => {
 
     } catch (err) {
       const status = err.response?.status;
-      const data   = err.response?.data;
+      const data = err.response?.data;
 
       if (status === 422 && data?.errors) {
         const mapped = {};
@@ -153,7 +152,7 @@ const PostJob = ({ onPosted, toast }) => {
     }
   };
 
-  // ── Input class ──
+  //  Input class 
   const iCls = (k) =>
     `w-full bg-gray-50 border-2 ${errors[k] ? "border-red-400 bg-red-50/30" : "border-gray-100"} ` +
     `rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-300 ` +
@@ -162,9 +161,9 @@ const PostJob = ({ onPosted, toast }) => {
 
   const typeOptions = ["Remote", "On-site", "Hybrid"];
   const typeIcons = {
-    "Remote":  "M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z",
+    "Remote": "M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z",
     "On-site": "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
-    "Hybrid":  "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
+    "Hybrid": "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5",
   };
 
   if (isVerified === false) {
@@ -185,7 +184,7 @@ const PostJob = ({ onPosted, toast }) => {
   return (
     <div className="min-h-full flex flex-col items-center justify-start py-6">
 
-      {/* ── Page heading ── */}
+      {/*  Page heading  */}
       <div className="w-full max-w-2xl text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Post an Internship</h1>
         <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
@@ -193,7 +192,7 @@ const PostJob = ({ onPosted, toast }) => {
         </p>
       </div>
 
-      {/* ── Step indicator ── */}
+      {/*  Step indicator  */}
       <div className="w-full max-w-2xl mb-8">
         <div className="flex items-center justify-center gap-0">
           {steps.map((label, i) => (
@@ -207,16 +206,15 @@ const PostJob = ({ onPosted, toast }) => {
         </div>
       </div>
 
-      {/* ── Card ── */}
+      {/*  Card  */}
       <div className="w-full max-w-2xl">
         <div className="bg-white border border-gray-100 rounded-3xl shadow-sm shadow-gray-100 overflow-hidden">
 
-          {/* Card top accent */}
           <div className="h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-400" />
 
           <div className="p-8 space-y-6">
 
-            {/* ── STEP 0: Basic Info ── */}
+            {/*  STEP 0: Basic Info  */}
             {step === 0 && (
               <div className="space-y-5 animate-[fadeSlide_0.3s_ease]">
                 <Field label="Job Title *">
@@ -234,7 +232,7 @@ const PostJob = ({ onPosted, toast }) => {
               </div>
             )}
 
-            {/* ── STEP 1: Details ── */}
+            {/*  STEP 1: Details  */}
             {step === 1 && (
               <div className="space-y-5 animate-[fadeSlide_0.3s_ease]">
                 <Field label="Requirements" optional>
@@ -254,11 +252,10 @@ const PostJob = ({ onPosted, toast }) => {
                   <div className="grid grid-cols-3 gap-3 mt-1">
                     {typeOptions.map(t => (
                       <button key={t} type="button" onClick={() => set("type", t)}
-                        className={`flex flex-col items-center gap-2 py-3.5 px-2 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${
-                          form.type === t
+                        className={`flex flex-col items-center gap-2 py-3.5 px-2 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${form.type === t
                             ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
                             : "border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-200 hover:bg-gray-100"
-                        }`}>
+                          }`}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d={typeIcons[t]} />
                         </svg>
@@ -270,7 +267,7 @@ const PostJob = ({ onPosted, toast }) => {
               </div>
             )}
 
-            {/* ── STEP 2: Settings ── */}
+            {/*  STEP 2: Settings  */}
             {step === 2 && (
               <div className="space-y-5 animate-[fadeSlide_0.3s_ease]">
                 <div className="grid grid-cols-2 gap-4">
@@ -308,9 +305,9 @@ const PostJob = ({ onPosted, toast }) => {
                 <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 space-y-2">
                   <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3">Listing Summary</p>
                   {[
-                    { label: "Title",    value: form.title },
+                    { label: "Title", value: form.title },
                     { label: "Location", value: form.location },
-                    { label: "Type",     value: form.type },
+                    { label: "Type", value: form.type },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex items-center justify-between text-sm">
                       <span className="text-gray-400 text-xs">{label}</span>
@@ -323,12 +320,12 @@ const PostJob = ({ onPosted, toast }) => {
 
           </div>
 
-          {/* ── Footer nav ── */}
+          {/*  Footer nav  */}
           <div className="px-8 py-5 border-t border-gray-50 bg-gray-50/50 flex items-center justify-between gap-3">
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)}
                 className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-800 bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-all duration-200">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
                 Back
               </button>
             ) : (
@@ -339,14 +336,14 @@ const PostJob = ({ onPosted, toast }) => {
               <button onClick={nextStep}
                 className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm shadow-indigo-200 hover:shadow-indigo-300">
                 Continue
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
               </button>
             ) : (
               <button onClick={submit} disabled={loading}
                 className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-xl transition-all duration-200 shadow-sm shadow-indigo-200 hover:shadow-indigo-300">
                 {loading
                   ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>}
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>}
                 {loading ? "Posting…" : "Post Internship"}
               </button>
             )}

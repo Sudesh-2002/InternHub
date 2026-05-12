@@ -80,6 +80,7 @@ const ProfilePage = ({ user }) => {
   const [toast, setToast]       = useState(null);
   const [saving, setSaving]     = useState(false);
   const [skillInput, setSkillInput] = useState("");
+  const [avatarError, setAvatarError] = useState(false);
   const avatarRef               = useRef();
   const { refreshUser }         = useAuth();
 
@@ -181,6 +182,7 @@ const ProfilePage = ({ user }) => {
     try {
       const res = await uploadAvatar(file);
       setData((prev) => ({ ...prev, avatar_url: res.avatar_url }));
+      setAvatarError(false); // reset so new image renders
       await refreshUser(); // update sidebar
       showToast("Profile photo updated.", "success");
     } catch {
@@ -273,9 +275,14 @@ const ProfilePage = ({ user }) => {
           {/* Avatar with upload overlay */}
           <div className="relative flex-shrink-0 group">
             <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-sm">
-              {data.avatar_url
-                ? <img src={data.avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                : data.name?.charAt(0) || "S"
+              {data.avatar_url && !avatarError
+                ? <img
+                    src={data.avatar_url}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                : (data.name?.charAt(0) || "S")
               }
             </div>
             {/* Hover overlay — click triggers file input */}

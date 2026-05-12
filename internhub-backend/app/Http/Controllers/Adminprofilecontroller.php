@@ -38,23 +38,46 @@ class AdminProfileController extends Controller
     public function update(Request $request): JsonResponse
     {
         $validated = $request->validate([
+            'name'       => 'nullable|string|max:255',
+            'email'      => 'nullable|email|max:255',
             'phone'      => 'nullable|string|max:30',
             'department' => 'nullable|string|max:100',
-            'position'   => 'nullable|string|max:100',
             'bio'        => 'nullable|string|max:1000',
             'location'   => 'nullable|string|max:150',
-            'timezone'   => 'nullable|string|max:60',
         ]);
 
         /** @var User $admin */
         $admin   = Auth::user();
+
+        // Update users table fields if provided
+        $userFields = [];
+        if (!empty($validated['name']))  $userFields['name']  = $validated['name'];
+        if (!empty($validated['email'])) {
+            // ensure email is unique (exclude current user)
+            $request->validate(['email' => 'unique:users,email,' . $admin->id]);
+            $userFields['email'] = $validated['email'];
+        }
+        if (!empty($userFields)) {
+            $admin->update($userFields);
+        }
+
+        // Update admin_profiles table fields
+        $profileFields = array_filter([
+            'phone'      => $validated['phone']      ?? null,
+            'department' => $validated['department'] ?? null,
+            'bio'        => $validated['bio']        ?? null,
+            'location'   => $validated['location']   ?? null,
+        ], fn($v) => $v !== null);
+
         $profile = $this->getOrCreate($admin);
-        $profile->update($validated);
+        if (!empty($profileFields)) {
+            $profile->update($profileFields);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Profile updated successfully.',
-            'data'    => $this->format($admin, $profile->fresh()),
+            'data'    => $this->format($admin->fresh(), $profile->fresh()),
         ]);
     }
 
@@ -136,23 +159,18 @@ class AdminProfileController extends Controller
     private function format(User $admin, AdminProfile $profile): array
     {
         return [
-            // From users table (read-only on this page)
             'name'       => $admin->name,
             'email'      => $admin->email,
             'role'       => $admin->role,
             'joined'     => $admin->created_at?->format('d M Y') ?? '—',
 
-            // From admin_profiles table
             'admin_id'   => $profile->admin_id,
-            'avatar_url' => $profile->avatar_url,   // accessor
+            'avatar_url' => $profile->avatar_url,
             'phone'      => $profile->phone,
             'department' => $profile->department,
-            'position'   => $profile->position,
             'bio'        => $profile->bio,
             'location'   => $profile->location,
-            'timezone'   => $profile->timezone,
 
-            // Live platform stats
             'stats' => [
                 'total_students'    => User::where('role', 'student')->count(),
                 'total_companies'   => User::where('role', 'company')->count(),

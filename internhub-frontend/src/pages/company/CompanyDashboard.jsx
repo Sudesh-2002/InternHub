@@ -1,47 +1,42 @@
-// src/pages/company/CompanyDashboard.jsx
-
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 import { useSessionTimeout } from "../../hooks/useSessionTimeout";
 import SessionTimeoutModal from "../../components/SessionTimeoutModal";
-
-import Sidebar  from "./components/Sidebar";
-import Topbar   from "./components/Topbar";
+import Sidebar from "./components/Sidebar";
+import Topbar from "./components/Topbar";
 import { Toasts, useToast } from "./components/Shared";
-
-import DashboardHome  from "./pages/DashboardHome";
-import PostJob        from "./pages/PostJob";
-import ManageJobs     from "./pages/ManageJobs";
-import Applicants     from "./pages/Applicants";
+import DashboardHome from "./pages/DashboardHome";
+import PostJob from "./pages/PostJob";
+import ManageJobs from "./pages/ManageJobs";
+import Applicants from "./pages/Applicants";
 import CompanyProfile from "./pages/CompanyProfile";
-import Notifications  from "./pages/Notifications";
-
+import Notifications from "./pages/Notifications";
 import { MOCK_JOBS } from "./data/mockData";
 
-const API_BASE   = "http://127.0.0.1:8000/api";
+const API_BASE = "http://127.0.0.1:8000/api";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 export default function CompanyDashboard() {
-  const { user, logout }          = useAuth();
-  const navigate                  = useNavigate();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [jobs, setJobs]               = useState(MOCK_JOBS);
-  const [unread, setUnread]           = useState(0);
+  const [jobs, setJobs] = useState(MOCK_JOBS);
+  const [unread, setUnread] = useState(0);
   const [showTimeout, setShowTimeout] = useState(false);
-  const { toasts, add: toast }        = useToast();
+  const { toasts, add: toast } = useToast();
 
-  // ── Session Timeout ──────────────────────────────────────────────────────
+  //  Session Timeout 
   const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
-    enabled:   !!user,
+    enabled: !!user,
     onWarning: () => setShowTimeout(true),
-    onExpire:  async () => {
+    onExpire: async () => {
       setShowTimeout(false);
       await logout();
       navigate("/login");
     },
-    onReset:   () => setShowTimeout(false),
+    onReset: () => setShowTimeout(false),
   });
 
   const handleStayLoggedIn = () => { stayLoggedIn(); setShowTimeout(false); };
@@ -51,7 +46,7 @@ export default function CompanyDashboard() {
   useEffect(() => {
     axios.get(`${API_BASE}/company/notifications`, { headers: authHeader() })
       .then(r => setUnread(r.data.unread_count ?? 0))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -80,7 +75,6 @@ export default function CompanyDashboard() {
         }
       `}</style>
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-20 lg:hidden"
@@ -88,23 +82,17 @@ export default function CompanyDashboard() {
         />
       )}
 
-      {/* Sidebar */}
       <Sidebar
         unread={unread}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 lg:ml-60">
-
-        {/* Topbar */}
         <Topbar
           unread={unread}
           onOpenSidebar={() => setSidebarOpen(true)}
         />
-
-        {/* Routed pages */}
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <Routes>
             <Route index element={

@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-/* ─────────────────────────────────────────
-   API CONFIG
-───────────────────────────────────────── */
+// API CONFIG
 const API_BASE = "http://127.0.0.1:8000/api/company/profile";
 
 const getAuthHeaders = () => ({
@@ -11,9 +9,7 @@ const getAuthHeaders = () => ({
   // Do NOT set Content-Type here — browser sets it automatically for FormData
 });
 
-/* ─────────────────────────────────────────
-   SHARED PRIMITIVES
-───────────────────────────────────────── */
+//  SHARED PRIMITIVES
 const Field = ({ label, hint, children }) => (
   <div>
     <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-1.5">
@@ -30,37 +26,35 @@ const inputBase =
   "focus:border-violet-400 transition-all duration-150 hover:border-slate-300 backdrop-blur-sm";
 
 const Input = (p) => <input className={inputBase} {...p} />;
-const TA    = ({ rows = 3, ...p }) => <textarea className={inputBase + " resize-none"} rows={rows} {...p} />;
-const Sel   = ({ children, ...p }) => <select className={inputBase} {...p}>{children}</select>;
+const TA = ({ rows = 3, ...p }) => <textarea className={inputBase + " resize-none"} rows={rows} {...p} />;
+const Sel = ({ children, ...p }) => <select className={inputBase} {...p}>{children}</select>;
 
-/* ─────────────────────────────────────────
-   STEP INDICATOR
-───────────────────────────────────────── */
+// STEP INDICATOR
 const STEPS = [
-  { n: 1, label: "Identity"    },
+  { n: 1, label: "Identity" },
   { n: 2, label: "Description" },
-  { n: 3, label: "Contact"     },
-  { n: 4, label: "Documents"   },
+  { n: 3, label: "Contact" },
+  { n: 4, label: "Documents" },
 ];
 
 const StepBar = ({ current }) => (
   <div className="flex items-center gap-0 mb-8">
     {STEPS.map((s, i) => {
-      const done   = s.n < current;
+      const done = s.n < current;
       const active = s.n === current;
       return (
         <div key={s.n} className="flex items-center flex-1 last:flex-none">
           <div className="flex flex-col items-center gap-1.5">
             <div className={`
               w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300
-              ${done   ? "bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200" : ""}
+              ${done ? "bg-violet-600 border-violet-600 text-white shadow-lg shadow-violet-200" : ""}
               ${active ? "bg-white border-violet-600 text-violet-600 shadow-lg shadow-violet-100 scale-110" : ""}
               ${!done && !active ? "bg-white border-slate-200 text-slate-400" : ""}
             `}>
               {done
                 ? <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
                 : s.n
               }
             </div>
@@ -80,9 +74,7 @@ const StepBar = ({ current }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────
-   DOCUMENT ROW
-───────────────────────────────────────── */
+//  DOCUMENT ROW
 const DocRow = ({ label, hint, value, existingUrl, onChange }) => (
   <div className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0 group">
     <div className="min-w-0 pr-4">
@@ -112,9 +104,7 @@ const DocRow = ({ label, hint, value, existingUrl, onChange }) => (
   </div>
 );
 
-/* ─────────────────────────────────────────
-   LOADING SCREEN
-───────────────────────────────────────── */
+//  LOADING SCREEN
 const LoadingScreen = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0f0ff] via-[#f8f8ff] to-[#f0f5ff]">
     <div className="flex flex-col items-center gap-3">
@@ -124,121 +114,120 @@ const LoadingScreen = () => (
   </div>
 );
 
-/* ─────────────────────────────────────────
-   MAIN COMPONENT
-───────────────────────────────────────── */
+//  MAIN COMPONENT
 const CompanyProfile = ({ toast }) => {
-  const [step,     setStep]     = useState(1);
-  const [saving,   setSaving]   = useState(false);
-  const [loading,  setLoading]  = useState(true);
-  const [animDir,  setAnimDir]  = useState("forward");
-  const [visible,  setVisible]  = useState(true);
+  const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [animDir, setAnimDir] = useState("forward");
+  const [visible, setVisible] = useState(true);
+  const [logoError, setLogoError] = useState(false);
   const logoRef = useRef();
 
-  /* ── State: Step 1 – Identity ── */
+  // State: Step 1 – Identity
   const [id, setId] = useState({
-    logoPreview:      null,   // data-URL for <img> preview
-    logoFile:         null,   // File object to upload
-    existingLogoUrl:  null,   // URL returned by API
-    companyName:      "",
-    registeredName:   "",
-    industry:         "Software & Technology",
-    registrationNo:   "",
-    yearFounded:      "",
-    companySize:      "50-100",
-    headquarters:     "",
-    website:          "",
+    logoPreview: null,
+    logoFile: null,
+    existingLogoUrl: null,
+    companyName: "",
+    registeredName: "",
+    industry: "Software & Technology",
+    registrationNo: "",
+    yearFounded: "",
+    companySize: "50-100",
+    headquarters: "",
+    website: "",
     verificationStatus: "pending",
   });
 
-  /* ── State: Step 2 – Description ── */
+  // State: Step 2 – Description
   const [desc, setDesc] = useState({
-    about:        "",
-    mission:      "",
-    vision:       "",
-    services:     "",
+    about: "",
+    mission: "",
+    vision: "",
+    services: "",
     technologies: "",
-    culture:      "",
+    culture: "",
   });
 
-  /* ── State: Step 3 – Contact ── */
+  //State: Step 3 – Contact
   const [contact, setContact] = useState({
     officialEmail: "",
-    hrEmail:       "",
-    phone:         "",
-    address:       "",
-    linkedin:      "",
-    facebook:      "",
-    website:       "",
+    hrEmail: "",
+    phone: "",
+    address: "",
+    linkedin: "",
+    facebook: "",
+    website: "",
   });
 
-  /* ── State: Step 4 – Documents ── */
+  // State: Step 4 – Documents
   const [docs, setDocs] = useState({
-    businessCert:       null,   // new File
-    taxDocs:            null,
-    verificationDoc:    null,
-    hrAuth:             null,
-    businessCertUrl:    null,   // existing URL from API
-    taxDocsUrl:         null,
+    businessCert: null,   // new File
+    taxDocs: null,
+    verificationDoc: null,
+    hrAuth: null,
+    businessCertUrl: null,   // existing URL from API
+    taxDocsUrl: null,
     verificationDocUrl: null,
-    hrAuthUrl:          null,
+    hrAuthUrl: null,
   });
 
-  /* ── Updater helpers ── */
-  const sId  = (k, v) => setId(p      => ({ ...p, [k]: v }));
-  const sDsc = (k, v) => setDesc(p    => ({ ...p, [k]: v }));
+  //Updater helpers
+  const sId = (k, v) => setId(p => ({ ...p, [k]: v }));
+  const sDsc = (k, v) => setDesc(p => ({ ...p, [k]: v }));
   const sCnt = (k, v) => setContact(p => ({ ...p, [k]: v }));
-  const sDoc = (k, v) => setDocs(p    => ({ ...p, [k]: v }));
+  const sDoc = (k, v) => setDocs(p => ({ ...p, [k]: v }));
 
-  /* ── Load existing profile on mount ── */
+  // Load existing profile on mount
   useEffect(() => {
     (async () => {
       try {
-        const res  = await fetch(API_BASE, { headers: getAuthHeaders() });
+        const res = await fetch(API_BASE, { headers: getAuthHeaders() });
         const json = await res.json();
-        const d    = json.data;
+        const d = json.data;
         if (!d) return;
 
         setId(p => ({
           ...p,
-          existingLogoUrl: d.logo_url        ?? null,
-          logoPreview:     d.logo_url        ?? null,
-          companyName:     d.company_name    ?? "",
-          registeredName:  d.registered_name ?? "",
-          industry:        d.industry        ?? "Software & Technology",
-          registrationNo:  d.registration_no ?? "",
-          yearFounded:     d.year_founded    ?? "",
-          companySize:     d.company_size    ?? "50-100",
-          headquarters:    d.headquarters    ?? "",
-          website:         d.website         ?? "",
+          existingLogoUrl: d.logo_url ?? null,
+          logoPreview: d.logo_url ?? null,
+          companyName: d.company_name ?? "",
+          registeredName: d.registered_name ?? "",
+          industry: d.industry ?? "Software & Technology",
+          registrationNo: d.registration_no ?? "",
+          yearFounded: d.year_founded ?? "",
+          companySize: d.company_size ?? "50-100",
+          headquarters: d.headquarters ?? "",
+          website: d.website ?? "",
           verificationStatus: d.verification_status ?? "pending",
         }));
 
         setDesc({
-          about:        d.about        ?? "",
-          mission:      d.mission      ?? "",
-          vision:       d.vision       ?? "",
-          services:     d.services     ?? "",
+          about: d.about ?? "",
+          mission: d.mission ?? "",
+          vision: d.vision ?? "",
+          services: d.services ?? "",
           technologies: d.technologies ?? "",
-          culture:      d.culture      ?? "",
+          culture: d.culture ?? "",
         });
 
         setContact({
           officialEmail: d.official_email ?? "",
-          hrEmail:       d.hr_email       ?? "",
-          phone:         d.phone          ?? "",
-          address:       d.address        ?? "",
-          linkedin:      d.linkedin_url   ?? "",
-          facebook:      d.facebook_url   ?? "",
-          website:       d.website        ?? "",
+          hrEmail: d.hr_email ?? "",
+          phone: d.phone ?? "",
+          address: d.address ?? "",
+          linkedin: d.linkedin_url ?? "",
+          facebook: d.facebook_url ?? "",
+          website: d.website ?? "",
         });
 
         setDocs(p => ({
           ...p,
-          businessCertUrl:    d.business_cert_url    ?? null,
-          taxDocsUrl:         d.tax_docs_url         ?? null,
+          businessCertUrl: d.business_cert_url ?? null,
+          taxDocsUrl: d.tax_docs_url ?? null,
           verificationDocUrl: d.verification_doc_url ?? null,
-          hrAuthUrl:          d.hr_auth_url          ?? null,
+          hrAuthUrl: d.hr_auth_url ?? null,
         }));
       } catch (err) {
         console.error("Failed to load company profile:", err);
@@ -248,57 +237,57 @@ const CompanyProfile = ({ toast }) => {
     })();
   }, []);
 
-  /* ── Logo file picker ── */
+  // Logo file picker
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     sId("logoFile", file);
+    setLogoError(false);
     const reader = new FileReader();
     reader.onload = (ev) => sId("logoPreview", ev.target.result);
     reader.readAsDataURL(file);
   };
 
-  /* ── Build multipart FormData from all state ── */
   const buildFormData = useCallback(() => {
     const fd = new FormData();
 
     // Identity
-    fd.append("company_name",    id.companyName);
+    fd.append("company_name", id.companyName);
     fd.append("registered_name", id.registeredName);
-    fd.append("industry",        id.industry);
+    fd.append("industry", id.industry);
     fd.append("registration_no", id.registrationNo);
-    fd.append("year_founded",    id.yearFounded);
-    fd.append("company_size",    id.companySize);
-    fd.append("headquarters",    id.headquarters);
-    fd.append("website",         id.website);
+    fd.append("year_founded", id.yearFounded);
+    fd.append("company_size", id.companySize);
+    fd.append("headquarters", id.headquarters);
+    fd.append("website", id.website);
     if (id.logoFile) fd.append("logo", id.logoFile);
 
     // Description
-    fd.append("about",        desc.about);
-    fd.append("mission",      desc.mission);
-    fd.append("vision",       desc.vision);
-    fd.append("services",     desc.services);
+    fd.append("about", desc.about);
+    fd.append("mission", desc.mission);
+    fd.append("vision", desc.vision);
+    fd.append("services", desc.services);
     fd.append("technologies", desc.technologies);
-    fd.append("culture",      desc.culture);
+    fd.append("culture", desc.culture);
 
     // Contact
     fd.append("official_email", contact.officialEmail);
-    fd.append("hr_email",       contact.hrEmail);
-    fd.append("phone",          contact.phone);
-    fd.append("address",        contact.address);
-    fd.append("linkedin_url",   contact.linkedin);
-    fd.append("facebook_url",   contact.facebook);
+    fd.append("hr_email", contact.hrEmail);
+    fd.append("phone", contact.phone);
+    fd.append("address", contact.address);
+    fd.append("linkedin_url", contact.linkedin);
+    fd.append("facebook_url", contact.facebook);
 
     // Documents (only append if a new file was selected)
-    if (docs.businessCert)    fd.append("business_cert",    docs.businessCert);
-    if (docs.taxDocs)         fd.append("tax_docs",         docs.taxDocs);
+    if (docs.businessCert) fd.append("business_cert", docs.businessCert);
+    if (docs.taxDocs) fd.append("tax_docs", docs.taxDocs);
     if (docs.verificationDoc) fd.append("verification_doc", docs.verificationDoc);
-    if (docs.hrAuth)          fd.append("hr_auth",          docs.hrAuth);
+    if (docs.hrAuth) fd.append("hr_auth", docs.hrAuth);
 
     return fd;
   }, [id, desc, contact, docs]);
 
-  /* ── Animated step navigation ── */
+  // Animated step navigation
   const navigate = (dir) => {
     setAnimDir(dir);
     setVisible(false);
@@ -308,18 +297,18 @@ const CompanyProfile = ({ toast }) => {
     }, 180);
   };
 
-  /* ── Final save — POST (upsert) to API ── */
+  // Final save — POST (upsert) to API
   const handleSave = async () => {
     setSaving(true);
     try {
       const res = await fetch(API_BASE, {
-        method:  "POST",
+        method: "POST",
         headers: getAuthHeaders(),
-        body:    buildFormData(),
+        body: buildFormData(),
       });
 
       if (!res.ok) {
-        const err        = await res.json();
+        const err = await res.json();
         const firstError = Object.values(err.errors ?? {})[0]?.[0] ?? "Save failed.";
         toast?.(firstError, "error");
         return;
@@ -332,9 +321,10 @@ const CompanyProfile = ({ toast }) => {
         setId(p => ({
           ...p,
           existingLogoUrl: json.data.logo_url,
-          logoPreview:     json.data.logo_url,
-          logoFile:        null,   // clear pending file
+          logoPreview: json.data.logo_url,
+          logoFile: null,
         }));
+        setLogoError(false); // reset after successful save
       }
 
       toast?.("Company profile saved successfully!", "success");
@@ -350,7 +340,6 @@ const CompanyProfile = ({ toast }) => {
     }
   };
 
-  /* ── Derived display values ── */
   const initials = (id.companyName || "CO")
     .split(" ")
     .slice(0, 2)
@@ -358,17 +347,12 @@ const CompanyProfile = ({ toast }) => {
     .join("")
     .toUpperCase();
 
-  /* ─────────────────────────────────────────
-     EARLY RETURN — loading
-  ───────────────────────────────────────── */
   if (loading) return <LoadingScreen />;
 
-  /* ─────────────────────────────────────────
-     PANELS
-  ───────────────────────────────────────── */
+  // PANELS
   const panels = {
 
-    /* ── STEP 1: Identity ── */
+    // STEP 1: Identity
     1: (
       <div className="space-y-5">
         {/* Logo upload block */}
@@ -377,12 +361,17 @@ const CompanyProfile = ({ toast }) => {
             onClick={() => logoRef.current.click()}
             className="w-[72px] h-[72px] rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden hover:border-violet-300 hover:bg-violet-50/40 transition-all flex-shrink-0 bg-white"
           >
-            {id.logoPreview
-              ? <img src={id.logoPreview} alt="logo" className="w-full h-full object-cover rounded-2xl" />
+            {id.logoPreview && !logoError
+              ? <img
+                src={id.logoPreview}
+                alt="logo"
+                className="w-full h-full object-cover rounded-2xl"
+                onError={() => setLogoError(true)}
+              />
               : <div className="text-center select-none">
-                  <div className="text-xl font-black text-slate-200">{initials}</div>
-                  <div className="text-[9px] text-slate-300 font-semibold mt-0.5">LOGO</div>
-                </div>
+                <div className="text-xl font-black text-slate-200">{initials}</div>
+                <div className="text-[9px] text-slate-300 font-semibold mt-0.5">LOGO</div>
+              </div>
             }
           </div>
           <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
@@ -411,8 +400,8 @@ const CompanyProfile = ({ toast }) => {
           </div>
           <Field label="Industry / Sector">
             <Sel value={id.industry} onChange={e => sId("industry", e.target.value)}>
-              {["Software & Technology","Finance & Banking","Healthcare","Education",
-                "Retail & E-Commerce","Manufacturing","Consulting","Media & Entertainment","Other"]
+              {["Software & Technology", "Finance & Banking", "Healthcare", "Education",
+                "Retail & E-Commerce", "Manufacturing", "Consulting", "Media & Entertainment", "Other"]
                 .map(s => <option key={s}>{s}</option>)}
             </Sel>
           </Field>
@@ -424,7 +413,7 @@ const CompanyProfile = ({ toast }) => {
           </Field>
           <Field label="Company Size">
             <Sel value={id.companySize} onChange={e => sId("companySize", e.target.value)}>
-              {["1-10","11-50","50-100","100-500","500-1000","1000+"]
+              {["1-10", "11-50", "50-100", "100-500", "500-1000", "1000+"]
                 .map(s => <option key={s} value={s}>{s} employees</option>)}
             </Sel>
           </Field>
@@ -438,7 +427,7 @@ const CompanyProfile = ({ toast }) => {
       </div>
     ),
 
-    /* ── STEP 2: Description ── */
+    // STEP 2: Description
     2: (
       <div className="space-y-5">
         <Field label="About the Company">
@@ -464,7 +453,7 @@ const CompanyProfile = ({ toast }) => {
       </div>
     ),
 
-    /* ── STEP 3: Contact ── */
+    // STEP 3: Contact
     3: (
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
@@ -495,7 +484,7 @@ const CompanyProfile = ({ toast }) => {
       </div>
     ),
 
-    /* ── STEP 4: Documents ── */
+    // Documents
     4: (
       <div className="space-y-4">
         <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-xl">
@@ -532,9 +521,7 @@ const CompanyProfile = ({ toast }) => {
     ),
   };
 
-  /* ─────────────────────────────────────────
-     RENDER
-  ───────────────────────────────────────── */
+  // RENDER
   return (
     <>
       <style>{`
@@ -569,11 +556,16 @@ const CompanyProfile = ({ toast }) => {
 
         <div className="relative w-full max-w-[620px]">
 
-          {/* ── Top identity strip ── */}
+          {/* Top identity strip */}
           <div className="flex items-center gap-4 mb-7">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white text-base font-black shadow-lg shadow-violet-200 flex-shrink-0 overflow-hidden">
-              {id.logoPreview
-                ? <img src={id.logoPreview} alt="logo" className="w-full h-full object-cover" />
+              {id.logoPreview && !logoError
+                ? <img
+                  src={id.logoPreview}
+                  alt="logo"
+                  className="w-full h-full object-cover"
+                  onError={() => setLogoError(true)}
+                />
                 : initials
               }
             </div>
@@ -583,10 +575,9 @@ const CompanyProfile = ({ toast }) => {
                   {id.companyName || "Your Company"}
                 </h1>
                 <span className={`text-xs font-bold px-3 py-1 rounded-full border
-                  ${
-                    id.verificationStatus === "verified"
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : id.verificationStatus === "pending"
+                  ${id.verificationStatus === "verified"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : id.verificationStatus === "pending"
                       ? "bg-yellow-50 text-yellow-700 border-yellow-200"
                       : "bg-red-50 text-red-700 border-red-200"
                   }`}>
@@ -599,7 +590,7 @@ const CompanyProfile = ({ toast }) => {
             </div>
           </div>
 
-          {/* ── Main card ── */}
+          {/*  Main card  */}
           <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl shadow-2xl shadow-violet-100/50 overflow-hidden">
 
             {/* Card header */}
@@ -609,7 +600,7 @@ const CompanyProfile = ({ toast }) => {
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-violet-500 to-indigo-500" />
                   <h2 className="cp-heading text-lg font-bold text-slate-900">
-                    {["","Company Identity","Company Description","Contact Information","Company Documents"][step]}
+                    {["", "Company Identity", "Company Description", "Contact Information", "Company Documents"][step]}
                   </h2>
                 </div>
                 <p className="text-xs text-slate-400 font-medium ml-3.5">
@@ -639,7 +630,7 @@ const CompanyProfile = ({ toast }) => {
 
             <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent mx-8" />
 
-            {/* ── Navigation bar ── */}
+            {/*  Navigation bar  */}
             <div className="px-8 py-5 flex items-center justify-between">
 
               {/* Progress dots */}
@@ -687,8 +678,8 @@ const CompanyProfile = ({ toast }) => {
                     {saving
                       ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       : <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8" />
-                        </svg>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2zM17 21v-8H7v8M7 3v5h8" />
+                      </svg>
                     }
                     {saving ? "Saving…" : "Save Profile"}
                   </button>
