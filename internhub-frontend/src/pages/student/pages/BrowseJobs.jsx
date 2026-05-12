@@ -1,32 +1,30 @@
-// src/pages/student/pages/BrowseJobs.jsx
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Icon    from "../components/Icon";
+import Icon from "../components/Icon";
 import { getJobs } from "../../../services/api";
 
 const BrowseJobs = () => {
   const navigate = useNavigate();
 
-  const [jobs,       setJobs]       = useState([]);
-  const [search,     setSearch]     = useState("");
-  const [location,   setLocation]   = useState("");
-  const [type,       setType]       = useState("");
-  const [pageNum,    setPageNum]    = useState(1);
+  const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
+  const [type, setType] = useState("");
+  const [pageNum, setPageNum] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalJobs,  setTotalJobs]  = useState(0);
-  const [loading,    setLoading]    = useState(false);
+  const [totalJobs, setTotalJobs] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => { fetchJobs(); }, [search, location, type, pageNum]);
 
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const res     = await getJobs({ search, location, type, page: pageNum });
+      const res = await getJobs({ search, location, type, page: pageNum });
       const payload = res.data;
       setJobs((payload.data || []).map(normalizeJob));
       setTotalPages(payload.last_page || 1);
-      setTotalJobs(payload.total      || 0);
+      setTotalJobs(payload.total || 0);
     } catch (err) {
       console.error("Error fetching jobs:", err);
     } finally {
@@ -61,15 +59,12 @@ const BrowseJobs = () => {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900">Browse Internships</h2>
         <p className="text-sm text-gray-400 mt-1">
           {totalJobs} {totalJobs === 1 ? "opportunity" : "opportunities"} available
         </p>
       </div>
-
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           value={search}
@@ -124,7 +119,7 @@ const BrowseJobs = () => {
                   {job.location && (
                     <span className="text-xs text-gray-500 flex items-center gap-1">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                       </svg>
                       {job.location}
                     </span>
@@ -149,7 +144,6 @@ const BrowseJobs = () => {
         ))}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 flex-wrap">
           <button disabled={pageNum <= 1} onClick={() => setPageNum(p => p - 1)}
@@ -167,8 +161,7 @@ const BrowseJobs = () => {
               p === "…"
                 ? <span key={`ellipsis-${i}`} className="px-2 py-1.5 text-gray-400 text-sm">…</span>
                 : <button key={p} onClick={() => setPageNum(p)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                      p === pageNum ? "bg-indigo-600 text-white" : "border text-gray-600 hover:bg-gray-50"
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${p === pageNum ? "bg-indigo-600 text-white" : "border text-gray-600 hover:bg-gray-50"
                     }`}>{p}</button>
             )}
           <button disabled={pageNum >= totalPages} onClick={() => setPageNum(p => p + 1)}

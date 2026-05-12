@@ -5,7 +5,6 @@ import { fetchProfile, updateProfile, uploadResume, deleteResume, uploadAvatar, 
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
 
-// ── Reusable section wrapper ──────────────────────────────────────────────────
 const Section = ({ title, action, children }) => (
   <div className="bg-white border border-gray-100 rounded-2xl p-6">
     <div className="flex items-center justify-between mb-5">
@@ -16,7 +15,6 @@ const Section = ({ title, action, children }) => (
   </div>
 );
 
-// ── Skill badge ───────────────────────────────────────────────────────────────
 const SkillBadge = ({ label, onRemove }) => (
   <span className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-full">
     {label}
@@ -28,7 +26,6 @@ const SkillBadge = ({ label, onRemove }) => (
   </span>
 );
 
-// ── Edit modal wrapper ────────────────────────────────────────────────────────
 const Modal = ({ title, onClose, onSave, children }) => (
   <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
     <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -70,30 +67,29 @@ const Textarea = (props) => (
     className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none" />
 );
 
-// ══════════════════════════════════════════════════════════════════════════════
 const ProfilePage = ({ user }) => {
-  const [data, setData]         = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(null);
-  const [modal, setModal]       = useState(null);
-  const [draft, setDraft]       = useState({});
-  const [toast, setToast]       = useState(null);
-  const [saving, setSaving]     = useState(false);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [draft, setDraft] = useState({});
+  const [toast, setToast] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [skillInput, setSkillInput] = useState("");
   const [avatarError, setAvatarError] = useState(false);
-  const avatarRef               = useRef();
-  const { refreshUser }         = useAuth();
+  const avatarRef = useRef();
+  const { refreshUser } = useAuth();
 
-  // ── Load profile on mount ──
+  //  Load profile on mount 
   useEffect(() => {
     fetchProfile()
       .then((profile) => {
         setData({
           ...profile,
-          skills:     profile.skills     || [],
-          education:  profile.education  || [],
+          skills: profile.skills || [],
+          education: profile.education || [],
           experience: profile.experience || [],
-          projects:   profile.projects   || [],
+          projects: profile.projects || [],
         });
         setLoading(false);
       })
@@ -103,29 +99,29 @@ const ProfilePage = ({ user }) => {
       });
   }, []);
 
-  const openModal  = (key, initial = {}) => { setDraft(initial); setModal(key); };
+  const openModal = (key, initial = {}) => { setDraft(initial); setModal(key); };
   const closeModal = () => setModal(null);
 
   const showToast = (message, type = "success") => setToast({ message, type });
   const hideToast = () => setToast(null);
 
-  // ── Sync to server ──
+  //  Sync to server 
   const syncToServer = async (newData) => {
     setSaving(true);
     showToast("Saving…", "loading");
     try {
       await updateProfile({
-        name:       newData.name,
-        phone:      newData.phone,
-        location:   newData.location,
-        summary:    newData.summary,
-        skills:     newData.skills,
-        education:  newData.education,
+        name: newData.name,
+        phone: newData.phone,
+        location: newData.location,
+        summary: newData.summary,
+        skills: newData.skills,
+        education: newData.education,
         experience: newData.experience,
-        projects:   newData.projects,
-        github:     newData.github,
-        linkedin:   newData.linkedin,
-        portfolio:  newData.portfolio,
+        projects: newData.projects,
+        github: newData.github,
+        linkedin: newData.linkedin,
+        portfolio: newData.portfolio,
       });
       setData(newData);
       showToast("Changes saved", "success");
@@ -143,7 +139,6 @@ const ProfilePage = ({ user }) => {
     </button>
   );
 
-  // ── Skills helpers ──
   const addSkill = () => {
     const s = skillInput.trim();
     if (!s || data.skills.includes(s)) { setSkillInput(""); return; }
@@ -157,14 +152,13 @@ const ProfilePage = ({ user }) => {
     syncToServer(newData);
   };
 
-  // ── List item helpers ──
   const removeItem = (key, id) => {
     const newData = { ...data, [key]: data[key].filter((i) => i.id !== id) };
     syncToServer(newData);
   };
 
   const saveItem = (key, item) => {
-    const list   = data[key];
+    const list = data[key];
     const exists = list.find((i) => i.id === item.id);
     const updated = exists
       ? list.map((i) => (i.id === item.id ? item : i))
@@ -174,7 +168,6 @@ const ProfilePage = ({ user }) => {
     closeModal();
   };
 
-  // ── Avatar handlers ──
   const handleAvatarUpload = async (file) => {
     if (!file) return;
     setSaving(true);
@@ -199,7 +192,7 @@ const ProfilePage = ({ user }) => {
     try {
       await deleteAvatar();
       setData((prev) => ({ ...prev, avatar_url: null }));
-      await refreshUser(); // update sidebar
+      await refreshUser();
       showToast("Profile photo removed.", "success");
     } catch {
       showToast("Failed to remove photo.", "error");
@@ -208,7 +201,6 @@ const ProfilePage = ({ user }) => {
     }
   };
 
-  // ── Resume helpers ──
   const handleResumeUpload = async (file) => {
     if (!file) return;
     setSaving(true);
@@ -239,7 +231,6 @@ const ProfilePage = ({ user }) => {
     }
   };
 
-  // ── Loading / error states ──
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24 text-gray-400 text-sm">
@@ -259,7 +250,6 @@ const ProfilePage = ({ user }) => {
   return (
     <div className="space-y-5 pb-10">
 
-      {/* Toast */}
       {toast && (
         <Toast
           message={toast.message}
@@ -268,24 +258,20 @@ const ProfilePage = ({ user }) => {
         />
       )}
 
-      {/* ── TOP CARD ── */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-
-          {/* Avatar with upload overlay */}
           <div className="relative flex-shrink-0 group">
             <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-3xl font-bold overflow-hidden shadow-sm">
               {data.avatar_url && !avatarError
                 ? <img
-                    src={data.avatar_url}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                    onError={() => setAvatarError(true)}
-                  />
+                  src={data.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                  onError={() => setAvatarError(true)}
+                />
                 : (data.name?.charAt(0) || "S")
               }
             </div>
-            {/* Hover overlay — click triggers file input */}
             <label className="absolute inset-0 flex flex-col items-center justify-center gap-0.5
                               bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100
                               transition cursor-pointer">
@@ -300,7 +286,6 @@ const ProfilePage = ({ user }) => {
               />
             </label>
           </div>
-          {/* Remove photo link below avatar */}
           {data.avatar_url && (
             <button onClick={handleAvatarDelete}
               className="text-[10px] text-red-400 hover:text-red-600 transition -mt-3 sm:hidden">
@@ -362,14 +347,12 @@ const ProfilePage = ({ user }) => {
         </div>
       </div>
 
-      {/* ── SUMMARY ── */}
       <Section title="Professional Summary" action={editBtn("summary", { summary: data.summary })}>
         <p className="text-sm text-gray-600 leading-relaxed">
           {data.summary || <span className="text-gray-300 italic">No summary added yet.</span>}
         </p>
       </Section>
 
-      {/* ── SKILLS ── */}
       <Section title="Skills">
         <div className="flex flex-wrap gap-2 mb-4">
           {data.skills.map(s => <SkillBadge key={s} label={s} onRemove={removeSkill} />)}
@@ -389,10 +372,9 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
-      {/* ── EDUCATION ── */}
       <Section title="Education"
         action={
-          <button onClick={() => openModal("edu-new", { degree:"", university:"", start:"", end:"", gpa:"" })}
+          <button onClick={() => openModal("edu-new", { degree: "", university: "", start: "", end: "", gpa: "" })}
             className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium hover:text-indigo-700">
             + Add
           </button>
@@ -429,10 +411,9 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
-      {/* ── EXPERIENCE ── */}
       <Section title="Experience"
         action={
-          <button onClick={() => openModal("exp-new", { title:"", company:"", duration:"", description:"" })}
+          <button onClick={() => openModal("exp-new", { title: "", company: "", duration: "", description: "" })}
             className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium hover:text-indigo-700">
             + Add
           </button>
@@ -464,10 +445,9 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
-      {/* ── PROJECTS ── */}
       <Section title="Projects"
         action={
-          <button onClick={() => openModal("proj-new", { title:"", description:"", tech:"", github:"" })}
+          <button onClick={() => openModal("proj-new", { title: "", description: "", tech: "", github: "" })}
             className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium hover:text-indigo-700">
             + Add
           </button>
@@ -510,8 +490,6 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
-
-      {/* ── RESUME ── */}
       <Section title="Resume / CV">
         <div className="flex flex-col gap-3">
           {data.resume_name ? (
@@ -546,12 +524,6 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
-
-
-
-      {/* ══════════ MODALS ══════════ */}
-
-      {/* Basic Info */}
       {modal === "basic" && (
         <Modal title="Edit Basic Info" onClose={closeModal}
           onSave={() => { syncToServer({ ...data, ...draft }); closeModal(); }}>
@@ -562,7 +534,6 @@ const ProfilePage = ({ user }) => {
         </Modal>
       )}
 
-      {/* Summary */}
       {modal === "summary" && (
         <Modal title="Edit Summary" onClose={closeModal}
           onSave={() => { syncToServer({ ...data, summary: draft.summary }); closeModal(); }}>
@@ -572,7 +543,6 @@ const ProfilePage = ({ user }) => {
         </Modal>
       )}
 
-      {/* Social Links */}
       {modal === "social" && (
         <Modal title="Edit Social Links" onClose={closeModal}
           onSave={() => { syncToServer({ ...data, github: draft.github, linkedin: draft.linkedin, portfolio: draft.portfolio }); closeModal(); }}>
@@ -582,7 +552,6 @@ const ProfilePage = ({ user }) => {
         </Modal>
       )}
 
-      {/* Education — new/edit */}
       {(modal === "edu-new" || modal === "edu-edit") && (
         <Modal title={modal === "edu-new" ? "Add Education" : "Edit Education"} onClose={closeModal}
           onSave={() => saveItem("education", draft)}>
@@ -596,7 +565,6 @@ const ProfilePage = ({ user }) => {
         </Modal>
       )}
 
-      {/* Experience — new/edit */}
       {(modal === "exp-new" || modal === "exp-edit") && (
         <Modal title={modal === "exp-new" ? "Add Experience" : "Edit Experience"} onClose={closeModal}
           onSave={() => saveItem("experience", draft)}>
@@ -607,7 +575,6 @@ const ProfilePage = ({ user }) => {
         </Modal>
       )}
 
-      {/* Project — new/edit */}
       {(modal === "proj-new" || modal === "proj-edit") && (
         <Modal title={modal === "proj-new" ? "Add Project" : "Edit Project"} onClose={closeModal}
           onSave={() => saveItem("projects", draft)}>

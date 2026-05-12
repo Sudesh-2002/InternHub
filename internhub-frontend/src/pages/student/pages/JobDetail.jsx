@@ -1,20 +1,18 @@
-// src/pages/student/pages/JobDetail.jsx
-
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import Avatar from "../components/Avatar";
-import Icon   from "../components/Icon";
+import Icon from "../components/Icon";
 import { icons } from "../components/data/mockData";
 import axios from "axios";
 
 const JobDetail = () => {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const job       = location.state?.job;  // passed via navigate(..., { state: { job } })
+  const navigate = useNavigate();
+  const location = useLocation();
+  const job = location.state?.job;
 
-  const [applied,  setApplied]  = useState(false);
-  const [status,   setStatus]   = useState(null);
-  const [loading,  setLoading]  = useState(true);
+  const [applied, setApplied] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Always call hooks unconditionally
   useEffect(() => {
@@ -42,7 +40,7 @@ const JobDetail = () => {
   if (!job) return <Navigate to="/student/dashboard/browse" replace />;
 
   const getStatusMessage = () => {
-    if (status === "pending")  return "Application submitted — waiting for company response";
+    if (status === "pending") return "Application submitted — waiting for company response";
     if (status === "reviewed") return "Your application is being reviewed";
     if (status === "accepted") return "Congratulations! You've been selected";
     if (status === "rejected") return "Application not selected";
@@ -60,7 +58,7 @@ const JobDetail = () => {
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-5">
 
         <div className="flex items-start gap-4">
-          <Avatar initials={job.company_name?.slice(0,2).toUpperCase() || "??"} color="bg-indigo-100 text-indigo-700" />
+          <Avatar initials={job.company_name?.slice(0, 2).toUpperCase() || "??"} color="bg-indigo-100 text-indigo-700" />
           <div className="flex-1">
             <h2 className="text-xl font-bold text-gray-900">{job.title}</h2>
             <p className="text-sm text-gray-500 mt-0.5">{job.company_name}</p>
@@ -71,13 +69,12 @@ const JobDetail = () => {
                 </span>
               )}
               {job.type && (
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                  job.type === "Remote"
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${job.type === "Remote"
                     ? "bg-sky-50 text-sky-600"
                     : job.type === "Hybrid"
-                    ? "bg-violet-50 text-violet-600"
-                    : "bg-emerald-50 text-emerald-600"
-                }`}>
+                      ? "bg-violet-50 text-violet-600"
+                      : "bg-emerald-50 text-emerald-600"
+                  }`}>
                   {job.type}
                 </span>
               )}
