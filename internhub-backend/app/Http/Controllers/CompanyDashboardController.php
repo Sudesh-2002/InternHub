@@ -67,7 +67,9 @@ class CompanyDashboardController extends Controller
             ]);
 
         return response()->json([
-            'company_name'       => $profile?->company_name ?? $user->name,
+            'company_name'        => $profile?->company_name ?? $user->name,
+            'verification_status' => $profile?->verification_status ?? 'pending',
+            'profile_complete'    => !empty($profile?->official_email) && !empty($profile?->about),
             'stats' => [
                 'total_jobs'         => $totalJobs,
                 'active_jobs'        => $activeJobs,

@@ -35,6 +35,7 @@ const StudentDashboard = () => {
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [notifCount,    setNotifCount]    = useState(0);
   const [showTimeout,   setShowTimeout]   = useState(false);
+  const [avatarError,   setAvatarError]   = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
 
@@ -157,8 +158,13 @@ const StudentDashboard = () => {
         <div className="px-3 py-4 border-t border-gray-100">
           <div className="flex items-center gap-3 px-3 py-2 mb-1">
             <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-              {user?.student_profile?.avatar_url
-                ? <img src={user.student_profile.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+              {user?.student_profile?.avatar_url && !avatarError
+                ? <img
+                    src={user.student_profile.avatar_url}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
                 : user?.name?.charAt(0) || "S"
               }
             </div>

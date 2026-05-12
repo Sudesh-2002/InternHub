@@ -149,7 +149,12 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
         <div className="flex items-center gap-3 px-3 py-2">
           <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
             {company.logoUrl
-              ? <img src={company.logoUrl} alt="logo" className="w-full h-full object-cover" />
+              ? <img
+                  src={company.logoUrl}
+                  alt="logo"
+                  className="w-full h-full object-cover"
+                  onError={() => setCompany(p => ({ ...p, logoUrl: null }))}
+                />
               : company.initials || "C"
             }
           </div>

@@ -133,6 +133,7 @@ const CompanyProfile = ({ toast }) => {
   const [loading,  setLoading]  = useState(true);
   const [animDir,  setAnimDir]  = useState("forward");
   const [visible,  setVisible]  = useState(true);
+  const [logoError, setLogoError] = useState(false);
   const logoRef = useRef();
 
   /* ── State: Step 1 – Identity ── */
@@ -253,6 +254,7 @@ const CompanyProfile = ({ toast }) => {
     const file = e.target.files[0];
     if (!file) return;
     sId("logoFile", file);
+    setLogoError(false); // new file selected — reset error
     const reader = new FileReader();
     reader.onload = (ev) => sId("logoPreview", ev.target.result);
     reader.readAsDataURL(file);
@@ -333,8 +335,9 @@ const CompanyProfile = ({ toast }) => {
           ...p,
           existingLogoUrl: json.data.logo_url,
           logoPreview:     json.data.logo_url,
-          logoFile:        null,   // clear pending file
+          logoFile:        null,
         }));
+        setLogoError(false); // reset after successful save
       }
 
       toast?.("Company profile saved successfully!", "success");
@@ -377,8 +380,13 @@ const CompanyProfile = ({ toast }) => {
             onClick={() => logoRef.current.click()}
             className="w-[72px] h-[72px] rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer overflow-hidden hover:border-violet-300 hover:bg-violet-50/40 transition-all flex-shrink-0 bg-white"
           >
-            {id.logoPreview
-              ? <img src={id.logoPreview} alt="logo" className="w-full h-full object-cover rounded-2xl" />
+            {id.logoPreview && !logoError
+              ? <img
+                  src={id.logoPreview}
+                  alt="logo"
+                  className="w-full h-full object-cover rounded-2xl"
+                  onError={() => setLogoError(true)}
+                />
               : <div className="text-center select-none">
                   <div className="text-xl font-black text-slate-200">{initials}</div>
                   <div className="text-[9px] text-slate-300 font-semibold mt-0.5">LOGO</div>
@@ -572,8 +580,13 @@ const CompanyProfile = ({ toast }) => {
           {/* ── Top identity strip ── */}
           <div className="flex items-center gap-4 mb-7">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white text-base font-black shadow-lg shadow-violet-200 flex-shrink-0 overflow-hidden">
-              {id.logoPreview
-                ? <img src={id.logoPreview} alt="logo" className="w-full h-full object-cover" />
+              {id.logoPreview && !logoError
+                ? <img
+                    src={id.logoPreview}
+                    alt="logo"
+                    className="w-full h-full object-cover"
+                    onError={() => setLogoError(true)}
+                  />
                 : initials
               }
             </div>
