@@ -79,6 +79,8 @@ class AdminRolePermissionController extends Controller
             );
         }
 
+        RolePermission::clearCache();
+
         return response()->json(['message' => 'Permissions updated successfully.']);
     }
 
@@ -114,6 +116,7 @@ class AdminRolePermissionController extends Controller
         ];
 
         RolePermission::insert($defaults);
+        RolePermission::clearCache();
 
         return response()->json(['message' => 'Permissions reset to defaults.']);
     }

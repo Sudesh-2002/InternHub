@@ -6,6 +6,7 @@ use App\Models\Application;
 use App\Models\StudentProfile;
 use App\Models\InternshipListing;
 use App\Models\Notification;
+use App\Models\RolePermission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,10 @@ class ApplicationController extends Controller
 {
     public function apply(Request $request)
     {
+        if (!RolePermission::isEnabled('student', 'apply_to_internship')) {
+            return response()->json(['message' => 'Applying to internships is currently disabled for students.'], 403);
+        }
+
         $useExisting = $request->boolean('use_existing_resume');
 
         // Validate — resume file only required if NOT using existing
@@ -126,6 +131,10 @@ class ApplicationController extends Controller
     // ── Company: accept / reject / review an application ─────────────────
     public function companyUpdateStatus(Request $request, int $id): JsonResponse
     {
+        if (!RolePermission::isEnabled('company', 'manage_applications')) {
+            return response()->json(['message' => 'Managing applications is currently disabled for companies.'], 403);
+        }
+
         $request->validate(['status' => 'required|in:pending,reviewed,accepted,rejected']);
 
         $app = Application::with('internship')->findOrFail($id);
