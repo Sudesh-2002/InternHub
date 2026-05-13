@@ -26,6 +26,7 @@ use App\Http\Controllers\AdminModerationController;
 use App\Http\Controllers\AdminReportsController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AdminSupportController;
+use App\Http\Controllers\AdminSystemSettingsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -166,5 +167,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get   ('/support-tickets/{id}',          [AdminSupportController::class, 'show']);
         Route::patch ('/support-tickets/{id}/status',   [AdminSupportController::class, 'updateStatus']);
         Route::post  ('/support-tickets/{id}/reply',    [AdminSupportController::class, 'reply']);
+
+        // System Settings
+        Route::get  ('/settings',       [AdminSystemSettingsController::class, 'index']);
+        Route::patch('/settings',       [AdminSystemSettingsController::class, 'update']);
+        Route::post ('/settings/reset', [AdminSystemSettingsController::class, 'reset']);
     });
 });
