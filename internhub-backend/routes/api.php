@@ -20,6 +20,8 @@ use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\StudentNotificationController;
 use App\Http\Controllers\AdminApplicationController;
 use App\Http\Controllers\AdminLoginLogController;
+use App\Http\Controllers\AdminAnnouncementController;
+use App\Http\Controllers\AdminRolePermissionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -122,5 +124,19 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Login Logs
         Route::get('/login-logs', [AdminLoginLogController::class, 'index']);
+
+        // Announcements
+        Route::get   ('/announcements',       [AdminAnnouncementController::class, 'index']);
+        Route::post  ('/announcements',       [AdminAnnouncementController::class, 'store']);
+        Route::put   ('/announcements/{id}',  [AdminAnnouncementController::class, 'update']);
+        Route::delete('/announcements/{id}',  [AdminAnnouncementController::class, 'destroy']);
+
+        // User search (for specific-user announcement targeting)
+        Route::get('/users/search', [AdminAnnouncementController::class, 'userSearch']);
+
+        // Roles & Permissions
+        Route::get  ('/role-permissions',        [AdminRolePermissionController::class, 'index']);
+        Route::patch('/role-permissions',        [AdminRolePermissionController::class, 'update']);
+        Route::post ('/role-permissions/reset',  [AdminRolePermissionController::class, 'reset']);
     });
 });

@@ -178,7 +178,7 @@ export const Input = ({ label, error, ...props }) => (
   <div>
     {label && <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{label}</label>}
     <input {...props}
-      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition`} />
+      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition`} />
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
@@ -187,7 +187,7 @@ export const Textarea = ({ label, error, ...props }) => (
   <div>
     {label && <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{label}</label>}
     <textarea {...props}
-      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition resize-none`} />
+      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition resize-none`} />
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
