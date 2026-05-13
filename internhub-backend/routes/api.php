@@ -22,6 +22,7 @@ use App\Http\Controllers\AdminApplicationController;
 use App\Http\Controllers\AdminLoginLogController;
 use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminRolePermissionController;
+use App\Http\Controllers\AdminModerationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -138,5 +139,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/role-permissions',        [AdminRolePermissionController::class, 'index']);
         Route::patch('/role-permissions',        [AdminRolePermissionController::class, 'update']);
         Route::post ('/role-permissions/reset',  [AdminRolePermissionController::class, 'reset']);
+
+        // Moderation stats
+        Route::get('/moderation/stats', [AdminModerationController::class, 'stats']);
     });
 });

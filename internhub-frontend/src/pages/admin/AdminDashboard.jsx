@@ -12,12 +12,12 @@ import Notices from "./pages/Notices";
 import Reports from "./pages/Reports";
 import LoginLogs from "./pages/LoginLogs";
 import RolesPermissions from "./pages/RolesPermissions";
+import ContentModeration from "./pages/ContentModeration";
 // import Complaints          from "./pages/Complaints";
 // import Messages            from "./pages/Messages";
 // import SystemSettings      from "./pages/SystemSettings";
 // import AuditLogs           from "./pages/AuditLogs";
 // import Notifications       from "./pages/Notifications";
-// import ContentModeration   from "./pages/ContentModeration";
 
 const AdminDashboard = () => (
   <AdminLayout>
@@ -34,12 +34,12 @@ const AdminDashboard = () => (
       <Route path="reports" element={<Reports />} />
       <Route path="login-logs" element={<LoginLogs />} />
       <Route path="roles" element={<RolesPermissions />} />
+      <Route path="moderation" element={<ContentModeration />} />
       {/* <Route path="complaints"       element={<Complaints />} />
       <Route path="messages"         element={<Messages />} />
       <Route path="settings"         element={<SystemSettings />} />
       <Route path="audit"            element={<AuditLogs />} />
-      <Route path="notifications"    element={<Notifications />} />
-      <Route path="moderation"       element={<ContentModeration />} /> */}
+      <Route path="notifications"    element={<Notifications />} /> */}
     </Routes>
   </AdminLayout>
 );
