@@ -283,7 +283,7 @@ const NAV_GROUPS = [
     label: "Communication",
     items: [
       { to: "/admin/dashboard/notices",        label: "Announcements",  icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
-      { to: "/admin/dashboard/messages",       label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z", disabled: true },
+      { to: "/admin/dashboard/messages",       label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
       { to: "/admin/dashboard/complaints",     label: "Complaints",     icon: "M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", disabled: true },
     ],
   },

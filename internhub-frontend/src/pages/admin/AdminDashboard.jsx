@@ -13,6 +13,7 @@ import Reports from "./pages/Reports";
 import LoginLogs from "./pages/LoginLogs";
 import RolesPermissions from "./pages/RolesPermissions";
 import ContentModeration from "./pages/ContentModeration";
+import SupportCenter from "./pages/SupportCenter";
 // import Complaints          from "./pages/Complaints";
 // import Messages            from "./pages/Messages";
 // import SystemSettings      from "./pages/SystemSettings";
@@ -35,6 +36,7 @@ const AdminDashboard = () => (
       <Route path="login-logs" element={<LoginLogs />} />
       <Route path="roles" element={<RolesPermissions />} />
       <Route path="moderation" element={<ContentModeration />} />
+      <Route path="messages" element={<SupportCenter />} />
       {/* <Route path="complaints"       element={<Complaints />} />
       <Route path="messages"         element={<Messages />} />
       <Route path="settings"         element={<SystemSettings />} />
