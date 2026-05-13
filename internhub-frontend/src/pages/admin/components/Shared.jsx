@@ -178,7 +178,7 @@ export const Input = ({ label, error, ...props }) => (
   <div>
     {label && <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{label}</label>}
     <input {...props}
-      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition`} />
+      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition`} />
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
@@ -187,7 +187,7 @@ export const Textarea = ({ label, error, ...props }) => (
   <div>
     {label && <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{label}</label>}
     <textarea {...props}
-      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition resize-none`} />
+      className={`w-full bg-gray-50 border ${error ? "border-red-400" : "border-gray-200"} rounded-xl px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-violet-500/40 focus:border-violet-500/30 transition resize-none`} />
     {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
   </div>
 );
@@ -268,7 +268,7 @@ const NAV_GROUPS = [
       { to: "/admin/dashboard/students",       label: "Students",       icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
       { to: "/admin/dashboard/companies",      label: "Companies",      icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" },
       { to: "/admin/dashboard/verification",   label: "Verification",   icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
-      { to: "/admin/dashboard/roles",          label: "Roles & Perms",  icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z", disabled: true },
+      { to: "/admin/dashboard/roles",          label: "Roles & Perms",  icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z" },
     ],
   },
   {

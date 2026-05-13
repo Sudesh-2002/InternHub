@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\RolePermission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,6 +12,10 @@ class CompanyNotificationController extends Controller
     // GET /api/company/notifications
     public function index(): JsonResponse
     {
+        if (!RolePermission::isEnabled('company', 'receive_notifications')) {
+            return response()->json(['data' => [], 'unread_count' => 0]);
+        }
+
         $notifications = Notification::where('user_id', Auth::id())
             ->latest()
             ->take(50)

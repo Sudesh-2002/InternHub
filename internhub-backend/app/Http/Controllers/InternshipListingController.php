@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreInternshipRequest;
 use App\Models\InternshipListing;
+use App\Models\RolePermission;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,10 @@ class InternshipListingController extends Controller
     //
     public function browse(Request $request): JsonResponse
     {
+        if (!RolePermission::isEnabled('student', 'browse_internships')) {
+            return response()->json(['message' => 'Browsing internships is currently disabled for students.'], 403);
+        }
+
         $query = InternshipListing::approved()
             ->select('internship_listings.*')
             ->leftJoin('company_profiles', 'company_profiles.user_id', '=', 'internship_listings.company_id')
@@ -102,6 +107,10 @@ class InternshipListingController extends Controller
     // ── COMPANY: Create internship ─────────────────────────────────────────────
     public function store(StoreInternshipRequest $request): JsonResponse
     {
+        if (!RolePermission::isEnabled('company', 'post_internship')) {
+            return response()->json(['message' => 'Posting internship listings is currently disabled for companies.'], 403);
+        }
+
         $company = Auth::user()->companyProfile;
 
         if (!$company || $company->verification_status !== 'verified') {
@@ -134,6 +143,10 @@ class InternshipListingController extends Controller
     {
         $this->authorizeOwner($internshipListing);
 
+        if (!RolePermission::isEnabled('company', 'manage_listings')) {
+            return response()->json(['message' => 'Managing listings is currently disabled for companies.'], 403);
+        }
+
         if ($internshipListing->status === 'approved') {
             return response()->json([
                 'message' => 'Approved listings cannot be edited. Please contact admin.',
@@ -152,6 +165,11 @@ class InternshipListingController extends Controller
     public function destroy(InternshipListing $internshipListing): JsonResponse
     {
         $this->authorizeOwner($internshipListing);
+
+        if (!RolePermission::isEnabled('company', 'manage_listings')) {
+            return response()->json(['message' => 'Managing listings is currently disabled for companies.'], 403);
+        }
+
         $internshipListing->delete();
         return response()->json(['message' => 'Listing deleted successfully.']);
     }
