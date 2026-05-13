@@ -22,6 +22,11 @@ use App\Http\Controllers\AdminApplicationController;
 use App\Http\Controllers\AdminLoginLogController;
 use App\Http\Controllers\AdminAnnouncementController;
 use App\Http\Controllers\AdminRolePermissionController;
+use App\Http\Controllers\AdminModerationController;
+use App\Http\Controllers\AdminReportsController;
+use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\AdminSupportController;
+use App\Http\Controllers\AdminSystemSettingsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -58,6 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/notifications',           [StudentNotificationController::class, 'index']);
         Route::patch('/notifications/read-all',  [StudentNotificationController::class, 'markAllRead']);
         Route::patch('/notifications/{id}/read', [StudentNotificationController::class, 'markRead']);
+
+        // Support tickets
+        Route::get  ('/support-tickets',              [SupportTicketController::class, 'index']);
+        Route::post ('/support-tickets',              [SupportTicketController::class, 'store']);
+        Route::get  ('/support-tickets/{id}',         [SupportTicketController::class, 'show']);
+        Route::post ('/support-tickets/{id}/reply',   [SupportTicketController::class, 'reply']);
     });
 
     // ── Company Routes ────────────────────────────────
@@ -86,6 +97,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/notifications',             [CompanyNotificationController::class, 'index']);
         Route::patch('/notifications/read-all',    [CompanyNotificationController::class, 'markAllRead']);
         Route::patch('/notifications/{id}/read',   [CompanyNotificationController::class, 'markRead']);
+
+        // Support tickets
+        Route::get  ('/support-tickets',              [SupportTicketController::class, 'index']);
+        Route::post ('/support-tickets',              [SupportTicketController::class, 'store']);
+        Route::get  ('/support-tickets/{id}',         [SupportTicketController::class, 'show']);
+        Route::post ('/support-tickets/{id}/reply',   [SupportTicketController::class, 'reply']);
     });
 
     // ── Admin Routes ──────────────────────────────────
@@ -138,5 +155,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/role-permissions',        [AdminRolePermissionController::class, 'index']);
         Route::patch('/role-permissions',        [AdminRolePermissionController::class, 'update']);
         Route::post ('/role-permissions/reset',  [AdminRolePermissionController::class, 'reset']);
+
+        // Moderation stats
+        Route::get('/moderation/stats', [AdminModerationController::class, 'stats']);
+
+        // Reports & Analytics
+        Route::get('/reports', [AdminReportsController::class, 'index']);
+
+        // Support Center
+        Route::get   ('/support-tickets',               [AdminSupportController::class, 'index']);
+        Route::get   ('/support-tickets/{id}',          [AdminSupportController::class, 'show']);
+        Route::patch ('/support-tickets/{id}/status',   [AdminSupportController::class, 'updateStatus']);
+        Route::post  ('/support-tickets/{id}/reply',    [AdminSupportController::class, 'reply']);
+
+        // System Settings
+        Route::get  ('/settings',       [AdminSystemSettingsController::class, 'index']);
+        Route::patch('/settings',       [AdminSystemSettingsController::class, 'update']);
+        Route::post ('/settings/reset', [AdminSystemSettingsController::class, 'reset']);
     });
 });

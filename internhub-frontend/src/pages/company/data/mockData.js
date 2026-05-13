@@ -35,6 +35,7 @@ export const NAV = [
   { id: "applicants", label: "Applicants",      path: "/company/dashboard/applicants", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
   { id: "profile",    label: "Company Profile", path: "/company/dashboard/profile",    icon: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
   { id: "notifs",     label: "Notifications",   path: "/company/dashboard/notifs",     icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" },
+  { id: "support",    label: "Support",          path: "/company/dashboard/support",    icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
 ];
 
 export const avatarColors = [

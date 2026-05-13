@@ -13,6 +13,7 @@ import ManageJobs from "./pages/ManageJobs";
 import Applicants from "./pages/Applicants";
 import CompanyProfile from "./pages/CompanyProfile";
 import Notifications from "./pages/Notifications";
+import SupportPage from "../shared/SupportPage";
 import { MOCK_JOBS } from "./data/mockData";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -120,6 +121,7 @@ export default function CompanyDashboard() {
             <Route path="notifs" element={
               <Notifications setUnread={setUnread} />
             } />
+            <Route path="support" element={<SupportPage apiPrefix="company" />} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/company/dashboard" replace />} />
           </Routes>

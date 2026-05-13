@@ -15,6 +15,7 @@ import ApplyJob from "./pages/ApplyJob";
 import MyApplications from "./pages/MyApplications";
 import ProfilePage from "./pages/ProfilePage";
 import Notifications from "./pages/Notifications";
+import SupportPage from "../shared/SupportPage";
 
 //  Nav items 
 const NAV = [
@@ -23,6 +24,7 @@ const NAV = [
   { to: "/student/dashboard/applications", label: "Applications", icon: icons.apps },
   { to: "/student/dashboard/profile", label: "Profile", icon: icons.profile },
   { to: "/student/dashboard/notifications", label: "Notifications", icon: icons.bell },
+  { to: "/student/dashboard/support",       label: "Support",       icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
 ];
 
 const StudentDashboard = () => {
@@ -215,6 +217,7 @@ const StudentDashboard = () => {
             <Route path="applications" element={<MyApplications />} />
             <Route path="profile" element={<ProfilePage user={user} />} />
             <Route path="notifications" element={<Notifications setUnread={setNotifCount} />} />
+            <Route path="support" element={<SupportPage apiPrefix="student" />} />
             <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
           </Routes>
         </main>
