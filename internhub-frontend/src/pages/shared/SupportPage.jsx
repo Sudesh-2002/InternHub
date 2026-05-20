@@ -1,7 +1,3 @@
-// src/pages/shared/SupportPage.jsx
-// Used by both student (/api/student/support-tickets)
-// and company (/api/company/support-tickets)
-
 import { useState, useEffect, useCallback, useRef } from "react";
 
 const API_BASE = "http://localhost:8000/api";
@@ -23,7 +19,6 @@ const authHdrs = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-/* ── Stars component ─────────────────────────────────────────────── */
 const Stars = ({ value, hovered, onHover, onClick, readOnly = false }) => (
   <div className="flex gap-1">
     {[1, 2, 3, 4, 5].map(n => (
@@ -42,7 +37,6 @@ const Stars = ({ value, hovered, onHover, onClick, readOnly = false }) => (
   </div>
 );
 
-/* ── Message bubble ─────────────────────────────────────────────── */
 const Bubble = ({ msg }) => (
   <div className={`flex gap-2.5 ${msg.is_admin ? "flex-row-reverse" : "flex-row"}`}>
     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${msg.is_admin ? "bg-indigo-600" : "bg-slate-400"}`}>
@@ -58,9 +52,7 @@ const Bubble = ({ msg }) => (
   </div>
 );
 
-/* ════════════════════════════════════════════════════════════════
-   MAIN
-════════════════════════════════════════════════════════════════ */
+/* MAIN */
 const SupportPage = ({ apiPrefix }) => {
   const baseUrl = `${API_BASE}/${apiPrefix}/support-tickets`;
 
@@ -149,7 +141,6 @@ const SupportPage = ({ apiPrefix }) => {
     finally { setDetailLoad(false); }
   };
 
-  /* ── Create ── */
   const createTicket = async (e) => {
     e.preventDefault();
     if (!form.subject.trim() || !form.message.trim()) return;
@@ -168,7 +159,6 @@ const SupportPage = ({ apiPrefix }) => {
     finally { setSubmitting(false); }
   };
 
-  /* ── Reply ── */
   const sendReply = async () => {
     if (!reply.trim()) return;
     setSending(true);
@@ -185,7 +175,6 @@ const SupportPage = ({ apiPrefix }) => {
     finally { setSending(false); }
   };
 
-  /* ── End conversation ── */
   const endConversation = async () => {
     if (ending) return;
     if (!window.confirm("End this conversation? You will be asked to rate your experience.")) return;
@@ -202,7 +191,6 @@ const SupportPage = ({ apiPrefix }) => {
     finally { setEnding(false); }
   };
 
-  /* ── Rate ── */
   const submitRating = async (rating) => {
     try {
       const res = await fetch(`${baseUrl}/${selected.id}/rate`, {
@@ -226,14 +214,12 @@ const SupportPage = ({ apiPrefix }) => {
   return (
     <div className="max-w-4xl mx-auto">
 
-      {/* Toast */}
       {toast && (
         <div className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-semibold shadow-lg transition-all ${toast.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
           {toast.msg}
         </div>
       )}
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Support Center</h1>
@@ -246,7 +232,6 @@ const SupportPage = ({ apiPrefix }) => {
         </button>
       </div>
 
-      {/* Two-panel layout */}
       <div className={`flex gap-5 ${selected ? "items-start" : ""}`}>
 
         {/* Ticket List */}
@@ -293,7 +278,6 @@ const SupportPage = ({ apiPrefix }) => {
         {/* Thread Panel */}
         {selected && (
           <div className="flex-1 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 580 }}>
-            {/* Header */}
             <div className="px-4 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3 flex-shrink-0">
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-gray-900 text-sm truncate">{selected.subject}</p>
@@ -314,8 +298,6 @@ const SupportPage = ({ apiPrefix }) => {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {detailLoad ? (
                 <div className="text-center text-gray-400 animate-pulse py-8 text-sm">Loading…</div>
@@ -337,7 +319,6 @@ const SupportPage = ({ apiPrefix }) => {
               </div>
             )}
 
-            {/* Rating given */}
             {ratingDone && selected.rating && (
               <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 flex items-center gap-3">
                 <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -377,7 +358,6 @@ const SupportPage = ({ apiPrefix }) => {
               </div>
             )}
 
-            {/* Closed notice */}
             {!canReply && !showRatingPrompt && !ratingDone && (
               <div className="px-4 py-3 border-t border-gray-100 text-center text-xs text-gray-400 flex-shrink-0">
                 {selected.status === "closed" ? "This ticket has been closed by admin." : "This conversation has ended."}

@@ -52,7 +52,6 @@ const BrowseJobs = () => {
   const locations = [...new Set(jobs.map(j => j.location).filter(Boolean))];
 
   const goToDetail = (job) => {
-    // Pass job via router location state
     navigate("/student/dashboard/job-detail", { state: { job } });
   };
 
@@ -89,7 +88,6 @@ const BrowseJobs = () => {
         </select>
       </div>
 
-      {/* Job list */}
       <div className="space-y-3">
         {loading && (
           <div className="text-center py-10 text-gray-400 text-sm">Loading internships…</div>

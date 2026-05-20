@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
 import SessionTimeoutModal from "../../../components/SessionTimeoutModal";
@@ -12,22 +13,22 @@ export const Ico = ({ d, size = 18, sw = 1.7, color = "currentColor", fill = "no
   </svg>
 );
 
-// ── Status Badge ──────────────────────────────────────────────────────────────
+// Status Badge
 const statusMap = {
-  active:    "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  verified:  "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  approved:  "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-  pending:   "bg-amber-50   text-amber-700   ring-1 ring-amber-200",
-  rejected:  "bg-red-50     text-red-700     ring-1 ring-red-200",
+  active: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  verified: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  approved: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  pending: "bg-amber-50   text-amber-700   ring-1 ring-amber-200",
+  rejected: "bg-red-50     text-red-700     ring-1 ring-red-200",
   suspended: "bg-red-50     text-red-700     ring-1 ring-red-200",
-  inactive:  "bg-gray-100   text-gray-500    ring-1 ring-gray-200",
-  flagged:   "bg-orange-50  text-orange-700  ring-1 ring-orange-200",
-  open:      "bg-sky-50     text-sky-700     ring-1 ring-sky-200",
-  closed:    "bg-gray-100   text-gray-500    ring-1 ring-gray-200",
-  resolved:  "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  inactive: "bg-gray-100   text-gray-500    ring-1 ring-gray-200",
+  flagged: "bg-orange-50  text-orange-700  ring-1 ring-orange-200",
+  open: "bg-sky-50     text-sky-700     ring-1 ring-sky-200",
+  closed: "bg-gray-100   text-gray-500    ring-1 ring-gray-200",
+  resolved: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
   scheduled: "bg-indigo-50  text-indigo-700  ring-1 ring-indigo-200",
-  general:   "bg-sky-50     text-sky-700     ring-1 ring-sky-200",
-  maintenance:"bg-amber-50  text-amber-700   ring-1 ring-amber-200",
+  general: "bg-sky-50     text-sky-700     ring-1 ring-sky-200",
+  maintenance: "bg-amber-50  text-amber-700   ring-1 ring-amber-200",
 };
 export const Badge = ({ status }) => {
   const cls = statusMap[status?.toLowerCase()] ?? "bg-gray-100 text-gray-500 ring-1 ring-gray-200";
@@ -42,11 +43,11 @@ export const Badge = ({ status }) => {
 export const StatCard = ({ label, value, icon, color = "violet", delta }) => {
   const colors = {
     violet: { bg: "bg-violet-500/10", text: "text-violet-400", border: "border-violet-500/20" },
-    sky:    { bg: "bg-sky-500/10",    text: "text-sky-400",    border: "border-sky-500/20" },
-    emerald:{ bg: "bg-emerald-500/10",text: "text-emerald-400",border: "border-emerald-500/20" },
-    amber:  { bg: "bg-amber-500/10",  text: "text-amber-400",  border: "border-amber-500/20" },
-    rose:   { bg: "bg-rose-500/10",   text: "text-rose-400",   border: "border-rose-500/20" },
-    cyan:   { bg: "bg-cyan-500/10",   text: "text-cyan-400",   border: "border-cyan-500/20" },
+    sky: { bg: "bg-sky-500/10", text: "text-sky-400", border: "border-sky-500/20" },
+    emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/20" },
+    amber: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/20" },
+    rose: { bg: "bg-rose-500/10", text: "text-rose-400", border: "border-rose-500/20" },
+    cyan: { bg: "bg-cyan-500/10", text: "text-cyan-400", border: "border-cyan-500/20" },
   };
   const c = colors[color] || colors.violet;
   return (
@@ -129,9 +130,8 @@ export const FilterPills = ({ options, active, onChange }) => (
   <div className="flex gap-1.5 flex-wrap">
     {options.map(o => (
       <button key={o} onClick={() => onChange(o)}
-        className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition ${
-          active === o ? "bg-indigo-600 text-white" : "bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:border-gray-300"
-        }`}>
+        className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition ${active === o ? "bg-indigo-600 text-white" : "bg-white border border-gray-200 text-gray-500 hover:text-gray-800 hover:border-gray-300"
+          }`}>
         {o}
       </button>
     ))}
@@ -159,12 +159,12 @@ export const Btn = ({ children, onClick, variant = "primary", size = "md", disab
   const base = "inline-flex items-center gap-2 font-semibold rounded-xl transition-all duration-200 disabled:opacity-50";
   const sizes = { sm: "px-3 py-1.5 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-sm" };
   const variants = {
-    primary:  "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm",
-    secondary:"bg-white hover:bg-gray-50 text-gray-600 border border-gray-200",
-    danger:   "bg-red-600 hover:bg-red-700 text-white",
-    success:  "bg-emerald-600 hover:bg-emerald-700 text-white",
-    ghost:    "text-gray-400 hover:text-gray-700 hover:bg-gray-100",
-    warning:  "bg-amber-500 hover:bg-amber-600 text-white",
+    primary: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm",
+    secondary: "bg-white hover:bg-gray-50 text-gray-600 border border-gray-200",
+    danger: "bg-red-600 hover:bg-red-700 text-white",
+    success: "bg-emerald-600 hover:bg-emerald-700 text-white",
+    ghost: "text-gray-400 hover:text-gray-700 hover:bg-gray-100",
+    warning: "bg-amber-500 hover:bg-amber-600 text-white",
   };
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}>
@@ -203,14 +203,14 @@ export const Select = ({ label, children, ...props }) => (
 );
 
 // ── Avatar ───────────────────────────────────────────────────────────────────
-const AVATAR_COLORS = ["bg-indigo-600","bg-sky-600","bg-emerald-600","bg-amber-600","bg-rose-600","bg-teal-600","bg-violet-600","bg-pink-600"];
+const AVATAR_COLORS = ["bg-indigo-600", "bg-sky-600", "bg-emerald-600", "bg-amber-600", "bg-rose-600", "bg-teal-600", "bg-violet-600", "bg-pink-600"];
 export const Avatar = ({ name, src, size = 8 }) => {
   const i = (name?.charCodeAt(0) ?? 0) % AVATAR_COLORS.length;
   return (
     <div className={`w-${size} h-${size} rounded-xl ${AVATAR_COLORS[i]} flex items-center justify-center text-white text-xs font-bold flex-shrink-0 overflow-hidden`}>
       {src
         ? <img src={src} alt={name || "avatar"} className="w-full h-full object-cover" onError={e => { e.currentTarget.style.display = 'none'; }} />
-        : (name?.slice(0,2).toUpperCase() || "??")}
+        : (name?.slice(0, 2).toUpperCase() || "??")}
     </div>
   );
 };
@@ -219,12 +219,11 @@ export const Avatar = ({ name, src, size = 8 }) => {
 export const Toast = ({ toasts, remove }) => (
   <div className="fixed bottom-5 right-5 z-[200] flex flex-col gap-2 items-end">
     {toasts.map(t => (
-      <div key={t.id} className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl min-w-[220px] ${
-        t.type === "success" ? "bg-emerald-600 text-white" :
-        t.type === "error"   ? "bg-red-600 text-white"     : "bg-white text-gray-700 border border-gray-100 shadow-lg"
-      }`}>
+      <div key={t.id} className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl min-w-[220px] ${t.type === "success" ? "bg-emerald-600 text-white" :
+          t.type === "error" ? "bg-red-600 text-white" : "bg-white text-gray-700 border border-gray-100 shadow-lg"
+        }`}>
         {t.type === "success" && <Ico d="M20 6L9 17l-5-5" size={14} sw={2.5} />}
-        {t.type === "error"   && <Ico d="M18 6L6 18M6 6l12 12" size={14} sw={2.5} />}
+        {t.type === "error" && <Ico d="M18 6L6 18M6 6l12 12" size={14} sw={2.5} />}
         {t.msg}
         <button onClick={() => remove(t.id)} className="ml-auto opacity-60 hover:opacity-100"><Ico d="M18 6L6 18M6 6l12 12" size={12} /></button>
       </div>
@@ -257,61 +256,71 @@ const NAV_GROUPS = [
   {
     label: "Overview",
     items: [
-      { to: "/admin/dashboard",               label: "Dashboard",      icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", end: true },
-      { to: "/admin/dashboard/profile",        label: "Admin Profile",  icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-      { to: "/admin/dashboard/notifications",  label: "Notifications",  icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0", disabled: true },
+      { to: "/admin/dashboard", label: "Dashboard", icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", end: true },
+      { to: "/admin/dashboard/profile", label: "Admin Profile", icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
+      { to: "/admin/dashboard/notifications", label: "Notifications", icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" },
     ],
   },
   {
     label: "Users",
     items: [
-      { to: "/admin/dashboard/students",       label: "Students",       icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-      { to: "/admin/dashboard/companies",      label: "Companies",      icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" },
-      { to: "/admin/dashboard/verification",   label: "Verification",   icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
-      { to: "/admin/dashboard/roles",          label: "Roles & Perms",  icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z" },
+      { to: "/admin/dashboard/students", label: "Students", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
+      { to: "/admin/dashboard/companies", label: "Companies", icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" },
+      { to: "/admin/dashboard/verification", label: "Verification", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
+      { to: "/admin/dashboard/roles", label: "Roles & Perms", icon: "M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 0 1 21 9z" },
     ],
   },
   {
     label: "Internships",
     items: [
-      { to: "/admin/dashboard/internships",    label: "Internships",    icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" },
-      { to: "/admin/dashboard/applications",   label: "Applications",   icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" },
-      { to: "/admin/dashboard/moderation",     label: "Moderation",     icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
+      { to: "/admin/dashboard/internships", label: "Internships", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" },
+      { to: "/admin/dashboard/applications", label: "Applications", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z" },
+      { to: "/admin/dashboard/moderation", label: "Moderation", icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" },
     ],
   },
   {
     label: "Communication",
     items: [
-      { to: "/admin/dashboard/notices",        label: "Announcements",  icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
-      { to: "/admin/dashboard/messages",       label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
-      { to: "/admin/dashboard/complaints",     label: "Complaints",     icon: "M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", disabled: true },
+      { to: "/admin/dashboard/notices", label: "Announcements", icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
+      { to: "/admin/dashboard/messages", label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
     ],
   },
   {
     label: "Analytics",
     items: [
-      { to: "/admin/dashboard/reports",        label: "Reports",        icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2" },
-      { to: "/admin/dashboard/login-logs",     label: "Login Logs",     icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
-      { to: "/admin/dashboard/audit",          label: "Audit Logs",     icon: "M10 21h7a2 2 0 0 0 2-2V9.414a1 1 0 0 0-.293-.707l-5.414-5.414A1 1 0 0 0 13.586 3H7a2 2 0 0 0-2 2v11m0 5l4.879-4.879m0 0a3 3 0 1 0 4.243-4.242 3 3 0 0 0-4.243 4.242z", disabled: true },
+      { to: "/admin/dashboard/reports", label: "Reports", icon: "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2" },
+      { to: "/admin/dashboard/login-logs", label: "Login Logs", icon: "M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" },
+      { to: "/admin/dashboard/audit", label: "Audit Logs", icon: "M10 21h7a2 2 0 0 0 2-2V9.414a1 1 0 0 0-.293-.707l-5.414-5.414A1 1 0 0 0 13.586 3H7a2 2 0 0 0-2 2v11m0 5l4.879-4.879m0 0a3 3 0 1 0 4.243-4.242 3 3 0 0 0-4.243 4.242z", disabled: true },
     ],
   },
   {
     label: "System",
     items: [
-      { to: "/admin/dashboard/settings",       label: "Settings",       icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
+      { to: "/admin/dashboard/settings", label: "Settings", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
     ],
   },
 ];
 
 // ── Admin Layout (Sidebar + Topbar) ───────────────────────────────────────────
 export const AdminLayout = ({ children }) => {
-  const [sidebarOpen,  setSidebarOpen]  = useState(false);
-  const [showLogout,   setShowLogout]   = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
-  const [showTimeout,  setShowTimeout]  = useState(false);
+  const [showTimeout, setShowTimeout] = useState(false);
+  const [notifUnread, setNotifUnread] = useState(0);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toasts, add: toast, remove } = useToast();
+
+  // Fetch unread admin notification count on mount
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/admin/notifications", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then(r => setNotifUnread(r.data.unread_count ?? 0))
+      .catch(() => { });
+  }, []);
 
   const confirmLogout = async () => {
     setLogoutLoading(true);
@@ -321,14 +330,14 @@ export const AdminLayout = ({ children }) => {
 
   // ── Session Timeout ──────────────────────────────────────────────────────
   const { stayLoggedIn, WARNING_SECONDS } = useSessionTimeout({
-    enabled:   !!user,
+    enabled: !!user,
     onWarning: () => setShowTimeout(true),
-    onExpire:  async () => {
+    onExpire: async () => {
       setShowTimeout(false);
       await logout();
       navigate("/login");
     },
-    onReset:   () => setShowTimeout(false),
+    onReset: () => setShowTimeout(false),
   });
 
   const handleStayLoggedIn = () => { stayLoggedIn(); setShowTimeout(false); };
@@ -390,17 +399,21 @@ export const AdminLayout = ({ children }) => {
                       <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">Soon</span>
                     </div>
                   ) : (
-                  <NavLink key={item.to} to={item.to} end={item.end}
-                    className={({ isActive }) =>
-                      `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                        isActive
+                    <NavLink key={item.to} to={item.to} end={item.end}
+                      className={({ isActive }) =>
+                        `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${isActive
                           ? "bg-indigo-50 text-indigo-700 border border-indigo-100"
                           : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-                      }`
-                    }>
-                    <Ico d={item.icon} size={15} sw={1.7} />
-                    <span className="flex-1 truncate">{item.label}</span>
-                  </NavLink>
+                        }`
+                      }>
+                      <Ico d={item.icon} size={15} sw={1.7} />
+                      <span className="flex-1 truncate">{item.label}</span>
+                      {item.to.includes("notifications") && notifUnread > 0 && (
+                        <span className="w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                          {notifUnread > 9 ? "9+" : notifUnread}
+                        </span>
+                      )}
+                    </NavLink>
                   )
                 ))}
               </div>
@@ -414,11 +427,11 @@ export const AdminLayout = ({ children }) => {
             <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 overflow-hidden">
               {user?.admin_profile?.avatar_url
                 ? <img
-                    src={user.admin_profile.avatar_url}
-                    alt="avatar"
-                    className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
-                  />
+                  src={user.admin_profile.avatar_url}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
                 : user?.name?.slice(0, 2).toUpperCase() || "AD"
               }
             </div>
@@ -445,12 +458,17 @@ export const AdminLayout = ({ children }) => {
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <NavLink to="/admin/dashboard/notifications"
-              className="relative w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
+              className="relative w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition"
+              onClick={() => setNotifUnread(0)}>
               <Ico d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" size={16} />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+              {notifUnread > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                  {notifUnread > 9 ? "9+" : notifUnread}
+                </span>
+              )}
             </NavLink>
             <NavLink to="/admin/dashboard/settings"
-              className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
+              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
               <Ico d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" size={16} />
             </NavLink>
           </div>

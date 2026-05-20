@@ -18,14 +18,13 @@ import Notifications from "./pages/Notifications";
 import SupportPage from "../shared/SupportPage";
 import ChatWidget from "../shared/ChatWidget";
 
-//  Nav items 
 const NAV = [
   { to: "/student/dashboard", label: "Home", icon: icons.home, end: true },
   { to: "/student/dashboard/browse", label: "Browse Jobs", icon: icons.browse },
   { to: "/student/dashboard/applications", label: "Applications", icon: icons.apps },
   { to: "/student/dashboard/profile", label: "Profile", icon: icons.profile },
   { to: "/student/dashboard/notifications", label: "Notifications", icon: icons.bell },
-  { to: "/student/dashboard/support",       label: "Support",       icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
+  { to: "/student/dashboard/support", label: "Support", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
 ];
 
 const StudentDashboard = () => {
@@ -39,7 +38,6 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Fetch real unread count on mount
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/student/notifications", {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -75,7 +73,6 @@ const StudentDashboard = () => {
     navigate("/login");
   };
 
-  // Highlight "Browse Jobs" when on job-detail or apply sub-routes
   const browseActive = [
     "/student/dashboard/browse",
     "/student/dashboard/job-detail",
@@ -118,7 +115,6 @@ const StudentDashboard = () => {
           </span>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {NAV.map(item => {
             const isBrowseItem = item.to === "/student/dashboard/browse";
@@ -133,8 +129,8 @@ const StudentDashboard = () => {
                 className={({ isActive: routerActive }) => {
                   const active = isBrowseItem ? browseActive : routerActive;
                   return `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${active
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
                     }`;
                 }}
               >

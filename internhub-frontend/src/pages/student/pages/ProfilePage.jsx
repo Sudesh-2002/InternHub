@@ -80,7 +80,6 @@ const ProfilePage = ({ user }) => {
   const avatarRef = useRef();
   const { refreshUser } = useAuth();
 
-  //  Load profile on mount 
   useEffect(() => {
     fetchProfile()
       .then((profile) => {
@@ -175,8 +174,8 @@ const ProfilePage = ({ user }) => {
     try {
       const res = await uploadAvatar(file);
       setData((prev) => ({ ...prev, avatar_url: res.avatar_url }));
-      setAvatarError(false); // reset so new image renders
-      await refreshUser(); // update sidebar
+      setAvatarError(false);
+      await refreshUser();
       showToast("Profile photo updated.", "success");
     } catch {
       showToast("Avatar upload failed.", "error");
@@ -293,7 +292,6 @@ const ProfilePage = ({ user }) => {
             </button>
           )}
 
-          {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div>

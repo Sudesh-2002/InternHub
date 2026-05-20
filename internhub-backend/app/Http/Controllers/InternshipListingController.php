@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreInternshipRequest;
+use App\Models\AdminNotification;
 use App\Models\InternshipListing;
 use App\Models\RolePermission;
 use App\Models\SystemSetting;
@@ -149,6 +150,18 @@ class InternshipListingController extends Controller
             'company_id' => Auth::id(),
             'status'     => $autoApprove ? 'approved' : 'pending',
         ]);
+
+        // ── Fire admin notification ──────────────────────────────────────────
+        if (!$autoApprove) {
+            $companyName = optional(Auth::user()->companyProfile)->company_name ?? Auth::user()->name;
+            AdminNotification::fire(
+                'listing_submitted',
+                'New Internship Listing Pending',
+                "{$companyName} submitted \u201c{$listing->title}\u201d for approval.",
+                '/admin/dashboard/internships',
+                ['listing_id' => $listing->id, 'title' => $listing->title, 'company' => $companyName]
+            );
+        }
 
         return response()->json([
             'message' => $autoApprove

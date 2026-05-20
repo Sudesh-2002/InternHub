@@ -14,7 +14,6 @@ const JobDetail = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Always call hooks unconditionally
   useEffect(() => {
     if (!job?.id) { setLoading(false); return; }
 
@@ -36,7 +35,6 @@ const JobDetail = () => {
     checkApplication();
   }, [job?.id]);
 
-  // If no job in state (e.g. direct URL access), redirect to browse
   if (!job) return <Navigate to="/student/dashboard/browse" replace />;
 
   const getStatusMessage = () => {
@@ -70,10 +68,10 @@ const JobDetail = () => {
               )}
               {job.type && (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${job.type === "Remote"
-                    ? "bg-sky-50 text-sky-600"
-                    : job.type === "Hybrid"
-                      ? "bg-violet-50 text-violet-600"
-                      : "bg-emerald-50 text-emerald-600"
+                  ? "bg-sky-50 text-sky-600"
+                  : job.type === "Hybrid"
+                    ? "bg-violet-50 text-violet-600"
+                    : "bg-emerald-50 text-emerald-600"
                   }`}>
                   {job.type}
                 </span>
