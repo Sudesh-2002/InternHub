@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
 import SessionTimeoutModal from "../../../components/SessionTimeoutModal";
@@ -259,7 +260,7 @@ const NAV_GROUPS = [
     items: [
       { to: "/admin/dashboard",               label: "Dashboard",      icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10", end: true },
       { to: "/admin/dashboard/profile",        label: "Admin Profile",  icon: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" },
-      { to: "/admin/dashboard/notifications",  label: "Notifications",  icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0", disabled: true },
+      { to: "/admin/dashboard/notifications",  label: "Notifications",  icon: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" },
     ],
   },
   {
@@ -284,7 +285,6 @@ const NAV_GROUPS = [
     items: [
       { to: "/admin/dashboard/notices",        label: "Announcements",  icon: "M11 5.882V19.24a1.76 1.76 0 0 1-3.417.592l-2.147-6.15M18 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-7-1a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" },
       { to: "/admin/dashboard/messages",       label: "Support Center", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5l-5 5v-5z" },
-      { to: "/admin/dashboard/complaints",     label: "Complaints",     icon: "M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z", disabled: true },
     ],
   },
   {
@@ -305,13 +305,24 @@ const NAV_GROUPS = [
 
 // ── Admin Layout (Sidebar + Topbar) ───────────────────────────────────────────
 export const AdminLayout = ({ children }) => {
-  const [sidebarOpen,  setSidebarOpen]  = useState(false);
-  const [showLogout,   setShowLogout]   = useState(false);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  const [showTimeout,  setShowTimeout]  = useState(false);
+  const [sidebarOpen,    setSidebarOpen]    = useState(false);
+  const [showLogout,     setShowLogout]     = useState(false);
+  const [logoutLoading,  setLogoutLoading]  = useState(false);
+  const [showTimeout,    setShowTimeout]    = useState(false);
+  const [notifUnread,    setNotifUnread]    = useState(0);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toasts, add: toast, remove } = useToast();
+
+  // Fetch unread admin notification count on mount
+  useEffect(() => {
+    axios
+      .get("http://127.0.0.1:8000/api/admin/notifications", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then(r => setNotifUnread(r.data.unread_count ?? 0))
+      .catch(() => {});
+  }, []);
 
   const confirmLogout = async () => {
     setLogoutLoading(true);
@@ -400,6 +411,11 @@ export const AdminLayout = ({ children }) => {
                     }>
                     <Ico d={item.icon} size={15} sw={1.7} />
                     <span className="flex-1 truncate">{item.label}</span>
+                    {item.to.includes("notifications") && notifUnread > 0 && (
+                      <span className="w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center flex-shrink-0">
+                        {notifUnread > 9 ? "9+" : notifUnread}
+                      </span>
+                    )}
                   </NavLink>
                   )
                 ))}
@@ -445,12 +461,17 @@ export const AdminLayout = ({ children }) => {
           <div className="flex-1" />
           <div className="flex items-center gap-2">
             <NavLink to="/admin/dashboard/notifications"
-              className="relative w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
+              className="relative w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition"
+              onClick={() => setNotifUnread(0)}>
               <Ico d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0" size={16} />
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+              {notifUnread > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-indigo-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1 leading-none">
+                  {notifUnread > 9 ? "9+" : notifUnread}
+                </span>
+              )}
             </NavLink>
             <NavLink to="/admin/dashboard/settings"
-              className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
+              className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 transition">
               <Ico d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" size={16} />
             </NavLink>
           </div>

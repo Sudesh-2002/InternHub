@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\LoginLog;
 use App\Models\StudentProfile;
 use App\Models\CompanyProfile;
+use App\Models\AdminNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -49,6 +50,25 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        // ── Fire admin notification ──────────────────────────────────────────
+        if ($user->role === 'student') {
+            AdminNotification::fire(
+                'student_registered',
+                'New Student Registered',
+                "{$user->name} ({$user->email}) just created a student account.",
+                '/admin/dashboard/students',
+                ['user_id' => $user->id, 'name' => $user->name, 'email' => $user->email]
+            );
+        } elseif ($user->role === 'company') {
+            AdminNotification::fire(
+                'company_registered',
+                'New Company Registered',
+                "{$user->name} ({$user->email}) just created a company account.",
+                '/admin/dashboard/companies',
+                ['user_id' => $user->id, 'name' => $user->name, 'email' => $user->email]
+            );
+        }
 
         return response()->json([
             'message' => 'Registration successful',

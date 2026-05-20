@@ -27,6 +27,7 @@ use App\Http\Controllers\AdminReportsController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AdminSupportController;
 use App\Http\Controllers\AdminSystemSettingsController;
+use App\Http\Controllers\AdminNotificationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -176,5 +177,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/settings',       [AdminSystemSettingsController::class, 'index']);
         Route::patch('/settings',       [AdminSystemSettingsController::class, 'update']);
         Route::post ('/settings/reset', [AdminSystemSettingsController::class, 'reset']);
+
+        // Admin Notifications
+        Route::get  ('/notifications',            [AdminNotificationController::class, 'index']);
+        Route::patch('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead']);
+        Route::patch('/notifications/{id}/read',  [AdminNotificationController::class, 'markRead']);
     });
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SupportTicket;
 use App\Models\SupportMessage;
+use App\Models\AdminNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,17 @@ class SupportTicketController extends Controller
             'message'   => $data['message'],
             'is_admin'  => false,
         ]);
+
+        // ── Fire admin notification ──────────────────────────────────────────
+        $userName = Auth::user()->name;
+        $userRole = Auth::user()->role;
+        AdminNotification::fire(
+            'support_ticket',
+            'New Support Ticket Opened',
+            "{$userName} ({$userRole}) opened a ticket: \u201c{$ticket->subject}\u201d.",
+            '/admin/dashboard/messages',
+            ['ticket_id' => $ticket->id, 'subject' => $ticket->subject, 'user' => $userName, 'role' => $userRole]
+        );
 
         return response()->json(['message' => 'Ticket submitted successfully.', 'data' => $this->format($ticket->fresh())], 201);
     }
