@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post  ('/profile/avatar', [StudentProfileController::class, 'uploadAvatar']);
     Route::delete('/profile/avatar', [StudentProfileController::class, 'deleteAvatar']);
 
-    Route::prefix('student')->middleware('role:student')->group(function () {
+    Route::prefix('student')->middleware(['role:student', 'maintenance'])->group(function () {
         // Browse internships
         Route::get('/internships', [InternshipListingController::class, 'browse']);
         Route::post('/apply', [ApplicationController::class, 'apply']);
@@ -74,7 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // ── Company Routes ────────────────────────────────
-    Route::prefix('company')->middleware('role:company')->group(function () {
+    Route::prefix('company')->middleware(['role:company', 'maintenance'])->group(function () {
         Route::get   ('/dashboard', [CompanyDashboardController::class, 'index']);
         Route::get   ('/profile',  [CompanyProfileController::class, 'show']);
         Route::post  ('/profile',  [CompanyProfileController::class, 'store']);

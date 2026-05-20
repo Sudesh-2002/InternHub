@@ -7,15 +7,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 const API_BASE = "http://localhost:8000/api";
 
 const STATUS_STYLE = {
-  open:        { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },
-  in_progress: { bg: "bg-blue-100",    text: "text-blue-700",    dot: "bg-blue-500" },
-  resolved:    { bg: "bg-gray-100",    text: "text-gray-600",    dot: "bg-gray-400" },
-  closed:      { bg: "bg-gray-200",    text: "text-gray-500",    dot: "bg-gray-400" },
+  open: { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },
+  in_progress: { bg: "bg-blue-100", text: "text-blue-700", dot: "bg-blue-500" },
+  resolved: { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" },
+  closed: { bg: "bg-gray-200", text: "text-gray-500", dot: "bg-gray-400" },
 };
 const PRIORITY_STYLE = {
-  low:    "bg-slate-100 text-slate-500",
+  low: "bg-slate-100 text-slate-500",
   medium: "bg-amber-100 text-amber-700",
-  high:   "bg-red-100 text-red-600",
+  high: "bg-red-100 text-red-600",
 };
 
 const authHdrs = () => ({
@@ -49,9 +49,8 @@ const Bubble = ({ msg }) => (
       {msg.is_admin ? "S" : (msg.sender?.[0] ?? "U")}
     </div>
     <div className={`max-w-[78%] flex flex-col gap-1 ${msg.is_admin ? "items-end" : "items-start"}`}>
-      <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
-        msg.is_admin ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-gray-100 text-gray-800 rounded-tl-sm"
-      }`}>
+      <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.is_admin ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-gray-100 text-gray-800 rounded-tl-sm"
+        }`}>
         {msg.message}
       </div>
       <p className="text-[10px] text-gray-400 px-1">{msg.is_admin ? "Support Team" : msg.sender} · {msg.created_at}</p>
@@ -65,21 +64,24 @@ const Bubble = ({ msg }) => (
 const SupportPage = ({ apiPrefix }) => {
   const baseUrl = `${API_BASE}/${apiPrefix}/support-tickets`;
 
-  const [tickets,    setTickets]    = useState([]);
-  const [loading,    setLoading]    = useState(true);
-  const [selected,   setSelected]   = useState(null);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
   const [detailLoad, setDetailLoad] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  const [reply,      setReply]      = useState("");
-  const [sending,    setSending]    = useState(false);
-  const [ending,     setEnding]     = useState(false);
-  const [toast,      setToast]      = useState(null);
-  const [hovStar,    setHovStar]    = useState(0);
+  const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
+  const [ending, setEnding] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [hovStar, setHovStar] = useState(0);
   const [ratingDone, setRatingDone] = useState(false);
 
   const [form, setForm] = useState({ subject: "", category: "general", priority: "medium", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const msgEnd = useRef(null);
+  const pollRef = useRef(null);
+  const selectedRef = useRef(selected);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
@@ -95,12 +97,39 @@ const SupportPage = ({ apiPrefix }) => {
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(baseUrl, { headers: authHdrs() });
+      const res = await fetch(baseUrl, { headers: authHdrs() });
       const json = await res.json();
       if (res.ok) setTickets(json.data || []);
     } catch { showToast("Could not load tickets", "error"); }
     finally { setLoading(false); }
   }, [baseUrl]);
+
+  /* ── Real-time polling: fetch new messages every 3s when thread open ── */
+  const pollMessages = useCallback(async () => {
+    const cur = selectedRef.current;
+    if (!cur?.id || cur.ended_by_user || cur.status === "closed") return;
+    try {
+      const res = await fetch(`${baseUrl}/${cur.id}`, { headers: authHdrs() });
+      const json = await res.json();
+      if (!res.ok) return;
+      const incoming = json.data?.messages || [];
+      const existing = selectedRef.current?.messages || [];
+      if (incoming.length !== existing.length) {
+        setSelected(prev => ({ ...prev, ...json.data, messages: incoming }));
+        fetchTickets();
+      }
+    } catch { }
+  }, [baseUrl, fetchTickets]);
+
+  /* Start / stop polling when thread selected */
+  useEffect(() => {
+    if (selected?.id && !selected.ended_by_user && selected.status !== "closed") {
+      pollRef.current = setInterval(pollMessages, 3000);
+    } else {
+      clearInterval(pollRef.current);
+    }
+    return () => clearInterval(pollRef.current);
+  }, [selected?.id, selected?.ended_by_user, selected?.status, pollMessages]);
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
@@ -110,7 +139,7 @@ const SupportPage = ({ apiPrefix }) => {
     setReply("");
     setHovStar(0);
     try {
-      const res  = await fetch(`${baseUrl}/${id}`, { headers: authHdrs() });
+      const res = await fetch(`${baseUrl}/${id}`, { headers: authHdrs() });
       const json = await res.json();
       if (res.ok) {
         setSelected(json.data);
@@ -126,7 +155,7 @@ const SupportPage = ({ apiPrefix }) => {
     if (!form.subject.trim() || !form.message.trim()) return;
     setSubmitting(true);
     try {
-      const res  = await fetch(baseUrl, { method: "POST", headers: authHdrs(), body: JSON.stringify(form) });
+      const res = await fetch(baseUrl, { method: "POST", headers: authHdrs(), body: JSON.stringify(form) });
       const json = await res.json();
       if (res.ok) {
         showToast("Ticket submitted successfully!");
@@ -144,7 +173,7 @@ const SupportPage = ({ apiPrefix }) => {
     if (!reply.trim()) return;
     setSending(true);
     try {
-      const res  = await fetch(`${baseUrl}/${selected.id}/reply`, {
+      const res = await fetch(`${baseUrl}/${selected.id}/reply`, {
         method: "POST", headers: authHdrs(), body: JSON.stringify({ message: reply }),
       });
       const json = await res.json();
@@ -162,7 +191,7 @@ const SupportPage = ({ apiPrefix }) => {
     if (!window.confirm("End this conversation? You will be asked to rate your experience.")) return;
     setEnding(true);
     try {
-      const res  = await fetch(`${baseUrl}/${selected.id}/end`, { method: "POST", headers: authHdrs() });
+      const res = await fetch(`${baseUrl}/${selected.id}/end`, { method: "POST", headers: authHdrs() });
       const json = await res.json();
       if (res.ok) {
         setSelected(s => ({ ...s, status: "resolved", ended_by_user: true }));
@@ -176,7 +205,7 @@ const SupportPage = ({ apiPrefix }) => {
   /* ── Rate ── */
   const submitRating = async (rating) => {
     try {
-      const res  = await fetch(`${baseUrl}/${selected.id}/rate`, {
+      const res = await fetch(`${baseUrl}/${selected.id}/rate`, {
         method: "POST", headers: authHdrs(), body: JSON.stringify({ rating }),
       });
       const json = await res.json();
@@ -191,7 +220,7 @@ const SupportPage = ({ apiPrefix }) => {
 
   const ss = selected ? (STATUS_STYLE[selected.status] || STATUS_STYLE.open) : null;
   const canReply = selected && !selected.ended_by_user && !["closed"].includes(selected.status);
-  const canEnd   = selected && !selected.ended_by_user && ["open", "in_progress"].includes(selected.status);
+  const canEnd = selected && !selected.ended_by_user && ["open", "in_progress"].includes(selected.status);
   const showRatingPrompt = selected?.ended_by_user && !ratingDone;
 
   return (
@@ -211,8 +240,8 @@ const SupportPage = ({ apiPrefix }) => {
           <p className="text-sm text-gray-500 mt-0.5">Submit and track your support conversations</p>
         </div>
         <button onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-bold rounded-xl transition shadow-md hover:shadow-lg hover:-translate-y-0.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           New Ticket
         </button>
       </div>
@@ -227,7 +256,7 @@ const SupportPage = ({ apiPrefix }) => {
           ) : tickets.length === 0 ? (
             <div className="p-12 text-center">
               <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
               </div>
               <p className="text-gray-500 font-semibold text-sm">No support tickets yet</p>
               <p className="text-gray-400 text-xs mt-1">Click "New Ticket" to submit your first request</p>
@@ -245,7 +274,7 @@ const SupportPage = ({ apiPrefix }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className={`w-1.5 h-1.5 rounded-full ${stl.dot}`} />
-                      <span className={`text-[10px] font-semibold capitalize ${stl.text}`}>{t.status.replace("_"," ")}</span>
+                      <span className={`text-[10px] font-semibold capitalize ${stl.text}`}>{t.status.replace("_", " ")}</span>
                       <span className="text-[10px] text-gray-400 capitalize">· {t.category}</span>
                     </div>
                     {t.last_message && <p className="text-xs text-gray-400 truncate mt-1">{t.last_message}</p>}
@@ -271,7 +300,7 @@ const SupportPage = ({ apiPrefix }) => {
                 {ss && (
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <div className={`w-1.5 h-1.5 rounded-full ${ss.dot}`} />
-                    <span className={`text-[10px] font-semibold ${ss.text}`}>{selected.status?.replace("_"," ")}</span>
+                    <span className={`text-[10px] font-semibold ${ss.text}`}>{selected.status?.replace("_", " ")}</span>
                     {selected.rating && (
                       <span className="text-[10px] text-amber-500 font-bold ml-1">{"★".repeat(selected.rating)} ({selected.rating}/5)</span>
                     )}
@@ -282,7 +311,7 @@ const SupportPage = ({ apiPrefix }) => {
                 )}
               </div>
               <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 flex-shrink-0">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
@@ -365,7 +394,7 @@ const SupportPage = ({ apiPrefix }) => {
             <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
               <p className="font-bold text-gray-900">New Support Ticket</p>
               <button type="button" onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <div className="px-6 py-5 space-y-4">

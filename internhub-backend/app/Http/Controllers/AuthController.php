@@ -9,6 +9,8 @@ use App\Models\CompanyProfile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
+use App\Models\SystemSetting;
+
 class AuthController extends Controller
 {
     // ✅ REGISTER
@@ -20,6 +22,14 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'role'     => 'required|in:student,company',
         ]);
+
+        // ── System settings gates ──────────────────────────────────────────
+        if ($request->role === 'student' && !SystemSetting::get('student_registration_open', true)) {
+            return response()->json(['message' => 'Student registration is currently closed. Please check back later.'], 403);
+        }
+        if ($request->role === 'company' && !SystemSetting::get('company_registration_open', true)) {
+            return response()->json(['message' => 'Company registration is currently closed. Please check back later.'], 403);
+        }
 
         $user = User::create([
             'name'     => $request->name,

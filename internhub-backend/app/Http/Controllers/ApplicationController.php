@@ -7,6 +7,7 @@ use App\Models\StudentProfile;
 use App\Models\InternshipListing;
 use App\Models\Notification;
 use App\Models\RolePermission;
+use App\Models\SystemSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,17 @@ class ApplicationController extends Controller
             'resume'                => $useExisting ? 'nullable' : 'required|file|mimes:pdf,doc,docx|max:2048',
             'cover_note'            => 'nullable|string|max:2000',
         ]);
+
+        // ── SystemSetting: max applications per student ─────────────────────
+        $maxApps = SystemSetting::get('max_applications_per_student', 0);
+        if ($maxApps > 0) {
+            $appCount = Application::where('student_id', Auth::id())->count();
+            if ($appCount >= $maxApps) {
+                return response()->json([
+                    'message' => "You have reached the maximum of {$maxApps} applications allowed per student.",
+                ], 422);
+            }
+        }
 
         // Prevent duplicate application
         $exists = Application::where('student_id', Auth::id())
