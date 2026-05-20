@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\CompanyProfile;
 use App\Models\CompanyVerification;
 use App\Models\Notification;
@@ -86,6 +87,19 @@ class AdminCompanyVerificationController extends Controller
 
         $company = CompanyProfile::with(['user:id,name,email', 'verification'])
             ->findOrFail($id);
+
+        // Record audit log
+        AuditLog::record(
+            $request->action,
+            match($request->action) {
+                'approve'  => "Verified company: {$company->company_name}",
+                'reject'   => "Rejected company verification: {$company->company_name}",
+                'resubmit' => "Requested resubmission from: {$company->company_name}",
+            },
+            'company',
+            $company->id,
+            $company->company_name
+        );
 
         // Notify the company
         $msgMap = [

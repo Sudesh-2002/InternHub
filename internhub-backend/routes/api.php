@@ -28,6 +28,7 @@ use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\AdminSupportController;
 use App\Http\Controllers\AdminSystemSettingsController;
 use App\Http\Controllers\AdminNotificationController;
+use App\Http\Controllers\AdminAuditLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -182,5 +183,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get  ('/notifications',            [AdminNotificationController::class, 'index']);
         Route::patch('/notifications/read-all',   [AdminNotificationController::class, 'markAllRead']);
         Route::patch('/notifications/{id}/read',  [AdminNotificationController::class, 'markRead']);
+
+        // Audit Logs
+        Route::get('/audit-logs', [AdminAuditLogController::class, 'index']);
     });
 });
