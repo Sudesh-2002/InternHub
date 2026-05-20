@@ -92,7 +92,10 @@ const SupportCenter = () => {
   const [fPriority,  setFPriority]  = useState("all");
   const [fRole,      setFRole]      = useState("all");
   const { toasts, add: toast, remove } = useToast();
-  const msgEnd = useRef(null);
+  const msgEnd      = useRef(null);
+  const pollRef     = useRef(null);
+  const selectedRef = useRef(selected);
+  useEffect(() => { selectedRef.current = selected; }, [selected]);
 
   /* ── Auto-scroll on new messages ── */
   useEffect(() => {
@@ -110,6 +113,33 @@ const SupportCenter = () => {
     } catch { toast("Network error", "error"); }
     finally { setLoading(false); }
   }, [fStatus, fPriority, fRole, search, page]);
+
+  /* ── Real-time polling every 3s when a thread is open ── */
+  const pollMessages = useCallback(async () => {
+    const cur = selectedRef.current;
+    if (!cur?.id || cur.status === "closed") return;
+    try {
+      const res  = await fetch(`${API}/admin/support-tickets/${cur.id}`, { headers: hdrs() });
+      const json = await res.json();
+      if (!res.ok) return;
+      const incoming = json.data?.messages || [];
+      const existing = selectedRef.current?.messages || [];
+      if (incoming.length !== existing.length) {
+        setSelected(prev => ({ ...prev, ...json.data, messages: incoming }));
+        fetchTickets();
+      }
+    } catch {}
+  }, [fetchTickets]);
+
+  /* Start / stop polling when a thread is selected */
+  useEffect(() => {
+    if (selected?.id && selected.status !== "closed") {
+      pollRef.current = setInterval(pollMessages, 3000);
+    } else {
+      clearInterval(pollRef.current);
+    }
+    return () => clearInterval(pollRef.current);
+  }, [selected?.id, selected?.status, pollMessages]);
 
   useEffect(() => { fetchTickets(); }, [fetchTickets]);
 
