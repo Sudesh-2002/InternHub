@@ -105,8 +105,8 @@ const Notifications = ({ setUnread: setParentUnread }) => {
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition ${filter === f
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
               }`}>
             {LABELS[f]}
             {f === "unread" && unread > 0 && (
@@ -142,8 +142,8 @@ const Notifications = ({ setUnread: setParentUnread }) => {
               return (
                 <div key={n.id} onClick={() => markOne(n.id)}
                   className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all ${n.is_read
-                      ? "bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/20"
-                      : "bg-white border-indigo-200 shadow-sm ring-1 ring-indigo-100/60"
+                    ? "bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/20"
+                    : "bg-white border-indigo-200 shadow-sm ring-1 ring-indigo-100/60"
                     }`}>
 
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${t.bg} ${t.text}`}>

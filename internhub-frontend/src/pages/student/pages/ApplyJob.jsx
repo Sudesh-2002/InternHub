@@ -14,7 +14,6 @@ const ApplyJob = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // If no job in state (direct URL access), redirect to browse
   if (!job) return <Navigate to="/student/dashboard/browse" replace />;
 
   const handleSubmit = async (e) => {
@@ -122,7 +121,6 @@ const ApplyJob = () => {
           </p>
         )}
 
-        {/* Submit */}
         <button type="submit" disabled={!resume || loading}
           className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm
                      rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">

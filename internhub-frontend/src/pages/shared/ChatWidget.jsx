@@ -1,6 +1,3 @@
-// src/pages/shared/ChatWidget.jsx
-// Floating chat bubble for Student & Company dashboards — with real-time polling
-
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const API_BASE = "http://localhost:8000/api";
@@ -10,24 +7,22 @@ const hdrs = () => ({
 });
 
 const STATUS_DOT = {
-  open:        "bg-emerald-500",
+  open: "bg-emerald-500",
   in_progress: "bg-blue-500",
-  resolved:    "bg-gray-400",
-  closed:      "bg-gray-400",
+  resolved: "bg-gray-400",
+  closed: "bg-gray-400",
 };
 
-/* ── Message bubble ─────────────────────────────────────────────── */
 const Bubble = ({ msg }) => (
   <div className={`flex gap-2 ${msg.is_admin ? "flex-row-reverse" : "flex-row"}`}>
     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5 ${msg.is_admin ? "bg-indigo-600" : "bg-slate-400"}`}>
       {msg.is_admin ? "S" : (msg.sender?.[0] ?? "U")}
     </div>
     <div className={`max-w-[80%] flex flex-col gap-0.5 ${msg.is_admin ? "items-end" : "items-start"}`}>
-      <div className={`px-3 py-2 rounded-2xl text-xs leading-relaxed shadow-sm ${
-        msg.is_admin
+      <div className={`px-3 py-2 rounded-2xl text-xs leading-relaxed shadow-sm ${msg.is_admin
           ? "bg-indigo-600 text-white rounded-tr-sm"
           : "bg-gray-100 text-gray-800 rounded-tl-sm"
-      }`}>
+        }`}>
         {msg.message}
       </div>
       <p className="text-[9px] text-gray-400 px-1">{msg.is_admin ? "Support" : msg.sender} · {msg.created_at}</p>
@@ -35,32 +30,29 @@ const Bubble = ({ msg }) => (
   </div>
 );
 
-/* ════════════════════════════════════════════════════════════════
-   MAIN WIDGET
-════════════════════════════════════════════════════════════════ */
+/* MAIN WIDGET */
 const ChatWidget = ({ apiPrefix }) => {
   const base = `${API_BASE}/${apiPrefix}/support-tickets`;
 
-  const [open,        setOpen]        = useState(false);
-  const [tickets,     setTickets]     = useState([]);
-  const [loading,     setLoading]     = useState(false);
-  const [selected,    setSelected]    = useState(null);
-  const [detailLoad,  setDetailLoad]  = useState(false);
-  const [reply,       setReply]       = useState("");
-  const [sending,     setSending]     = useState(false);
-  const [showCreate,  setShowCreate]  = useState(false);
-  const [submitting,  setSubmitting]  = useState(false);
-  const [hovStar,     setHovStar]     = useState(0);
-  const [ratingDone,  setRatingDone]  = useState(false);
-  const [endingConv,  setEndingConv]  = useState(false);
-  const [toast,       setToast]       = useState(null);
+  const [open, setOpen] = useState(false);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [detailLoad, setDetailLoad] = useState(false);
+  const [reply, setReply] = useState("");
+  const [sending, setSending] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [hovStar, setHovStar] = useState(0);
+  const [ratingDone, setRatingDone] = useState(false);
+  const [endingConv, setEndingConv] = useState(false);
+  const [toast, setToast] = useState(null);
   const [form, setForm] = useState({ subject: "", category: "general", priority: "medium", message: "" });
 
-  const msgEnd      = useRef(null);
-  const pollRef     = useRef(null);
+  const msgEnd = useRef(null);
+  const pollRef = useRef(null);
   const selectedRef = useRef(selected);
 
-  // keep ref in sync so the interval closure sees latest state
   useEffect(() => { selectedRef.current = selected; }, [selected]);
 
   const showToast = (msg, type = "success") => {
@@ -68,7 +60,6 @@ const ChatWidget = ({ apiPrefix }) => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  /* ── Auto-scroll ── */
   useEffect(() => {
     if (selected?.messages) msgEnd.current?.scrollIntoView({ behavior: "smooth" });
   }, [selected?.messages]);
@@ -77,10 +68,10 @@ const ChatWidget = ({ apiPrefix }) => {
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(base, { headers: hdrs() });
+      const res = await fetch(base, { headers: hdrs() });
       const json = await res.json();
       if (res.ok) setTickets(json.data || []);
-    } catch {}
+    } catch { }
     finally { setLoading(false); }
   }, [base]);
 
@@ -91,7 +82,7 @@ const ChatWidget = ({ apiPrefix }) => {
     const cur = selectedRef.current;
     if (!cur?.id || cur.ended_by_user || cur.status === "closed") return;
     try {
-      const res  = await fetch(`${base}/${cur.id}`, { headers: hdrs() });
+      const res = await fetch(`${base}/${cur.id}`, { headers: hdrs() });
       const json = await res.json();
       if (!res.ok) return;
       const incoming = json.data?.messages || [];
@@ -100,7 +91,7 @@ const ChatWidget = ({ apiPrefix }) => {
         setSelected(prev => ({ ...prev, ...json.data, messages: incoming }));
         fetchTickets();
       }
-    } catch {}
+    } catch { }
   }, [base, fetchTickets]);
 
   /* Start / stop polling when a thread is selected */
@@ -122,22 +113,21 @@ const ChatWidget = ({ apiPrefix }) => {
     setHovStar(0);
     setRatingDone(false);
     try {
-      const res  = await fetch(`${base}/${id}`, { headers: hdrs() });
+      const res = await fetch(`${base}/${id}`, { headers: hdrs() });
       const json = await res.json();
       if (res.ok) {
         setSelected(json.data);
         setRatingDone(json.data.rating !== null);
       }
-    } catch {}
+    } catch { }
     finally { setDetailLoad(false); }
   };
 
-  /* ── Send reply ── */
   const sendReply = async () => {
     if (!reply.trim() || sending) return;
     setSending(true);
     try {
-      const res  = await fetch(`${base}/${selected.id}/reply`, {
+      const res = await fetch(`${base}/${selected.id}/reply`, {
         method: "POST", headers: hdrs(), body: JSON.stringify({ message: reply }),
       });
       const json = await res.json();
@@ -155,7 +145,7 @@ const ChatWidget = ({ apiPrefix }) => {
     if (endingConv) return;
     setEndingConv(true);
     try {
-      const res  = await fetch(`${base}/${selected.id}/end`, { method: "POST", headers: hdrs() });
+      const res = await fetch(`${base}/${selected.id}/end`, { method: "POST", headers: hdrs() });
       const json = await res.json();
       if (res.ok) {
         setSelected(s => ({ ...s, status: "resolved", ended_by_user: true }));
@@ -166,10 +156,9 @@ const ChatWidget = ({ apiPrefix }) => {
     finally { setEndingConv(false); }
   };
 
-  /* ── Submit rating ── */
   const submitRating = async (rating) => {
     try {
-      const res  = await fetch(`${base}/${selected.id}/rate`, {
+      const res = await fetch(`${base}/${selected.id}/rate`, {
         method: "POST", headers: hdrs(), body: JSON.stringify({ rating }),
       });
       const json = await res.json();
@@ -182,13 +171,12 @@ const ChatWidget = ({ apiPrefix }) => {
     } catch { showToast("Network error", "error"); }
   };
 
-  /* ── Create ticket ── */
   const createTicket = async (e) => {
     e.preventDefault();
     if (!form.subject.trim() || !form.message.trim()) return;
     setSubmitting(true);
     try {
-      const res  = await fetch(base, { method: "POST", headers: hdrs(), body: JSON.stringify(form) });
+      const res = await fetch(base, { method: "POST", headers: hdrs(), body: JSON.stringify(form) });
       const json = await res.json();
       if (res.ok) {
         showToast("Ticket submitted!");
@@ -201,24 +189,21 @@ const ChatWidget = ({ apiPrefix }) => {
     finally { setSubmitting(false); }
   };
 
-  const isClosed    = selected && (selected.status === "closed" || (selected.ended_by_user));
-  const canReply    = selected && !isClosed;
-  const canEnd      = selected && !selected.ended_by_user && ["open", "in_progress"].includes(selected.status);
+  const isClosed = selected && (selected.status === "closed" || (selected.ended_by_user));
+  const canReply = selected && !isClosed;
+  const canEnd = selected && !selected.ended_by_user && ["open", "in_progress"].includes(selected.status);
   const needsRating = selected && selected.ended_by_user && !ratingDone;
   const activeCount = tickets.filter(t => t.status === "in_progress").length;
 
   return (
     <>
-      {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-24 right-5 z-[300] px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl ${
-          toast.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
-        }`} style={{ animation: "slideUp 0.2s ease" }}>
+        <div className={`fixed bottom-24 right-5 z-[300] px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl ${toast.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"
+          }`} style={{ animation: "slideUp 0.2s ease" }}>
           {toast.msg}
         </div>
       )}
 
-      {/* ── Floating trigger button ── */}
       <button
         id="chat-widget-btn"
         onClick={() => { setOpen(v => !v); if (!open) { setSelected(null); setShowCreate(false); } }}
@@ -243,14 +228,12 @@ const ChatWidget = ({ apiPrefix }) => {
         )}
       </button>
 
-      {/* ── Chat panel ── */}
       {open && (
         <div className="fixed bottom-24 right-6 z-[200] w-[370px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
           style={{ height: 520, animation: "slideUp 0.2s ease" }}>
 
           <style>{`@keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
-          {/* ── Header ── */}
           <div className="bg-indigo-600 px-4 py-3.5 flex items-center gap-3 flex-shrink-0">
             <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
@@ -273,10 +256,8 @@ const ChatWidget = ({ apiPrefix }) => {
             )}
           </div>
 
-          {/* ── Thread View ── */}
           {selected && (
             <div className="flex flex-col flex-1 overflow-hidden">
-              {/* Ticket meta */}
               <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50 flex-shrink-0">
                 <p className="text-xs font-bold text-gray-800 truncate">{selected.subject || "Loading…"}</p>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -294,7 +275,6 @@ const ChatWidget = ({ apiPrefix }) => {
                 </div>
               </div>
 
-              {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {detailLoad ? (
                   <p className="text-center text-gray-400 text-xs animate-pulse py-8">Loading…</p>
@@ -302,7 +282,6 @@ const ChatWidget = ({ apiPrefix }) => {
                 <div ref={msgEnd} />
               </div>
 
-              {/* Rating prompt */}
               {needsRating && (
                 <div className="px-4 py-3 border-t border-amber-100 bg-amber-50 flex-shrink-0">
                   <p className="text-xs font-bold text-amber-800 mb-2">Rate your experience ⭐</p>
@@ -318,7 +297,6 @@ const ChatWidget = ({ apiPrefix }) => {
                 </div>
               )}
 
-              {/* Rated */}
               {ratingDone && selected.rating && (
                 <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50 flex-shrink-0 text-center">
                   <p className="text-[10px] text-gray-500">Your rating</p>
@@ -326,7 +304,6 @@ const ChatWidget = ({ apiPrefix }) => {
                 </div>
               )}
 
-              {/* Reply box */}
               {canReply && (
                 <div className="px-3 py-3 border-t border-gray-100 flex gap-2 flex-shrink-0 bg-white">
                   <textarea
@@ -351,7 +328,6 @@ const ChatWidget = ({ apiPrefix }) => {
                 </div>
               )}
 
-              {/* Ended notice */}
               {isClosed && !needsRating && !ratingDone && (
                 <div className="px-4 py-3 border-t border-gray-100 text-center text-[11px] text-gray-400 flex-shrink-0">
                   {selected.status === "closed" ? "Closed by admin." : "This conversation has ended."}
@@ -360,15 +336,13 @@ const ChatWidget = ({ apiPrefix }) => {
             </div>
           )}
 
-          {/* ── Ticket List ── */}
           {!selected && !showCreate && (
             <>
-              {/* Prominent "New Chat" button */}
               <div className="px-4 py-3 border-b border-gray-100 flex-shrink-0">
                 <button onClick={() => setShowCreate(true)}
                   className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition shadow-sm">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14"/>
+                    <path d="M12 5v14M5 12h14" />
                   </svg>
                   New Support Chat
                 </button>
@@ -411,7 +385,6 @@ const ChatWidget = ({ apiPrefix }) => {
             </>
           )}
 
-          {/* ── Create Form ── */}
           {!selected && showCreate && (
             <form onSubmit={createTicket} className="flex-1 flex flex-col overflow-hidden">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 flex-shrink-0 bg-gray-50">
