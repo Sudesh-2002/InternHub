@@ -16,6 +16,7 @@ import ContentModeration from "./pages/ContentModeration";
 import SupportCenter from "./pages/SupportCenter";
 import SystemSettings from "./pages/SystemSettings";
 import AdminNotifications from "./pages/AdminNotifications";
+import AuditLogs from "./pages/AuditLogs";
 
 const AdminDashboard = () => (
   <AdminLayout>
@@ -36,6 +37,7 @@ const AdminDashboard = () => (
       <Route path="messages" element={<SupportCenter />} />
       <Route path="settings" element={<SystemSettings />} />
       <Route path="notifications" element={<AdminNotifications />} />
+      <Route path="audit" element={<AuditLogs />} />
     </Routes>
   </AdminLayout>
 );

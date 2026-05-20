@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -101,7 +102,15 @@ class AdminStudentController extends Controller
         ]);
 
         $user = User::students()->findOrFail($id);
+        $oldStatus = $user->status;
         $user->update(['status' => $request->status]);
+
+        // Record audit log
+        AuditLog::record(
+            $request->status === 'suspended' ? 'suspend' : ($request->status === 'active' ? 'restore' : 'update'),
+            "Changed student '{$user->name}' status from {$oldStatus} to {$request->status}",
+            'student', $user->id, $user->name
+        );
 
         // Notify student of account status change
         $messages = [
@@ -126,7 +135,11 @@ class AdminStudentController extends Controller
     public function destroy(int $id): JsonResponse
     {
         $user = User::students()->findOrFail($id);
+        $name = $user->name;
+        $userId = $user->id;
         $user->delete();
+
+        AuditLog::record('delete', "Deleted student account: {$name}", 'student', $userId, $name);
 
         return response()->json([
             'success' => true,
