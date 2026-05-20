@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreInternshipRequest;
 use App\Models\InternshipListing;
 use App\Models\RolePermission;
+use App\Models\SystemSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -119,14 +120,40 @@ class InternshipListingController extends Controller
             ], 403);
         }
 
+        // ── SystemSetting: max active listings per company ──────────────────
+        $maxListings = SystemSetting::get('max_listings_per_company', 20);
+        if ($maxListings > 0) {
+            $activeCount = InternshipListing::where('company_id', Auth::id())
+                ->whereNotIn('status', ['expired', 'rejected'])
+                ->count();
+            if ($activeCount >= $maxListings) {
+                return response()->json([
+                    'message' => "You have reached the maximum of {$maxListings} active listings allowed per company.",
+                ], 422);
+            }
+        }
+
+        // ── SystemSetting: max vacancies per listing ────────────────────────
+        $maxVacancies = SystemSetting::get('max_vacancies_per_listing', 50);
+        if ($maxVacancies > 0 && ($request->vacancies ?? 1) > $maxVacancies) {
+            return response()->json([
+                'message' => "Vacancies cannot exceed {$maxVacancies} per listing.",
+            ], 422);
+        }
+
+        // ── SystemSetting: auto-approve listings ────────────────────────────
+        $autoApprove = SystemSetting::get('auto_approve_listings', false);
+
         $listing = InternshipListing::create([
             ...$request->validated(),
             'company_id' => Auth::id(),
-            'status'     => 'pending',
+            'status'     => $autoApprove ? 'approved' : 'pending',
         ]);
 
         return response()->json([
-            'message' => 'Internship posted successfully. Awaiting admin approval.',
+            'message' => $autoApprove
+                ? 'Internship posted and published automatically.'
+                : 'Internship posted successfully. Awaiting admin approval.',
             'listing' => $listing,
         ], 201);
     }
