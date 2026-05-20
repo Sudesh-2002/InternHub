@@ -1,11 +1,9 @@
-
 import { useState, useEffect, useRef } from "react";
 import Icon from "../../student/components/Icon";
 import { icons } from "../../student/components/data/mockData";
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
 
-// Authenticated fetch wrapper with CSRF and Bearer token support
 const apiFetch = async (url, options = {}) => {
   const csrf = decodeURIComponent(
     document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ""
@@ -26,7 +24,6 @@ const apiFetch = async (url, options = {}) => {
   return json;
 };
 
-// Shared UI components used throughout this page
 const Section = ({ title, action, children }) => (
   <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl p-6 shadow-sm">
     <div className="flex items-center justify-between mb-5">
@@ -108,7 +105,6 @@ const InfoRow = ({ iconPath, label, value }) => (
   </div>
 );
 
-// Platform statistic tile
 const StatTile = ({ label, value, sub, accent = "indigo" }) => {
   const map = {
     indigo: { num: "text-indigo-600", bg: "bg-indigo-50" },
@@ -125,7 +121,6 @@ const StatTile = ({ label, value, sub, accent = "indigo" }) => {
   );
 };
 
-// Main admin profile component
 const AdminProfile = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

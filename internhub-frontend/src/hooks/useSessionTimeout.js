@@ -1,15 +1,9 @@
-// src/hooks/useSessionTimeout.js
-//
-// Monitors user activity and auto-logs out after IDLE_TIMEOUT_MS of inactivity.
-// Fires onWarning callback WARNING_MS before logout so the UI can show a modal.
-// Calls POST /api/timeout on expiry (records the event), then calls onExpire.
-
 import { useEffect, useRef, useCallback } from "react";
 import API from "../services/api";
 
-// ── Configuration ──────────────────────────────────────────────────────────
+// Configuration 
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes idle → auto logout
-const WARNING_MS      =  2 * 60 * 1000; // Show warning 2 minutes before
+const WARNING_MS = 2 * 60 * 1000; // Show warning 2 minutes before
 
 // Activity events that reset the idle timer
 const ACTIVITY_EVENTS = [
@@ -26,9 +20,9 @@ const ACTIVITY_EVENTS = [
  * @param {function} options.onReset   - Called when activity is detected (hide modal)
  */
 export function useSessionTimeout({ enabled = true, onWarning, onExpire, onReset }) {
-  const warnTimer   = useRef(null);
+  const warnTimer = useRef(null);
   const expireTimer = useRef(null);
-  const warned      = useRef(false);
+  const warned = useRef(false);
 
   const clearTimers = useCallback(() => {
     clearTimeout(warnTimer.current);
@@ -62,7 +56,6 @@ export function useSessionTimeout({ enabled = true, onWarning, onExpire, onReset
     onReset?.();
   }, [enabled, resetTimers, onReset]);
 
-  /** Exposed: force a reset (used by "Stay Logged In" button) */
   const stayLoggedIn = useCallback(() => {
     warned.current = false;
     resetTimers();

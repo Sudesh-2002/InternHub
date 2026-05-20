@@ -1,5 +1,3 @@
-// src/pages/admin/pages/Reports.jsx
-
 import { useState, useEffect, useCallback } from "react";
 import { Page, SectionHeader, Btn, Ico, useToast, Toast } from "../components/Shared";
 
@@ -9,17 +7,15 @@ const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-/* ── Colour map ─────────────────────────────────────────────────── */
 const COLOR = {
-  violet:  "#7c3aed",
-  sky:     "#0ea5e9",
+  violet: "#7c3aed",
+  sky: "#0ea5e9",
   emerald: "#10b981",
-  amber:   "#f59e0b",
-  rose:    "#f43f5e",
-  cyan:    "#06b6d4",
+  amber: "#f59e0b",
+  rose: "#f43f5e",
+  cyan: "#06b6d4",
 };
 
-/* ── Bar chart (vertical) ───────────────────────────────────────── */
 const BarChart = ({ data, color, label }) => {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
@@ -39,7 +35,6 @@ const BarChart = ({ data, color, label }) => {
   );
 };
 
-/* ── Horizontal bar chart ───────────────────────────────────────── */
 const HBarChart = ({ data, color, label }) => {
   const max = Math.max(...data.map(d => d.value), 1);
   return (
@@ -61,16 +56,16 @@ const HBarChart = ({ data, color, label }) => {
   );
 };
 
-/* ── Donut chart (pure SVG) ─────────────────────────────────────── */
+/* Donut chart (pure SVG) */
 const DonutChart = ({ data, label }) => {
   const total = data.reduce((s, d) => s + d.value, 0) || 1;
   const r = 48, cx = 60, cy = 60, strokeW = 18;
   const circumference = 2 * Math.PI * r;
   let offset = 0;
   const segments = data.map(d => {
-    const pct  = d.value / total;
+    const pct = d.value / total;
     const dash = pct * circumference;
-    const seg  = { ...d, dashArray: `${dash} ${circumference - dash}`, dashOffset: -offset };
+    const seg = { ...d, dashArray: `${dash} ${circumference - dash}`, dashOffset: -offset };
     offset += dash;
     return seg;
   });
@@ -108,7 +103,6 @@ const DonutChart = ({ data, label }) => {
   );
 };
 
-/* ── Summary tile ───────────────────────────────────────────────── */
 const SummaryTile = ({ label, value, color }) => (
   <div className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm hover:shadow-md transition-all duration-200">
     <p className="text-2xl font-bold tracking-tight" style={{ color: COLOR[color] || color }}>{value}</p>
@@ -116,7 +110,6 @@ const SummaryTile = ({ label, value, color }) => (
   </div>
 );
 
-/* ── Sparkline ──────────────────────────────────────────────────── */
 const Sparkline = ({ data, color }) => {
   const values = data.map(d => d.value);
   const max = Math.max(...values, 1);
@@ -136,7 +129,6 @@ const Sparkline = ({ data, color }) => {
   );
 };
 
-/* ── Skeleton loader ────────────────────────────────────────────── */
 const Skeleton = () => (
   <div className="space-y-5 animate-pulse">
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -148,30 +140,27 @@ const Skeleton = () => (
   </div>
 );
 
-/* ── Export CSV helper ──────────────────────────────────────────── */
+/* Export CSV helper */
 const exportCSV = (summary) => {
   const rows = [["Metric", "Value"], ...summary.map(s => [s.label, s.value])];
-  const csv  = rows.map(r => r.join(",")).join("\n");
+  const csv = rows.map(r => r.join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
   a.href = url; a.download = "internhub_report.csv"; a.click();
   URL.revokeObjectURL(url);
 };
 
-/* ══════════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-══════════════════════════════════════════════════════════════════ */
 const Reports = () => {
-  const [period,  setPeriod]  = useState("6m");
-  const [data,    setData]    = useState(null);
+  const [period, setPeriod] = useState("6m");
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const { toasts, add: toast, remove } = useToast();
 
   const fetchData = useCallback(async (p) => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/admin/reports?period=${p}`, { headers: authHeaders() });
+      const res = await fetch(`${API}/admin/reports?period=${p}`, { headers: authHeaders() });
       const json = await res.json();
       if (res.ok) setData(json);
       else toast(json.message || "Failed to load analytics", "error");
@@ -190,7 +179,6 @@ const Reports = () => {
     <Page>
       <Toast toasts={toasts} remove={remove} />
 
-      {/* ── Header ── */}
       <SectionHeader
         title="Reports & Analytics"
         subtitle="Platform-wide performance metrics based on live database data"
@@ -200,9 +188,8 @@ const Reports = () => {
             <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
               {PERIODS.map(p => (
                 <button key={p} onClick={() => setPeriod(p)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-150 ${
-                    period === p ? "bg-white text-indigo-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
-                  }`}>
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all duration-150 ${period === p ? "bg-white text-indigo-700 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                    }`}>
                   {p}
                 </button>
               ))}
@@ -281,18 +268,16 @@ const Reports = () => {
 
           {/* ── Internship + Application charts ── */}
           <div className="grid lg:grid-cols-2 gap-5">
-            <BarChart data={data.charts.internships}  color={COLOR.emerald} label="Internship Postings (Monthly)" />
-            <BarChart data={data.charts.applications} color={COLOR.amber}   label="Applications Submitted (Monthly)" />
+            <BarChart data={data.charts.internships} color={COLOR.emerald} label="Internship Postings (Monthly)" />
+            <BarChart data={data.charts.applications} color={COLOR.amber} label="Applications Submitted (Monthly)" />
           </div>
 
-          {/* ── Breakdowns row ── */}
           <div className="grid lg:grid-cols-3 gap-5">
             <DonutChart data={data.status_breakdown} label="Application Status Breakdown" />
-            <HBarChart  data={data.type_breakdown}   color={COLOR.violet}  label="Internship Types" />
-            <HBarChart  data={data.top_locations}    color={COLOR.cyan}    label="Top Locations" />
+            <HBarChart data={data.type_breakdown} color={COLOR.violet} label="Internship Types" />
+            <HBarChart data={data.top_locations} color={COLOR.cyan} label="Top Locations" />
           </div>
 
-          {/* ── Top companies ── */}
           <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Most Active Companies</p>

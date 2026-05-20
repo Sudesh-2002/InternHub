@@ -4,8 +4,8 @@ import API from "../services/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser]       = useState(null);
-  const [token, setToken]     = useState(localStorage.getItem("token") || null);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
   // On app load, fetch logged-in user if token exists
@@ -37,18 +37,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    try { await API.post("/logout"); } catch (_) {}
+    try { await API.post("/logout"); } catch (_) { }
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
   };
 
-  /** Re-fetch /me and update user state (call after avatar upload etc.) */
   const refreshUser = async () => {
     try {
       const res = await API.get("/me");
       setUser(res.data.user);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   return (
@@ -58,4 +57,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);

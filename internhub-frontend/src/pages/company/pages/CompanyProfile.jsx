@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 
-// API CONFIG
 const API_BASE = "http://127.0.0.1:8000/api/company/profile";
 
 const getAuthHeaders = () => ({
   Accept: "application/json",
   Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
-  // Do NOT set Content-Type here — browser sets it automatically for FormData
 });
 
 //  SHARED PRIMITIVES
@@ -29,7 +27,6 @@ const Input = (p) => <input className={inputBase} {...p} />;
 const TA = ({ rows = 3, ...p }) => <textarea className={inputBase + " resize-none"} rows={rows} {...p} />;
 const Sel = ({ children, ...p }) => <select className={inputBase} {...p}>{children}</select>;
 
-// STEP INDICATOR
 const STEPS = [
   { n: 1, label: "Identity" },
   { n: 2, label: "Description" },
@@ -74,7 +71,6 @@ const StepBar = ({ current }) => (
   </div>
 );
 
-//  DOCUMENT ROW
 const DocRow = ({ label, hint, value, existingUrl, onChange }) => (
   <div className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0 group">
     <div className="min-w-0 pr-4">
@@ -104,7 +100,6 @@ const DocRow = ({ label, hint, value, existingUrl, onChange }) => (
   </div>
 );
 
-//  LOADING SCREEN
 const LoadingScreen = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f0f0ff] via-[#f8f8ff] to-[#f0f5ff]">
     <div className="flex flex-col items-center gap-3">
@@ -114,7 +109,6 @@ const LoadingScreen = () => (
   </div>
 );
 
-//  MAIN COMPONENT
 const CompanyProfile = ({ toast }) => {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -163,23 +157,21 @@ const CompanyProfile = ({ toast }) => {
 
   // State: Step 4 – Documents
   const [docs, setDocs] = useState({
-    businessCert: null,   // new File
+    businessCert: null,
     taxDocs: null,
     verificationDoc: null,
     hrAuth: null,
-    businessCertUrl: null,   // existing URL from API
+    businessCertUrl: null,
     taxDocsUrl: null,
     verificationDocUrl: null,
     hrAuthUrl: null,
   });
 
-  //Updater helpers
   const sId = (k, v) => setId(p => ({ ...p, [k]: v }));
   const sDsc = (k, v) => setDesc(p => ({ ...p, [k]: v }));
   const sCnt = (k, v) => setContact(p => ({ ...p, [k]: v }));
   const sDoc = (k, v) => setDocs(p => ({ ...p, [k]: v }));
 
-  // Load existing profile on mount
   useEffect(() => {
     (async () => {
       try {
@@ -237,7 +229,6 @@ const CompanyProfile = ({ toast }) => {
     })();
   }, []);
 
-  // Logo file picker
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -251,7 +242,6 @@ const CompanyProfile = ({ toast }) => {
   const buildFormData = useCallback(() => {
     const fd = new FormData();
 
-    // Identity
     fd.append("company_name", id.companyName);
     fd.append("registered_name", id.registeredName);
     fd.append("industry", id.industry);
@@ -262,7 +252,6 @@ const CompanyProfile = ({ toast }) => {
     fd.append("website", id.website);
     if (id.logoFile) fd.append("logo", id.logoFile);
 
-    // Description
     fd.append("about", desc.about);
     fd.append("mission", desc.mission);
     fd.append("vision", desc.vision);
@@ -270,7 +259,6 @@ const CompanyProfile = ({ toast }) => {
     fd.append("technologies", desc.technologies);
     fd.append("culture", desc.culture);
 
-    // Contact
     fd.append("official_email", contact.officialEmail);
     fd.append("hr_email", contact.hrEmail);
     fd.append("phone", contact.phone);
@@ -278,7 +266,6 @@ const CompanyProfile = ({ toast }) => {
     fd.append("linkedin_url", contact.linkedin);
     fd.append("facebook_url", contact.facebook);
 
-    // Documents (only append if a new file was selected)
     if (docs.businessCert) fd.append("business_cert", docs.businessCert);
     if (docs.taxDocs) fd.append("tax_docs", docs.taxDocs);
     if (docs.verificationDoc) fd.append("verification_doc", docs.verificationDoc);
@@ -287,7 +274,6 @@ const CompanyProfile = ({ toast }) => {
     return fd;
   }, [id, desc, contact, docs]);
 
-  // Animated step navigation
   const navigate = (dir) => {
     setAnimDir(dir);
     setVisible(false);
@@ -316,7 +302,6 @@ const CompanyProfile = ({ toast }) => {
 
       const json = await res.json();
 
-      // Update logo preview from server URL so it persists across refresh
       if (json.data?.logo_url) {
         setId(p => ({
           ...p,
@@ -324,7 +309,7 @@ const CompanyProfile = ({ toast }) => {
           logoPreview: json.data.logo_url,
           logoFile: null,
         }));
-        setLogoError(false); // reset after successful save
+        setLogoError(false);
       }
 
       toast?.("Company profile saved successfully!", "success");
@@ -349,13 +334,11 @@ const CompanyProfile = ({ toast }) => {
 
   if (loading) return <LoadingScreen />;
 
-  // PANELS
   const panels = {
 
     // STEP 1: Identity
     1: (
       <div className="space-y-5">
-        {/* Logo upload block */}
         <div className="flex items-center gap-5 p-4 bg-slate-50/80 rounded-2xl border border-slate-100">
           <div
             onClick={() => logoRef.current.click()}
@@ -521,7 +504,6 @@ const CompanyProfile = ({ toast }) => {
     ),
   };
 
-  // RENDER
   return (
     <>
       <style>{`
@@ -548,7 +530,6 @@ const CompanyProfile = ({ toast }) => {
 
       <div className="cp-root min-h-screen bg-gradient-to-br from-[#f0f0ff] via-[#f8f8ff] to-[#f0f5ff] flex items-start justify-center py-12 px-4">
 
-        {/* Soft background shapes */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
           <div className="absolute top-[-120px] right-[-80px] w-[440px] h-[440px] rounded-full bg-violet-100/40 blur-[80px]" />
           <div className="absolute bottom-[-100px] left-[-60px] w-[360px] h-[360px] rounded-full bg-indigo-100/30 blur-[80px]" />
@@ -556,7 +537,6 @@ const CompanyProfile = ({ toast }) => {
 
         <div className="relative w-full max-w-[620px]">
 
-          {/* Top identity strip */}
           <div className="flex items-center gap-4 mb-7">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white text-base font-black shadow-lg shadow-violet-200 flex-shrink-0 overflow-hidden">
               {id.logoPreview && !logoError
@@ -590,10 +570,8 @@ const CompanyProfile = ({ toast }) => {
             </div>
           </div>
 
-          {/*  Main card  */}
           <div className="bg-white/80 backdrop-blur-xl border border-white/90 rounded-3xl shadow-2xl shadow-violet-100/50 overflow-hidden">
 
-            {/* Card header */}
             <div className="px-8 pt-8 pb-0">
               <StepBar current={step} />
               <div className="mb-6">
@@ -616,7 +594,6 @@ const CompanyProfile = ({ toast }) => {
 
             <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent mx-8" />
 
-            {/* Panel content */}
             <div className="px-8 py-7">
               <div
                 key={step}
@@ -630,10 +607,8 @@ const CompanyProfile = ({ toast }) => {
 
             <div className="h-px bg-gradient-to-r from-transparent via-slate-100 to-transparent mx-8" />
 
-            {/*  Navigation bar  */}
             <div className="px-8 py-5 flex items-center justify-between">
 
-              {/* Progress dots */}
               <div className="flex items-center gap-2">
                 <div className="flex gap-1">
                   {STEPS.map(s => (
@@ -645,7 +620,6 @@ const CompanyProfile = ({ toast }) => {
                 <span className="text-xs text-slate-400 font-semibold ml-1">{step} / 4</span>
               </div>
 
-              {/* Action buttons */}
               <div className="flex items-center gap-3">
                 {step > 1 && (
                   <button

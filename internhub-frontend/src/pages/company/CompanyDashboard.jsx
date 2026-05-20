@@ -56,7 +56,6 @@ export default function CompanyDashboard() {
       className="min-h-screen bg-slate-50 flex"
       style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }}
     >
-      {/* Session Timeout Modal */}
       <SessionTimeoutModal
         isOpen={showTimeout}
         secondsLeft={WARNING_SECONDS}
@@ -123,7 +122,6 @@ export default function CompanyDashboard() {
               <Notifications setUnread={setUnread} />
             } />
             <Route path="support" element={<SupportPage apiPrefix="company" />} />
-            {/* Fallback */}
             <Route path="*" element={<Navigate to="/company/dashboard" replace />} />
           </Routes>
         </main>

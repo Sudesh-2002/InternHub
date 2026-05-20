@@ -1,8 +1,3 @@
-// src/components/SessionTimeoutModal.jsx
-//
-// Warning modal shown before auto-logout due to session inactivity.
-// Displays a live countdown; user can "Stay Logged In" or "Logout Now".
-
 import { useEffect, useState } from "react";
 
 const SessionTimeoutModal = ({ isOpen, secondsLeft: initialSeconds, onStay, onLogout }) => {
@@ -30,7 +25,7 @@ const SessionTimeoutModal = ({ isOpen, secondsLeft: initialSeconds, onStay, onLo
 
   const mins = Math.floor(seconds / 60);
   const secs = String(seconds % 60).padStart(2, "0");
-  const pct  = Math.min(100, (seconds / initialSeconds) * 100);
+  const pct = Math.min(100, (seconds / initialSeconds) * 100);
 
   return (
     <div
@@ -55,7 +50,6 @@ const SessionTimeoutModal = ({ isOpen, secondsLeft: initialSeconds, onStay, onLo
           }
         `}</style>
 
-        {/* Icon */}
         <div
           style={{
             width: 56, height: 56,
@@ -72,7 +66,6 @@ const SessionTimeoutModal = ({ isOpen, secondsLeft: initialSeconds, onStay, onLo
           </svg>
         </div>
 
-        {/* Title */}
         <h2 style={{ textAlign: "center", fontSize: "18px", fontWeight: 700, color: "#111827", margin: "0 0 6px" }}>
           Session Expiring Soon
         </h2>

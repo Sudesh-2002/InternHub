@@ -1,9 +1,6 @@
-// src/pages/admin/pages/CompanyVerification.jsx
-
 import { useState, useEffect } from "react";
 import { Page, SectionHeader, Badge, Avatar, Btn, Ico, Textarea, useToast, Toast } from "../components/Shared";
 
-// ── API helpers ───────────────────────────────────────────────────────────────
 const API = "http://127.0.0.1:8000";
 
 const BASE = `${API}/api/admin/verifications`;
@@ -46,13 +43,12 @@ const reviewCompany = (id, action, admin_note) =>
 // ─────────────────────────────────────────────────────────────────────────────
 const CompanyVerification = () => {
   const [companies, setCompanies] = useState([]);
-  const [active,    setActive]    = useState(null);
-  const [note,      setNote]      = useState("");
-  const [loading,   setLoading]   = useState(true);
+  const [active, setActive] = useState(null);
+  const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(true);
   const [actioning, setActioning] = useState(false);
   const { toasts, add: toast, remove } = useToast();
 
-  // ── Load on mount ─────────────────────────────────────────────────────────
   useEffect(() => {
     fetchVerifications()
       .then((data) => {
@@ -63,7 +59,7 @@ const CompanyVerification = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // ── Sync active panel when companies list updates ─────────────────────────
+  // Sync active panel when companies list updates
   useEffect(() => {
     if (active) {
       const updated = companies.find((c) => c.id === active.id);
@@ -71,13 +67,12 @@ const CompanyVerification = () => {
     }
   }, [companies]);
 
-  // ── Review action ─────────────────────────────────────────────────────────
+  // Review action
   const doAction = async (id, action) => {
     setActioning(true);
     try {
       const res = await reviewCompany(id, action, note);
 
-      // Update the list with the returned updated company
       setCompanies((prev) =>
         prev.map((c) => (c.id === id ? res.company : c))
       );
@@ -93,7 +88,6 @@ const CompanyVerification = () => {
 
   const pending = companies.filter((c) => c.status === "pending");
 
-  // ── Loading skeleton ──────────────────────────────────────────────────────
   if (loading) {
     return (
       <Page>
@@ -115,8 +109,6 @@ const CompanyVerification = () => {
       />
 
       <div className="grid lg:grid-cols-3 gap-5 items-start">
-
-        {/* ── Queue list ─────────────────────────────────────────────────── */}
         <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
           <div className="px-5 py-3.5 border-b border-gray-100 bg-gray-50">
             <p className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
@@ -134,14 +126,12 @@ const CompanyVerification = () => {
                 <button
                   key={c.id}
                   onClick={() => { setActive(c); setNote(c.admin_note ?? ""); }}
-                  className={`w-full flex items-center gap-3 px-5 py-4 text-left transition-colors ${
-                    active?.id === c.id ? "bg-indigo-50" : "hover:bg-gray-50"
-                  }`}>
+                  className={`w-full flex items-center gap-3 px-5 py-4 text-left transition-colors ${active?.id === c.id ? "bg-indigo-50" : "hover:bg-gray-50"
+                    }`}>
                   <Avatar name={c.name} src={c.logo_url} size={10} />
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${
-                      active?.id === c.id ? "text-indigo-700" : "text-gray-800"
-                    }`}>
+                    <p className={`text-sm font-semibold truncate ${active?.id === c.id ? "text-indigo-700" : "text-gray-800"
+                      }`}>
                       {c.name}
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">{c.submitted}</p>
@@ -153,7 +143,7 @@ const CompanyVerification = () => {
           )}
         </div>
 
-        {/* ── Detail panel ───────────────────────────────────────────────── */}
+        {/* Detail panel */}
         {active && (
           <div className="lg:col-span-2 space-y-5">
 
@@ -173,10 +163,10 @@ const CompanyVerification = () => {
               {/* Info grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                 {[
-                  ["Industry",    active.industry],
-                  ["Website",     active.website],
+                  ["Industry", active.industry],
+                  ["Website", active.website],
                   ["Reg. Number", active.regNumber],
-                  ["Submitted",   active.submitted],
+                  ["Submitted", active.submitted],
                 ].map(([k, v]) => (
                   <div key={k} className="bg-gray-50 rounded-xl p-3">
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{k}</p>
@@ -194,15 +184,13 @@ const CompanyVerification = () => {
                   {active.docs.map((doc) => (
                     <div
                       key={doc.name}
-                      className={`flex items-center justify-between rounded-xl px-4 py-3 border ${
-                        doc.uploaded
+                      className={`flex items-center justify-between rounded-xl px-4 py-3 border ${doc.uploaded
                           ? "bg-gray-50 border-gray-100"
                           : "bg-red-50 border-red-100"
-                      }`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                          doc.uploaded ? "bg-emerald-50" : "bg-red-50"
                         }`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${doc.uploaded ? "bg-emerald-50" : "bg-red-50"
+                          }`}>
                           <Ico
                             d={doc.uploaded ? "M20 6L9 17l-5-5" : "M18 6L6 18M6 6l12 12"}
                             size={11} color=""
@@ -217,7 +205,7 @@ const CompanyVerification = () => {
                           target="_blank"
                           rel="noreferrer">
                           <Btn variant="secondary" size="sm">
-                            <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4","M7 10l5 5 5-5","M12 15V3"]} size={12} />
+                            <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]} size={12} />
                             View
                           </Btn>
                         </a>
@@ -273,27 +261,25 @@ const CompanyVerification = () => {
               )}
 
               {active.status !== "pending" && (
-                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl ${
-                  active.status === "verified"
+                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl ${active.status === "verified"
                     ? "bg-emerald-50 border border-emerald-200"
                     : active.status === "resubmit"
-                    ? "bg-amber-50 border border-amber-200"
-                    : "bg-red-50 border border-red-200"
-                }`}>
+                      ? "bg-amber-50 border border-amber-200"
+                      : "bg-red-50 border border-red-200"
+                  }`}>
                   <Ico
                     d={active.status === "verified" ? "M20 6L9 17l-5-5" : "M18 6L6 18M6 6l12 12"}
                     size={14} color=""
                     className={
                       active.status === "verified" ? "text-emerald-400"
-                      : active.status === "resubmit" ? "text-amber-400"
-                      : "text-red-400"
+                        : active.status === "resubmit" ? "text-amber-400"
+                          : "text-red-400"
                     }
                   />
-                  <span className={`text-sm font-semibold ${
-                    active.status === "verified" ? "text-emerald-700"
-                    : active.status === "resubmit" ? "text-amber-700"
-                    : "text-red-700"
-                  }`}>
+                  <span className={`text-sm font-semibold ${active.status === "verified" ? "text-emerald-700"
+                      : active.status === "resubmit" ? "text-amber-700"
+                        : "text-red-700"
+                    }`}>
                     This company has been {active.status}.
                   </span>
                 </div>

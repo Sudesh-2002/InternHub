@@ -111,7 +111,6 @@ const ManageJobs = ({ toast }) => {
   return (
     <div className="space-y-6">
 
-      {/* CONFIRM DELETE */}
       {confirm && (
         <ConfirmModal
           title="Delete Job?"
@@ -280,8 +279,8 @@ const ManageJobs = ({ toast }) => {
             key={f}
             onClick={() => setFilter(f)}
             className={`px-3 py-2 rounded-lg text-sm ${filter === f
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100"
+              ? "bg-indigo-600 text-white"
+              : "bg-gray-100"
               }`}
           >
             {f}
@@ -290,7 +289,6 @@ const ManageJobs = ({ toast }) => {
 
       </div>
 
-      {/* TABLE */}
       <div className="bg-white border rounded-2xl overflow-hidden">
 
         <table className="w-full text-sm">

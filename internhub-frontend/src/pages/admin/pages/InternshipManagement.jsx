@@ -33,9 +33,6 @@ const InternshipManagement = () => {
 
   const { toasts, add: toast, remove } = useToast();
 
-  // ─────────────────────────────────────────────
-  // Fetch internships
-  // ─────────────────────────────────────────────
   useEffect(() => {
     fetchInternships();
   }, [search, filter]);
@@ -63,9 +60,6 @@ const InternshipManagement = () => {
     }
   };
 
-  // ─────────────────────────────────────────────
-  // Update status
-  // ─────────────────────────────────────────────
   const doAction = async (id, status) => {
     try {
 
@@ -88,9 +82,6 @@ const InternshipManagement = () => {
     }
   };
 
-  // ─────────────────────────────────────────────
-  // Delete internship
-  // ─────────────────────────────────────────────
   const deleteJob = async (id) => {
     if (!window.confirm("Remove this internship?")) return;
 
@@ -112,7 +103,6 @@ const InternshipManagement = () => {
     <Page>
       <Toast toasts={toasts} remove={remove} />
 
-      {/* Modal */}
       {selected && (
         <Modal
           title="Internship Details"
@@ -226,7 +216,6 @@ const InternshipManagement = () => {
         </Modal>
       )}
 
-      {/* Header */}
       <SectionHeader
         title="Internship Management"
         subtitle={`${stats.total || 0} internship listings total`}
@@ -238,14 +227,13 @@ const InternshipManagement = () => {
         }
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
 
         {[
-          { label: "Total",    value: stats.total    || 0, color: "text-gray-900"    },
-          { label: "Approved", value: stats.approved  || 0, color: "text-emerald-600" },
-          { label: "Pending",  value: stats.pending   || 0, color: "text-amber-600"   },
-          { label: "Flagged",  value: stats.flagged   || 0, color: "text-orange-600"  },
+          { label: "Total", value: stats.total || 0, color: "text-gray-900" },
+          { label: "Approved", value: stats.approved || 0, color: "text-emerald-600" },
+          { label: "Pending", value: stats.pending || 0, color: "text-amber-600" },
+          { label: "Flagged", value: stats.flagged || 0, color: "text-orange-600" },
         ].map((s) => (
           <div
             key={s.label}
@@ -263,7 +251,6 @@ const InternshipManagement = () => {
 
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
 
         <SearchBar
@@ -286,7 +273,6 @@ const InternshipManagement = () => {
 
       </div>
 
-      {/* Table */}
       {loading ? (
         <div className="text-gray-400 text-sm">
           Loading internships...
