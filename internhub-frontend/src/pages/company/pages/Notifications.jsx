@@ -5,7 +5,6 @@ import { Ico } from "../components/Shared";
 const API_BASE = "http://127.0.0.1:8000/api";
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-// Type config 
 const TYPE = {
   verification: {
     icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
@@ -45,7 +44,6 @@ const Notifications = ({ setUnread: setParentUnread }) => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  // Sync unread count up to parent (sidebar badge)
   const syncUnread = (count) => {
     setUnread(count);
     setParentUnread?.(count);
@@ -113,8 +111,8 @@ const Notifications = ({ setUnread: setParentUnread }) => {
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition ${filter === f
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-700"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300 hover:text-gray-700"
               }`}>
             {FILTER_LABELS[f]}
             {f === "unread" && unread > 0 && (
@@ -152,8 +150,8 @@ const Notifications = ({ setUnread: setParentUnread }) => {
               return (
                 <div key={n.id} onClick={() => markOne(n.id)}
                   className={`group flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all duration-150 ${n.is_read
-                      ? "bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/20"
-                      : "bg-white border-indigo-200 shadow-sm shadow-indigo-50 ring-1 ring-indigo-100/60"
+                    ? "bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/20"
+                    : "bg-white border-indigo-200 shadow-sm shadow-indigo-50 ring-1 ring-indigo-100/60"
                     }`}>
 
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${t.bg}`}>

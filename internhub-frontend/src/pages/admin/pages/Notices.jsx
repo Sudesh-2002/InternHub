@@ -1,5 +1,3 @@
-// src/pages/admin/pages/Notices.jsx
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Page, SectionHeader, Badge, Btn, Modal,
@@ -44,7 +42,6 @@ const EMPTY_FORM = { title: "", type: "general", body: "", audience: "all", targ
 const token = () => localStorage.getItem("token");
 const authHeaders = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${token()}` });
 
-/* ── Skeleton loader ────────────────────────────────────────────── */
 const Skeleton = () => (
   <div className="grid gap-4">
     {[1, 2, 3].map(i => (
@@ -60,7 +57,6 @@ const Skeleton = () => (
   </div>
 );
 
-/* ── User search dropdown ───────────────────────────────────────── */
 const UserSearchField = ({ value, onChange }) => {
   const [query, setQuery] = useState(value?.name || "");
   const [results, setResults] = useState([]);
@@ -144,7 +140,6 @@ const UserSearchField = ({ value, onChange }) => {
   );
 };
 
-/* ── Main Component ─────────────────────────────────────────────── */
 const Notices = () => {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -156,7 +151,6 @@ const Notices = () => {
   const [filter, setFilter] = useState("all");
   const { toasts, add: toast, remove } = useToast();
 
-  /* ── Fetch ── */
   const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
@@ -173,7 +167,6 @@ const Notices = () => {
 
   useEffect(() => { fetchNotices(); }, [fetchNotices]);
 
-  /* ── Helpers ── */
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
   const openNew = () => {
@@ -190,7 +183,6 @@ const Notices = () => {
     setModal(true);
   };
 
-  /* ── Save ── */
   const save = async () => {
     if (!form.title.trim()) { toast("Title is required", "error"); return; }
     if (!form.body.trim()) { toast("Body is required", "error"); return; }
@@ -222,7 +214,6 @@ const Notices = () => {
     }
   };
 
-  /* ── Delete ── */
   const del = async (id) => {
     if (!window.confirm("Delete this announcement? Existing notifications won't be removed.")) return;
     try {
@@ -235,7 +226,6 @@ const Notices = () => {
     }
   };
 
-  /* ── Filtered list ── */
   const filterOptions = ["all", ...NOTICE_TYPES.map(t => t.value)];
   const filtered = filter === "all" ? notices : notices.filter(n => n.type === filter);
 
@@ -243,7 +233,6 @@ const Notices = () => {
     <Page>
       <Toast toasts={toasts} remove={remove} />
 
-      {/* ── Create / Edit Modal ── */}
       {modal && (
         <Modal
           title={editing ? "Edit Announcement" : "New Announcement"}
@@ -263,7 +252,6 @@ const Notices = () => {
           }
         >
           <div className="space-y-5">
-            {/* Title */}
             <Input
               label="Title *"
               value={form.title}
@@ -271,12 +259,10 @@ const Notices = () => {
               placeholder="Announcement title…"
             />
 
-            {/* Type */}
             <Select label="Type" value={form.type} onChange={e => set("type", e.target.value)}>
               {NOTICE_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </Select>
 
-            {/* Body */}
             <Textarea
               label="Body *"
               rows={4}
@@ -285,7 +271,6 @@ const Notices = () => {
               placeholder="Write the announcement content…"
             />
 
-            {/* Audience — only for new notices */}
             {!editing && (
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">
@@ -298,8 +283,8 @@ const Notices = () => {
                       type="button"
                       onClick={() => { set("audience", opt.value); set("target_user_id", null); setTargetUser(null); }}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all ${form.audience === opt.value
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                          : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-700"
+                        ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300 hover:text-indigo-700"
                         }`}
                     >
                       <Ico d={opt.icon} size={14} />
@@ -308,7 +293,6 @@ const Notices = () => {
                   ))}
                 </div>
 
-                {/* Specific user search */}
                 {form.audience === "user" && (
                   <div className="mt-4">
                     <UserSearchField
@@ -333,7 +317,6 @@ const Notices = () => {
                   </div>
                 )}
 
-                {/* Audience info banner */}
                 {form.audience !== "user" && (
                   <p className="mt-3 text-xs text-gray-400 flex items-center gap-1.5">
                     <Ico d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" size={13} />
@@ -345,7 +328,6 @@ const Notices = () => {
               </div>
             )}
 
-            {/* Audience locked badge for edits */}
             {editing && (
               <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl">
                 <Ico d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z" size={14} color="#94a3b8" />
@@ -356,7 +338,6 @@ const Notices = () => {
         </Modal>
       )}
 
-      {/* ── Header ── */}
       <SectionHeader
         title="Announcements & Notices"
         subtitle="Create platform-wide or targeted notices — sent directly to users' notification panels"
@@ -368,7 +349,6 @@ const Notices = () => {
         }
       />
 
-      {/* ── Filter Pills ── */}
       <div className="flex flex-wrap gap-1.5">
         {filterOptions.map(f => (
           <button key={f} onClick={() => setFilter(f)}
@@ -379,7 +359,6 @@ const Notices = () => {
         ))}
       </div>
 
-      {/* ── List ── */}
       {loading ? (
         <Skeleton />
       ) : filtered.length === 0 ? (
@@ -402,17 +381,14 @@ const Notices = () => {
             <div key={n.id}
               className="bg-white border border-gray-100 rounded-2xl p-5 flex items-start gap-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200">
 
-              {/* Type Badge */}
               <div className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest flex-shrink-0 ${TYPE_STYLE[n.type] || "text-gray-500 bg-gray-100"}`}>
                 {TYPE_LABEL[n.type] || n.type}
               </div>
 
-              {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <h3 className="text-gray-900 font-semibold text-sm">{n.title}</h3>
                   <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                    {/* Audience badge */}
                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${AUDIENCE_STYLE[n.audience] || "bg-gray-100 text-gray-500"}`}>
                       <Ico d={AUDIENCE_OPTIONS.find(a => a.value === n.audience)?.icon || ""} size={10} />
                       {AUDIENCE_LABEL[n.audience] || n.audience}
@@ -431,7 +407,6 @@ const Notices = () => {
                   </div>
                 )}
 
-                {/* Meta */}
                 <div className="flex items-center gap-3 mt-2.5">
                   <span className="text-[11px] text-gray-400 flex items-center gap-1">
                     <Ico d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" size={11} />

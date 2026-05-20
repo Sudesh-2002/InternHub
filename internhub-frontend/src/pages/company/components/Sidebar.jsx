@@ -88,7 +88,6 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
         </span>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {NAV.map(n => {
           const isPostJob = n.path === "/company/dashboard/post";

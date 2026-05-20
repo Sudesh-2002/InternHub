@@ -1,14 +1,5 @@
 import { useEffect } from "react";
 
-/**
- * Toast component
- *
- * Props:
- *  - message  {string}  Text to display
- *  - type     {"success"|"loading"|"error"}  Visual style  (default: "success")
- *  - onClose  {fn}      Called after `duration` ms (omit for sticky toasts)
- *  - duration {number}  Auto-dismiss delay in ms (default: 2000)
- */
 const Toast = ({ message, type = "success", onClose, duration = 2000 }) => {
   useEffect(() => {
     if (!onClose || type === "loading") return;
@@ -19,7 +10,7 @@ const Toast = ({ message, type = "success", onClose, duration = 2000 }) => {
   const styles = {
     success: "bg-green-600",
     loading: "bg-indigo-600",
-    error:   "bg-red-600",
+    error: "bg-red-600",
   };
 
   return (

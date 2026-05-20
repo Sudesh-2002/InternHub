@@ -1,5 +1,3 @@
-// src/pages/admin/pages/CompanyManagement.jsx
-
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,7 +10,6 @@ import {
   adminDeleteCompany,
 } from "../../../services/api";
 
-// ── Debounce hook ─────────────────────────────────────────────────────────────
 const useDebounce = (value, delay = 400) => {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -22,17 +19,14 @@ const useDebounce = (value, delay = 400) => {
   return debounced;
 };
 
-// ── Document row ──────────────────────────────────────────────────────────────
 const DocRow = ({ label, doc }) => (
-  <div className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${
-    doc?.uploaded
+  <div className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${doc?.uploaded
       ? "bg-gray-50 border-gray-100"
       : "bg-red-50 border-red-100"
-  }`}>
+    }`}>
     <div className="flex items-center gap-2.5">
-      <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
-        doc?.uploaded ? "bg-emerald-50" : "bg-red-50"
-      }`}>
+      <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${doc?.uploaded ? "bg-emerald-50" : "bg-red-50"
+        }`}>
         <Ico
           d={doc?.uploaded ? "M20 6L9 17l-5-5" : "M18 6L6 18M6 6l12 12"}
           size={11} color=""
@@ -44,7 +38,7 @@ const DocRow = ({ label, doc }) => (
     {doc?.uploaded && doc?.url ? (
       <a href={doc.url} target="_blank" rel="noreferrer">
         <Btn variant="ghost" size="sm">
-          <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4","M7 10l5 5 5-5","M12 15V3"]} size={12} />
+          <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]} size={12} />
           View
         </Btn>
       </a>
@@ -54,7 +48,7 @@ const DocRow = ({ label, doc }) => (
   </div>
 );
 
-// ── Company detail modal ───────────────────────────────────────────────────────
+// Company detail modal
 const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
   <Modal
     title="Company Profile"
@@ -90,7 +84,6 @@ const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
     }
   >
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex items-center gap-4">
         {company.logo_url ? (
           <img src={company.logo_url} alt={company.name}
@@ -105,16 +98,15 @@ const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
         </div>
       </div>
 
-      {/* Info grid */}
       <div className="grid grid-cols-2 gap-3">
         {[
-          ["Industry",     company.industry     ?? "—"],
-          ["Website",      company.website      ?? "—"],
-          ["Reg. Number",  company.reg_number   ?? "—"],
+          ["Industry", company.industry ?? "—"],
+          ["Website", company.website ?? "—"],
+          ["Reg. Number", company.reg_number ?? "—"],
           ["Company Size", company.company_size ?? "—"],
           ["Headquarters", company.headquarters ?? "—"],
-          ["Listings",     company.listings_count ?? 0],
-          ["Registered",   company.registered   ?? "—"],
+          ["Listings", company.listings_count ?? 0],
+          ["Registered", company.registered ?? "—"],
         ].map(([k, v]) => (
           <div key={k} className="bg-gray-50 rounded-xl p-3">
             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{k}</p>
@@ -123,39 +115,36 @@ const CompanyDetail = ({ company, onClose, onAction, actionLoading }) => (
         ))}
       </div>
 
-      {/* Documents */}
       <div>
         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">
           Uploaded Documents
         </p>
         <div className="space-y-2">
           <DocRow label="Business Registration Certificate" doc={company.docs?.business_cert} />
-          <DocRow label="Tax Documents"                     doc={company.docs?.tax_docs} />
-          <DocRow label="HR Authorization Letter"           doc={company.docs?.hr_auth} />
-          <DocRow label="Additional / Verification Doc"     doc={company.docs?.verification_doc} />
+          <DocRow label="Tax Documents" doc={company.docs?.tax_docs} />
+          <DocRow label="HR Authorization Letter" doc={company.docs?.hr_auth} />
+          <DocRow label="Additional / Verification Doc" doc={company.docs?.verification_doc} />
         </div>
       </div>
     </div>
   </Modal>
 );
 
-// ─────────────────────────────────────────────────────────────────────────────
 const CompanyManagement = () => {
-  const [companies,     setCompanies]     = useState([]);
-  const [stats,         setStats]         = useState({ total:0, verified:0, pending:0, rejected:0, suspended:0 });
-  const [meta,          setMeta]          = useState(null);
-  const [page,          setPage]          = useState(1);
-  const [search,        setSearch]        = useState("");
-  const [filter,        setFilter]        = useState("all");
-  const [selected,      setSelected]      = useState(null);
-  const [fetching,      setFetching]      = useState(true);
+  const [companies, setCompanies] = useState([]);
+  const [stats, setStats] = useState({ total: 0, verified: 0, pending: 0, rejected: 0, suspended: 0 });
+  const [meta, setMeta] = useState(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [selected, setSelected] = useState(null);
+  const [fetching, setFetching] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
   const { toasts, add: toast, remove } = useToast();
-  const navigate        = useNavigate();
+  const navigate = useNavigate();
   const debouncedSearch = useDebounce(search);
 
-  // ── Fetch ───────────────────────────────────────────────────────────────────
   const load = useCallback(async () => {
     setFetching(true);
     try {
@@ -177,7 +166,6 @@ const CompanyManagement = () => {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setPage(1); }, [debouncedSearch, filter]);
 
-  // ── Status action ───────────────────────────────────────────────────────────
   const handleAction = async (id, newStatus) => {
     setActionLoading(true);
     try {
@@ -199,7 +187,6 @@ const CompanyManagement = () => {
     }
   };
 
-  // ── Delete ──────────────────────────────────────────────────────────────────
   const handleDelete = async (id) => {
     if (!window.confirm("Permanently delete this company and all its data?")) return;
     try {
@@ -219,7 +206,6 @@ const CompanyManagement = () => {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
   return (
     <Page>
       <Toast toasts={toasts} remove={remove} />
@@ -244,12 +230,11 @@ const CompanyManagement = () => {
         }
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total",     value: stats.total,     color: "text-gray-900" },
-          { label: "Verified",  value: stats.verified,  color: "text-emerald-600" },
-          { label: "Pending",   value: stats.pending,   color: "text-amber-600" },
+          { label: "Total", value: stats.total, color: "text-gray-900" },
+          { label: "Verified", value: stats.verified, color: "text-emerald-600" },
+          { label: "Pending", value: stats.pending, color: "text-amber-600" },
           { label: "Suspended", value: stats.suspended, color: "text-red-600" },
         ].map(s => (
           <div key={s.label} className="bg-white border border-gray-100 rounded-2xl p-4 text-center shadow-sm">
@@ -259,7 +244,6 @@ const CompanyManagement = () => {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <SearchBar value={search} onChange={setSearch} placeholder="Search by company name or email…" />
         <FilterPills
@@ -269,7 +253,6 @@ const CompanyManagement = () => {
         />
       </div>
 
-      {/* Loading state */}
       {fetching ? (
         <div className="flex items-center justify-center py-24 text-gray-400 text-sm gap-3">
           <span className="w-5 h-5 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin" />
@@ -324,7 +307,6 @@ const CompanyManagement = () => {
             ))}
           </Table>
 
-          {/* Pagination */}
           {meta && meta.last_page > 1 && (
             <div className="flex items-center justify-between pt-2">
               <p className="text-xs text-gray-500">

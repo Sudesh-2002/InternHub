@@ -1,5 +1,3 @@
-// src/pages/admin/pages/Applications.jsx
-
 import { useState, useEffect, useCallback } from "react";
 import api from "../../../services/api";
 import {
@@ -10,15 +8,14 @@ import {
 const FILTER_OPTIONS = ["all", "pending", "reviewed", "accepted", "rejected", "flagged"];
 
 const Applications = () => {
-  const [apps,    setApps]    = useState([]);
-  const [meta,    setMeta]    = useState(null);
+  const [apps, setApps] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [search,  setSearch]  = useState("");
-  const [filter,  setFilter]  = useState("all");
-  const [page,    setPage]    = useState(1);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
   const { toasts, add: toast, remove } = useToast();
 
-  // ── Fetch ──────────────────────────────────────────────
   const fetchApps = useCallback(async () => {
     try {
       setLoading(true);
@@ -39,7 +36,6 @@ const Applications = () => {
   // Reset to page 1 when search/filter changes
   useEffect(() => { setPage(1); }, [search, filter]);
 
-  // ── Actions ────────────────────────────────────────────
   const toggleFlag = async (id) => {
     try {
       const res = await api.patch(`/admin/applications/${id}/flag`);
@@ -51,9 +47,6 @@ const Applications = () => {
       toast("Action failed", "error");
     }
   };
-
-
-
 
   const flaggedCount = apps.filter(a => a.is_flagged).length;
 
@@ -72,7 +65,6 @@ const Applications = () => {
         }
       />
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <SearchBar
           value={search}
@@ -86,7 +78,6 @@ const Applications = () => {
         />
       </div>
 
-      {/* Table */}
       {loading ? (
         <div className="flex items-center gap-2 text-gray-400 text-sm py-8">
           <span className="w-4 h-4 border-2 border-gray-200 border-t-indigo-500 rounded-full animate-spin" />
@@ -141,7 +132,7 @@ const Applications = () => {
                     {a.resume_url && (
                       <a href={a.resume_url} target="_blank" rel="noreferrer">
                         <Btn variant="ghost" size="sm">
-                          <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4","M7 10l5 5 5-5","M12 15V3"]} size={12} />
+                          <Ico d={["M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "M7 10l5 5 5-5", "M12 15V3"]} size={12} />
                           Resume
                         </Btn>
                       </a>
@@ -159,7 +150,6 @@ const Applications = () => {
             ))}
           </Table>
 
-          {/* Pagination */}
           {meta && meta.last_page > 1 && (
             <div className="flex items-center justify-between pt-2">
               <p className="text-xs text-gray-400">

@@ -1,5 +1,3 @@
-// src/pages/admin/pages/RolesPermissions.jsx
-
 import { useState, useEffect, useCallback } from "react";
 import { Page, SectionHeader, Btn, Ico, useToast, Toast } from "../components/Shared";
 
@@ -9,35 +7,35 @@ const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-/* ── Role config ────────────────────────────────────────────────── */
+/* Role config */
 const ROLES = [
   {
-    key:    "student",
-    label:  "Student",
-    desc:   "Registered students looking for internships",
-    icon:   "M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z",
-    color:  { bg: "bg-sky-500/10", text: "text-sky-600", border: "border-sky-500/20", badge: "bg-sky-100 text-sky-700" },
+    key: "student",
+    label: "Student",
+    desc: "Registered students looking for internships",
+    icon: "M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z",
+    color: { bg: "bg-sky-500/10", text: "text-sky-600", border: "border-sky-500/20", badge: "bg-sky-100 text-sky-700" },
     locked: false,
   },
   {
-    key:    "company",
-    label:  "Company",
-    desc:   "Verified companies posting internship opportunities",
-    icon:   "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z",
-    color:  { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", badge: "bg-orange-100 text-orange-700" },
+    key: "company",
+    label: "Company",
+    desc: "Verified companies posting internship opportunities",
+    icon: "M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z",
+    color: { bg: "bg-orange-500/10", text: "text-orange-600", border: "border-orange-500/20", badge: "bg-orange-100 text-orange-700" },
     locked: false,
   },
   {
-    key:    "admin",
-    label:  "Admin",
-    desc:   "Platform administrators — always full access",
-    icon:   "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
-    color:  { bg: "bg-violet-500/10", text: "text-violet-600", border: "border-violet-500/20", badge: "bg-violet-100 text-violet-700" },
+    key: "admin",
+    label: "Admin",
+    desc: "Platform administrators — always full access",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+    color: { bg: "bg-violet-500/10", text: "text-violet-600", border: "border-violet-500/20", badge: "bg-violet-100 text-violet-700" },
     locked: true,
   },
 ];
 
-/* ── Toggle switch ──────────────────────────────────────────────── */
+/*  Toggle switch  */
 const Toggle = ({ checked, onChange, disabled }) => (
   <button
     type="button"
@@ -56,7 +54,6 @@ const Toggle = ({ checked, onChange, disabled }) => (
   </button>
 );
 
-/* ── Skeleton ───────────────────────────────────────────────────── */
 const Skeleton = () => (
   <div className="space-y-6 animate-pulse">
     <div className="grid grid-cols-3 gap-4">
@@ -75,22 +72,20 @@ const Skeleton = () => (
   </div>
 );
 
-/* ── Main Component ─────────────────────────────────────────────── */
 const RolesPermissions = () => {
-  const [groups,   setGroups]   = useState([]);   // [{category, items: [{key, label, desc, roles:{student,company,admin}}]}]
-  const [summary,  setSummary]  = useState({});   // {student: N, company: N, admin: N}
-  const [total,    setTotal]    = useState(0);
-  const [dirty,    setDirty]    = useState({});   // {`${role}.${key}`: true/false}
-  const [loading,  setLoading]  = useState(true);
-  const [saving,   setSaving]   = useState(false);
-  const [resetting,setResetting]= useState(false);
+  const [groups, setGroups] = useState([]);
+  const [summary, setSummary] = useState({});
+  const [total, setTotal] = useState(0);
+  const [dirty, setDirty] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const { toasts, add: toast, remove } = useToast();
 
-  /* ── Fetch ── */
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/admin/role-permissions`, { headers: authHeaders() });
+      const res = await fetch(`${API}/admin/role-permissions`, { headers: authHeaders() });
       const json = await res.json();
       if (res.ok) {
         setGroups(json.data || []);
@@ -109,11 +104,9 @@ const RolesPermissions = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  /* ── Toggle a cell ── */
   const togglePerm = (role, permKey, newVal) => {
     const mapKey = `${role}.${permKey}`;
 
-    // Update the groups state
     setGroups(prev => prev.map(group => ({
       ...group,
       items: group.items.map(item =>
@@ -123,10 +116,8 @@ const RolesPermissions = () => {
       ),
     })));
 
-    // Track as dirty
     setDirty(prev => ({ ...prev, [mapKey]: newVal }));
 
-    // Update summary count
     setSummary(prev => ({
       ...prev,
       [role]: newVal
@@ -137,7 +128,6 @@ const RolesPermissions = () => {
 
   const hasDirty = Object.keys(dirty).length > 0;
 
-  /* ── Save ── */
   const save = async () => {
     if (!hasDirty) return;
     setSaving(true);
@@ -147,10 +137,10 @@ const RolesPermissions = () => {
         return { role, permission_key: rest.join("."), is_enabled };
       });
 
-      const res  = await fetch(`${API}/admin/role-permissions`, {
-        method:  "PATCH",
+      const res = await fetch(`${API}/admin/role-permissions`, {
+        method: "PATCH",
         headers: authHeaders(),
-        body:    JSON.stringify({ changes }),
+        body: JSON.stringify({ changes }),
       });
       const json = await res.json();
 
@@ -167,12 +157,11 @@ const RolesPermissions = () => {
     }
   };
 
-  /* ── Reset ── */
   const resetDefaults = async () => {
     if (!window.confirm("Reset all permissions to platform defaults? This cannot be undone.")) return;
     setResetting(true);
     try {
-      const res  = await fetch(`${API}/admin/role-permissions/reset`, {
+      const res = await fetch(`${API}/admin/role-permissions/reset`, {
         method: "POST", headers: authHeaders(),
       });
       const json = await res.json();
@@ -189,12 +178,10 @@ const RolesPermissions = () => {
     }
   };
 
-  /* ── Render ── */
   return (
     <Page>
       <Toast toasts={toasts} remove={remove} />
 
-      {/* ── Header ── */}
       <SectionHeader
         title="Roles & Permissions"
         subtitle="Control which features are available to each user role on the platform"
@@ -218,7 +205,6 @@ const RolesPermissions = () => {
         }
       />
 
-      {/* ── Unsaved changes banner ── */}
       {hasDirty && (
         <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
           <Ico d="M12 9v2m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" size={15} color="#b45309" />
@@ -230,7 +216,6 @@ const RolesPermissions = () => {
 
       {loading ? <Skeleton /> : (
         <>
-          {/* ── Role Summary Cards ── */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {ROLES.map(role => (
               <div key={role.key}
@@ -258,9 +243,7 @@ const RolesPermissions = () => {
             ))}
           </div>
 
-          {/* ── Permission Matrix ── */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-            {/* Column headers */}
             <div className="grid grid-cols-[1fr_100px_100px_100px] border-b border-gray-100 bg-gray-50 px-5 py-3.5">
               <div className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">Permission</div>
               {ROLES.map(role => (
@@ -273,10 +256,8 @@ const RolesPermissions = () => {
               ))}
             </div>
 
-            {/* Groups */}
             {groups.map((group, gi) => (
               <div key={group.category}>
-                {/* Category header */}
                 <div className="px-5 py-2.5 bg-gray-50/70 border-b border-gray-100 flex items-center gap-2">
                   <span className="text-[11px] font-bold text-gray-600 uppercase tracking-widest">
                     {group.category}
@@ -286,17 +267,15 @@ const RolesPermissions = () => {
                   </span>
                 </div>
 
-                {/* Permission rows */}
                 {group.items.map((item, idx) => {
                   const isLastInGroup = idx === group.items.length - 1;
-                  const isLastGroup   = gi === groups.length - 1;
+                  const isLastGroup = gi === groups.length - 1;
                   return (
                     <div
                       key={item.key}
                       className={`grid grid-cols-[1fr_100px_100px_100px] items-center px-5 py-4 hover:bg-gray-50/60 transition-colors
                         ${!isLastInGroup || !isLastGroup ? "border-b border-gray-50" : ""}`}
                     >
-                      {/* Label + description */}
                       <div>
                         <p className="text-sm font-semibold text-gray-800">{item.label}</p>
                         {item.description && (
@@ -304,7 +283,6 @@ const RolesPermissions = () => {
                         )}
                       </div>
 
-                      {/* Toggle cells */}
                       {ROLES.map(role => (
                         <div key={role.key} className="flex justify-center">
                           {role.locked ? (

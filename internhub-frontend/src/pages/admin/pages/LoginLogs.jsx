@@ -1,5 +1,3 @@
-// src/pages/admin/pages/LoginLogs.jsx
-
 import { useEffect, useState, useCallback } from "react";
 import api from "../../../services/api";
 import {
@@ -13,15 +11,14 @@ import {
   Ico,
 } from "../components/Shared";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const EVENT_COLORS = {
-  login:   { bg: "#ecfdf5", text: "#065f46", dot: "#10b981" },
-  logout:  { bg: "#eff6ff", text: "#1e40af", dot: "#3b82f6" },
+  login: { bg: "#ecfdf5", text: "#065f46", dot: "#10b981" },
+  logout: { bg: "#eff6ff", text: "#1e40af", dot: "#3b82f6" },
   timeout: { bg: "#fff7ed", text: "#92400e", dot: "#f59e0b" },
 };
 
 const ROLE_COLORS = {
-  admin:   { bg: "#f5f3ff", text: "#5b21b6" },
+  admin: { bg: "#f5f3ff", text: "#5b21b6" },
   company: { bg: "#ecfdf5", text: "#065f46" },
   student: { bg: "#eff6ff", text: "#1e40af" },
 };
@@ -75,7 +72,6 @@ const StatBox = ({ icon, label, value, color }) => (
   </div>
 );
 
-// ── Pagination ────────────────────────────────────────────────────────────────
 const Pagination = ({ current, last, onPage }) => {
   if (last <= 1) return null;
   const pages = Array.from({ length: Math.min(last, 7) }, (_, i) => i + 1);
@@ -87,38 +83,43 @@ const Pagination = ({ current, last, onPage }) => {
       <div style={{ display: "flex", gap: "6px" }}>
         <button
           onClick={() => onPage(current - 1)} disabled={current === 1}
-          style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid #e5e7eb",
+          style={{
+            padding: "6px 12px", borderRadius: "8px", border: "1px solid #e5e7eb",
             background: "#fff", color: "#374151", fontSize: "13px", fontWeight: 600,
-            cursor: current === 1 ? "not-allowed" : "pointer", opacity: current === 1 ? 0.4 : 1 }}
+            cursor: current === 1 ? "not-allowed" : "pointer", opacity: current === 1 ? 0.4 : 1
+          }}
         >← Prev</button>
         {pages.map(p => (
           <button key={p} onClick={() => onPage(p)}
-            style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid",
+            style={{
+              padding: "6px 10px", borderRadius: "8px", border: "1px solid",
               borderColor: p === current ? "#4f46e5" : "#e5e7eb",
               background: p === current ? "#4f46e5" : "#fff",
               color: p === current ? "#fff" : "#374151",
-              fontSize: "13px", fontWeight: 600, cursor: "pointer" }}
+              fontSize: "13px", fontWeight: 600, cursor: "pointer"
+            }}
           >{p}</button>
         ))}
         {last > 7 && <span style={{ alignSelf: "center", color: "#9ca3af" }}>…</span>}
         <button
           onClick={() => onPage(current + 1)} disabled={current === last}
-          style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid #e5e7eb",
+          style={{
+            padding: "6px 12px", borderRadius: "8px", border: "1px solid #e5e7eb",
             background: "#fff", color: "#374151", fontSize: "13px", fontWeight: 600,
-            cursor: current === last ? "not-allowed" : "pointer", opacity: current === last ? 0.4 : 1 }}
+            cursor: current === last ? "not-allowed" : "pointer", opacity: current === last ? 0.4 : 1
+          }}
         >Next →</button>
       </div>
     </div>
   );
 };
 
-// ── Utility: parse user-agent into a browser label ───────────────────────────
 const parseBrowser = (ua = "") => {
   if (!ua) return "—";
-  if (ua.includes("Chrome") && !ua.includes("Edg"))  return "Chrome";
-  if (ua.includes("Firefox"))  return "Firefox";
+  if (ua.includes("Chrome") && !ua.includes("Edg")) return "Chrome";
+  if (ua.includes("Firefox")) return "Firefox";
   if (ua.includes("Safari") && !ua.includes("Chrome")) return "Safari";
-  if (ua.includes("Edg"))      return "Edge";
+  if (ua.includes("Edg")) return "Edge";
   if (ua.includes("Opera") || ua.includes("OPR")) return "Opera";
   return "Browser";
 };
@@ -132,27 +133,26 @@ const formatDate = (iso) => {
   });
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
 const EVENT_FILTERS = ["all", "login", "logout", "timeout"];
-const ROLE_FILTERS  = ["all", "student", "company", "admin"];
+const ROLE_FILTERS = ["all", "student", "company", "admin"];
 
 const LoginLogs = () => {
-  const [logs,     setLogs]    = useState([]);
-  const [stats,    setStats]   = useState({});
-  const [loading,  setLoading] = useState(true);
-  const [search,   setSearch]  = useState("");
-  const [eventF,   setEventF]  = useState("all");
-  const [roleF,    setRoleF]   = useState("all");
-  const [page,     setPage]    = useState(1);
-  const [lastPage, setLastPage]= useState(1);
+  const [logs, setLogs] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [eventF, setEventF] = useState("all");
+  const [roleF, setRoleF] = useState("all");
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
 
   const fetchLogs = useCallback(async (pg = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: pg, per_page: 15 });
-      if (search)            params.append("search", search);
-      if (eventF !== "all")  params.append("event",  eventF);
-      if (roleF  !== "all")  params.append("role",   roleF);
+      if (search) params.append("search", search);
+      if (eventF !== "all") params.append("event", eventF);
+      if (roleF !== "all") params.append("role", roleF);
 
       const res = await api.get(`/admin/login-logs?${params}`);
       setLogs(res.data.logs.data ?? []);
@@ -168,9 +168,9 @@ const LoginLogs = () => {
 
   // Re-fetch when filters/page change
   useEffect(() => {
-    const t = setTimeout(() => fetchLogs(1), 350); // debounce search
+    const t = setTimeout(() => fetchLogs(1), 350);
     return () => clearTimeout(t);
-  }, [search, eventF, roleF]);   // eslint-disable-line
+  }, [search, eventF, roleF]);
 
   const handlePage = (p) => {
     if (p < 1 || p > lastPage) return;
@@ -179,7 +179,6 @@ const LoginLogs = () => {
 
   return (
     <Page>
-      {/* Header */}
       <SectionHeader
         title="Login Logs"
         subtitle="Track every login, logout, and session timeout across all users."
@@ -203,7 +202,6 @@ const LoginLogs = () => {
         }
       />
 
-      {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px" }}>
         <StatBox
           icon="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1"
@@ -225,7 +223,6 @@ const LoginLogs = () => {
         />
       </div>
 
-      {/* Filters */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
         <div style={{ flex: "1", minWidth: "200px", maxWidth: "340px" }}>
           <SearchBar value={search} onChange={setSearch} placeholder="Search by name or email…" />
@@ -240,7 +237,6 @@ const LoginLogs = () => {
         </div>
       </div>
 
-      {/* Table */}
       {loading ? (
         <div style={{ padding: "60px 0", textAlign: "center", color: "#9ca3af", fontSize: "14px" }}>
           Loading logs…

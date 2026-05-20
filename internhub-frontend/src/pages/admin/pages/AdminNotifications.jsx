@@ -5,7 +5,6 @@ import axios from "axios";
 const API = "http://127.0.0.1:8000/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
-// ── Notification type config ────────────────────────────────────────────────
 const TYPE_CONFIG = {
   student_registered: {
     label: "Student",
@@ -145,111 +144,105 @@ const AdminNotifications = ({ setUnread: setParentUnread }) => {
     <div className="min-h-full -m-6 lg:-m-8 bg-gradient-to-br from-slate-50 via-indigo-50/30 to-violet-50/20">
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
 
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Notifications</h2>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {loading ? "Loading…" : `${unread} unread · ${notifs.length} total`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={fetchNotifs}
-            className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
-            title="Refresh">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M23 4v6h-6M1 20v-6h6" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-            </svg>
-          </button>
-          {unread > 0 && (
-            <button onClick={markAll}
-              className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition">
-              Mark all as read
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Notifications</h2>
+            <p className="text-sm text-gray-400 mt-0.5">
+              {loading ? "Loading…" : `${unread} unread · ${notifs.length} total`}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={fetchNotifs}
+              className="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition"
+              title="Refresh">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 4v6h-6M1 20v-6h6" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+              </svg>
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* ── Filter Pills ── */}
-      <div className="flex gap-2 flex-wrap">
-        {FILTERS.map(f => (
-          <button key={f.key} onClick={() => setFilter(f.key)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition ${filter === f.key
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
-              }`}>
-            {f.label}
-            {f.key === "unread" && unread > 0 && (
-              <span className="ml-1.5 bg-indigo-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                {unread}
-              </span>
+            {unread > 0 && (
+              <button onClick={markAll}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition">
+                Mark all as read
+              </button>
             )}
-          </button>
-        ))}
-      </div>
+          </div>
+        </div>
 
-      {/* ── List ── */}
-      <div className="space-y-2">
-        {loading
-          ? Array(5).fill(0).map((_, i) => <Sk key={i} />)
-          : visible.length === 0
-            ? (
-              <div className="py-20 text-center bg-white rounded-2xl border border-gray-100">
-                <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
-                  </svg>
+        <div className="flex gap-2 flex-wrap">
+          {FILTERS.map(f => (
+            <button key={f.key} onClick={() => setFilter(f.key)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition ${filter === f.key
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "bg-white text-gray-500 border border-gray-200 hover:border-gray-300"
+                }`}>
+              {f.label}
+              {f.key === "unread" && unread > 0 && (
+                <span className="ml-1.5 bg-indigo-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {unread}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-2">
+          {loading
+            ? Array(5).fill(0).map((_, i) => <Sk key={i} />)
+            : visible.length === 0
+              ? (
+                <div className="py-20 text-center bg-white rounded-2xl border border-gray-100">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-3">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6.002 6.002 0 0 0-4-5.659V5a2 2 0 1 0-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-400 text-sm font-medium">No notifications here.</p>
+                  <p className="text-gray-300 text-xs mt-1">New events will appear automatically.</p>
                 </div>
-                <p className="text-gray-400 text-sm font-medium">No notifications here.</p>
-                <p className="text-gray-300 text-xs mt-1">New events will appear automatically.</p>
-              </div>
-            )
-            : visible.map(n => {
-              const t = TYPE_CONFIG[n.type] ?? DEFAULT_TYPE;
-              return (
-                <div key={n.id} onClick={() => markOne(n)}
-                  className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all group ${n.is_read
+              )
+              : visible.map(n => {
+                const t = TYPE_CONFIG[n.type] ?? DEFAULT_TYPE;
+                return (
+                  <div key={n.id} onClick={() => markOne(n)}
+                    className={`flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all group ${n.is_read
                       ? "bg-white border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/20"
                       : "bg-white border-indigo-200 shadow-sm ring-1 ring-indigo-100/60"
-                    }`}>
+                      }`}>
 
-                  {/* Icon */}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${t.bg} ${t.text}`}>
-                    {t.icon}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                      <p className={`text-sm font-semibold ${n.is_read ? "text-gray-600" : "text-gray-900"}`}>
-                        {n.title}
-                      </p>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${t.badge}`}>
-                        {t.label}
-                      </span>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${t.bg} ${t.text}`}>
+                      {t.icon}
                     </div>
-                    <p className={`text-xs leading-relaxed ${n.is_read ? "text-gray-400" : "text-gray-600"}`}>
-                      {n.message}
-                    </p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <p className="text-[11px] text-gray-400 font-medium">{n.time}</p>
-                      {n.link && (
-                        <span className="text-[11px] text-indigo-500 font-semibold group-hover:underline">
-                          View →
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <p className={`text-sm font-semibold ${n.is_read ? "text-gray-600" : "text-gray-900"}`}>
+                          {n.title}
+                        </p>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${t.badge}`}>
+                          {t.label}
                         </span>
-                      )}
+                      </div>
+                      <p className={`text-xs leading-relaxed ${n.is_read ? "text-gray-400" : "text-gray-600"}`}>
+                        {n.message}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1.5">
+                        <p className="text-[11px] text-gray-400 font-medium">{n.time}</p>
+                        {n.link && (
+                          <span className="text-[11px] text-indigo-500 font-semibold group-hover:underline">
+                            View →
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Unread dot */}
-                  {!n.is_read && (
-                    <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-2 ${t.dot}`} />
-                  )}
-                </div>
-              );
-            })
-        }
-      </div>
+                    {!n.is_read && (
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-2 ${t.dot}`} />
+                    )}
+                  </div>
+                );
+              })
+          }
+        </div>
       </div>
     </div>
   );

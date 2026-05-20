@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ico } from "../components/Shared";
@@ -12,7 +11,6 @@ const AVATAR_COLORS = [
   "bg-violet-500", "bg-rose-500", "bg-amber-500",
 ];
 
-// Shared UI utilities
 const Sk = ({ cls }) => <div className={`animate-pulse bg-gray-100 rounded-xl ${cls}`} />;
 
 const StatusPill = ({ status }) => {
@@ -37,7 +35,7 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
   if (dismissed) return null;
 
   const isRejected = status === "rejected";
-  const isPending  = status === "pending";
+  const isPending = status === "pending";
 
   return (
     <div className="relative overflow-hidden rounded-2xl shadow-md" style={{
@@ -47,20 +45,17 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
       border: isRejected ? "1px solid #fca5a5" : "1px solid #fcd34d",
     }}>
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-20 ${
-          isRejected ? "bg-red-400" : "bg-amber-400"
-        }`} style={{ animation: "pulse 3s ease-in-out infinite" }} />
-        <div className={`absolute right-16 bottom-[-20px] w-20 h-20 rounded-full opacity-15 ${
-          isRejected ? "bg-red-300" : "bg-orange-300"
-        }`} style={{ animation: "pulse 4s ease-in-out infinite 1s" }} />
+        <div className={`absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-20 ${isRejected ? "bg-red-400" : "bg-amber-400"
+          }`} style={{ animation: "pulse 3s ease-in-out infinite" }} />
+        <div className={`absolute right-16 bottom-[-20px] w-20 h-20 rounded-full opacity-15 ${isRejected ? "bg-red-300" : "bg-orange-300"
+          }`} style={{ animation: "pulse 4s ease-in-out infinite 1s" }} />
       </div>
 
       <div className="relative flex items-start gap-4 p-5">
-        <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md ${
-          isRejected
-            ? "bg-gradient-to-br from-red-400 to-rose-500 shadow-red-200"
-            : "bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-200"
-        }`}>
+        <div className={`w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-md ${isRejected
+          ? "bg-gradient-to-br from-red-400 to-rose-500 shadow-red-200"
+          : "bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-200"
+          }`}>
           {isRejected ? (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
@@ -78,16 +73,15 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap mb-1">
-            <p className={`text-sm font-bold ${ isRejected ? "text-red-900" : "text-amber-900" }`}>
+            <p className={`text-sm font-bold ${isRejected ? "text-red-900" : "text-amber-900"}`}>
               {isRejected ? "Verification Rejected" : "Complete Your Company Profile"}
             </p>
-            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide ${
-              isRejected ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"
-            }`}>
+            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide ${isRejected ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"
+              }`}>
               {isRejected ? "Action Required" : isPending ? "Pending Verification" : "Not Verified"}
             </span>
           </div>
-          <p className={`text-xs leading-relaxed mb-3 ${ isRejected ? "text-red-700" : "text-amber-700" }`}>
+          <p className={`text-xs leading-relaxed mb-3 ${isRejected ? "text-red-700" : "text-amber-700"}`}>
             {isRejected
               ? "Your company verification was rejected by our admin team. Please review and update your profile details and documents, then resubmit for verification."
               : "Fill in your company details and upload the required documents to get verified by our admin team. Verification unlocks internship posting and applicant management."
@@ -95,11 +89,10 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
           </p>
           <button
             onClick={() => navigate("/company/dashboard/profile")}
-            className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white rounded-xl transition-all active:scale-95 shadow-sm ${
-              isRejected
-                ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-red-200"
-                : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-200"
-            }`}
+            className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white rounded-xl transition-all active:scale-95 shadow-sm ${isRejected
+              ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-red-200"
+              : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-200"
+              }`}
           >
             {isRejected ? "Update Profile" : "Complete Profile"}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -110,9 +103,8 @@ const ProfileCompletionBanner = ({ status, navigate }) => {
 
         <button
           onClick={() => setDismissed(true)}
-          className={`flex-shrink-0 p-1 rounded-lg transition mt-0.5 ${
-            isRejected ? "text-red-400 hover:text-red-600 hover:bg-red-100" : "text-amber-400 hover:text-amber-600 hover:bg-amber-100"
-          }`}
+          className={`flex-shrink-0 p-1 rounded-lg transition mt-0.5 ${isRejected ? "text-red-400 hover:text-red-600 hover:bg-red-100" : "text-amber-400 hover:text-amber-600 hover:bg-amber-100"
+            }`}
           title="Dismiss"
         >
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -169,7 +161,6 @@ const ProgressBar = ({ label, value, max, color }) => {
   );
 };
 
-// Main dashboard page component
 const DashboardHome = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -194,7 +185,6 @@ const DashboardHome = () => {
   return (
     <div className="space-y-6">
 
-      {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 p-8 shadow-xl shadow-indigo-100">
         <div className="absolute -right-8 -top-8 w-52 h-52 rounded-full bg-white/5" />
         <div className="absolute right-28 -bottom-6 w-28 h-28 rounded-full bg-white/5" />
@@ -219,7 +209,6 @@ const DashboardHome = () => {
         />
       )}
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard loading={loading} label="Jobs Posted" value={s.total_jobs} sub={`${active} active`} icon="M21 13.255A23.931 23.931 0 0 1 12 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2m4 6h.01M5 20h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" from="from-violet-50" to="to-indigo-50" />
         <StatCard loading={loading} label="Active Listings" value={active} sub={`${pendingJ} pending approval`} icon="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" from="from-emerald-50" to="to-teal-50" />
@@ -227,7 +216,6 @@ const DashboardHome = () => {
         <StatCard loading={loading} label="Pending Review" value={pending} sub="need attention" icon="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" from="from-amber-50" to="to-orange-50" />
       </div>
 
-      {/* Recent listings and applicant panels */}
       <div className="grid lg:grid-cols-5 gap-5">
 
         <div className="lg:col-span-3 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">

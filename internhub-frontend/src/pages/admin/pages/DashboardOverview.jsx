@@ -1,5 +1,3 @@
-// src/pages/admin/pages/DashboardOverview.jsx
-
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import api from "../../../services/api";
@@ -12,9 +10,6 @@ import {
   Avatar,
 } from "../components/Shared";
 
-// ─────────────────────────────────────────────────────
-// Mini Bar Chart
-// ─────────────────────────────────────────────────────
 const BarChart = ({ data, color = "#7c3aed" }) => {
   const max = Math.max(...data.map((d) => d.value), 1);
 
@@ -39,9 +34,7 @@ const BarChart = ({ data, color = "#7c3aed" }) => {
   );
 };
 
-// ─────────────────────────────────────────────────────
 // Sparkline
-// ─────────────────────────────────────────────────────
 const Sparkline = ({ data, color = "#7c3aed" }) => {
   const max = Math.max(...data, 1);
   const min = Math.min(...data, 0);
@@ -79,9 +72,6 @@ const Sparkline = ({ data, color = "#7c3aed" }) => {
   );
 };
 
-// ─────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────
 const DashboardOverview = () => {
   const [loading, setLoading] = useState(true);
 
@@ -91,9 +81,6 @@ const DashboardOverview = () => {
   const [recentStudents, setRecentStudents] = useState([]);
   const [awaitingVerification, setAwaitingVerification] = useState([]);
 
-  // ───────────────────────────────────────────────────
-  // Fetch dashboard data
-  // ───────────────────────────────────────────────────
   useEffect(() => {
     fetchDashboard();
   }, []);
@@ -118,9 +105,6 @@ const DashboardOverview = () => {
     }
   };
 
-  // ───────────────────────────────────────────────────
-  // Stats cards
-  // ───────────────────────────────────────────────────
   const statsCards = [
     {
       label: "Total Students",
@@ -176,7 +160,6 @@ const DashboardOverview = () => {
 
   return (
     <Page>
-      {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
@@ -199,14 +182,12 @@ const DashboardOverview = () => {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {statsCards.map((s) => (
           <StatCard key={s.label} {...s} />
         ))}
       </div>
 
-      {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-5">
         {/* Student registrations */}
         <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">

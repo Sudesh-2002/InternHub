@@ -1,18 +1,7 @@
-// src/components/LogoutConfirmModal.jsx
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-/**
- * Beautiful logout confirmation dialog — works for admin, student & company.
- *
- * Props:
- *  - isOpen   {boolean}  – whether the dialog is visible
- *  - onCancel {function} – called when user dismisses
- *  - onConfirm{function} – called when user confirms logout
- *  - loading  {boolean}  – show spinner on confirm button while logging out
- */
 const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) => {
-  // Close on Escape
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e) => { if (e.key === "Escape") onCancel(); };
@@ -27,25 +16,20 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
       className="fixed inset-0 z-[999] flex items-center justify-center p-4"
       style={{ fontFamily: "'Inter', 'DM Sans', sans-serif" }}
     >
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onCancel}
         style={{ animation: "fadeIn 0.2s ease" }}
       />
 
-      {/* Card */}
       <div
         className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden"
         style={{ animation: "slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)" }}
       >
-        {/* Top gradient strip */}
         <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
 
-        {/* Body */}
         <div className="px-8 pt-8 pb-6 text-center">
 
-          {/* Icon */}
           <div className="mx-auto mb-5 w-16 h-16 rounded-2xl bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 flex items-center justify-center">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
               stroke="#ef4444" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -55,7 +39,6 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
             </svg>
           </div>
 
-          {/* Heading */}
           <h2 className="text-gray-900 text-xl font-bold tracking-tight mb-2">
             Sign out?
           </h2>
@@ -66,12 +49,9 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
           </p>
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-gray-100 mx-6" />
 
-        {/* Buttons */}
         <div className="px-8 py-5 flex gap-3">
-          {/* Cancel */}
           <button
             onClick={onCancel}
             disabled={loading}
@@ -82,7 +62,6 @@ const LogoutConfirmModal = ({ isOpen, onCancel, onConfirm, loading = false }) =>
             Stay signed in
           </button>
 
-          {/* Confirm */}
           <button
             onClick={onConfirm}
             disabled={loading}

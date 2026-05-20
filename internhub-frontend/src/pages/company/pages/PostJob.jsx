@@ -28,8 +28,8 @@ const steps = ["Basic Info", "Details", "Settings"];
 const StepDot = ({ index, current, label }) => (
   <div className="flex flex-col items-center gap-1.5">
     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${index < current ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-        : index === current ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md shadow-indigo-200"
-          : "bg-gray-100 text-gray-400"
+      : index === current ? "bg-indigo-600 text-white ring-4 ring-indigo-100 shadow-md shadow-indigo-200"
+        : "bg-gray-100 text-gray-400"
       }`}>
       {index < current
         ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -56,7 +56,6 @@ const PostJob = ({ onPosted, toast }) => {
     if (errors[k]) setErrors(p => ({ ...p, [k]: "" }));
   };
 
-  //  Validation 
   const validate = () => {
     const e = {};
     if (!form.title.trim()) e.title = "Job title is required.";
@@ -103,7 +102,6 @@ const PostJob = ({ onPosted, toast }) => {
     fetchStatus();
   }, []);
 
-  //  Submit 
   const submit = async () => {
     const clientErrors = validate();
     if (Object.keys(clientErrors).length) { setErrors(clientErrors); return; }
@@ -152,7 +150,6 @@ const PostJob = ({ onPosted, toast }) => {
     }
   };
 
-  //  Input class 
   const iCls = (k) =>
     `w-full bg-gray-50 border-2 ${errors[k] ? "border-red-400 bg-red-50/30" : "border-gray-100"} ` +
     `rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-300 ` +
@@ -184,7 +181,6 @@ const PostJob = ({ onPosted, toast }) => {
   return (
     <div className="min-h-full flex flex-col items-center justify-start py-6">
 
-      {/*  Page heading  */}
       <div className="w-full max-w-2xl text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Post an Internship</h1>
         <p className="text-gray-400 text-sm mt-2 max-w-md mx-auto">
@@ -253,8 +249,8 @@ const PostJob = ({ onPosted, toast }) => {
                     {typeOptions.map(t => (
                       <button key={t} type="button" onClick={() => set("type", t)}
                         className={`flex flex-col items-center gap-2 py-3.5 px-2 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${form.type === t
-                            ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
-                            : "border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-200 hover:bg-gray-100"
+                          ? "border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm"
+                          : "border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-200 hover:bg-gray-100"
                           }`}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d={typeIcons[t]} />
@@ -320,7 +316,6 @@ const PostJob = ({ onPosted, toast }) => {
 
           </div>
 
-          {/*  Footer nav  */}
           <div className="px-8 py-5 border-t border-gray-50 bg-gray-50/50 flex items-center justify-between gap-3">
             {step > 0 ? (
               <button onClick={() => setStep(s => s - 1)}
@@ -350,7 +345,6 @@ const PostJob = ({ onPosted, toast }) => {
           </div>
         </div>
 
-        {/* Fine print */}
         <p className="text-center text-xs text-gray-300 mt-5">
           Your listing will be reviewed by our admin team before going live.
         </p>

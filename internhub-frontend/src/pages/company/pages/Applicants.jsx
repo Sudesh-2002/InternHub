@@ -28,11 +28,9 @@ const Applicants = ({ toast }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // Sync URL param
   useEffect(() => { setJobFilter(jobIdParam ?? "all"); }, [jobIdParam]);
   useEffect(() => { setPage(1); }, [jobFilter, statusFilter, search]);
 
-  //  Fetch job list for filter dropdown 
   useEffect(() => {
     api("/company/manage-jobs")
       .then(r => {
@@ -63,7 +61,6 @@ const Applicants = ({ toast }) => {
 
   useEffect(() => { fetchApplicants(); }, [fetchApplicants]);
 
-  //  Update status 
   const updateStatus = async (id, status) => {
     try {
       setUpdatingId(id);
@@ -131,7 +128,6 @@ const Applicants = ({ toast }) => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <span className="text-sm text-gray-500">
@@ -161,7 +157,6 @@ const Applicants = ({ toast }) => {
             <tbody>
               {applicants.map((a, i) => (
                 <tr key={a.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition">
-                  {/* Applicant */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0 overflow-hidden ${AVATAR_COLORS[i % AVATAR_COLORS.length]}`}>
@@ -212,7 +207,6 @@ const Applicants = ({ toast }) => {
           </table>
         </div>
 
-        {/* Pagination */}
         {meta && meta.last_page > 1 && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
             <p className="text-xs text-gray-400">
