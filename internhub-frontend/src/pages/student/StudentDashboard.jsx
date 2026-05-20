@@ -16,6 +16,7 @@ import MyApplications from "./pages/MyApplications";
 import ProfilePage from "./pages/ProfilePage";
 import Notifications from "./pages/Notifications";
 import SupportPage from "../shared/SupportPage";
+import ChatWidget from "../shared/ChatWidget";
 
 //  Nav items 
 const NAV = [
@@ -222,6 +223,7 @@ const StudentDashboard = () => {
           </Routes>
         </main>
       </div>
+      <ChatWidget apiPrefix="student" />
     </div>
   );
 };

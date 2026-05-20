@@ -2,7 +2,7 @@
 // Used by both student (/api/student/support-tickets)
 // and company (/api/company/support-tickets)
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const API_BASE = "http://localhost:8000/api";
 
@@ -23,14 +23,35 @@ const authHdrs = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
+/* ── Stars component ─────────────────────────────────────────────── */
+const Stars = ({ value, hovered, onHover, onClick, readOnly = false }) => (
+  <div className="flex gap-1">
+    {[1, 2, 3, 4, 5].map(n => (
+      <button
+        key={n}
+        type="button"
+        disabled={readOnly}
+        onMouseEnter={() => !readOnly && onHover && onHover(n)}
+        onMouseLeave={() => !readOnly && onHover && onHover(0)}
+        onClick={() => !readOnly && onClick && onClick(n)}
+        className={`text-2xl transition-transform ${!readOnly ? "hover:scale-125 cursor-pointer" : "cursor-default"}`}
+      >
+        <span style={{ color: n <= (hovered || value || 0) ? "#f59e0b" : "#d1d5db" }}>★</span>
+      </button>
+    ))}
+  </div>
+);
+
 /* ── Message bubble ─────────────────────────────────────────────── */
-const Bubble = ({ msg, isAdmin }) => (
+const Bubble = ({ msg }) => (
   <div className={`flex gap-2.5 ${msg.is_admin ? "flex-row-reverse" : "flex-row"}`}>
     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${msg.is_admin ? "bg-indigo-600" : "bg-slate-400"}`}>
-      {msg.is_admin ? "S" : msg.sender?.[0] ?? "U"}
+      {msg.is_admin ? "S" : (msg.sender?.[0] ?? "U")}
     </div>
     <div className={`max-w-[78%] flex flex-col gap-1 ${msg.is_admin ? "items-end" : "items-start"}`}>
-      <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.is_admin ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-gray-100 text-gray-800 rounded-tl-sm"}`}>
+      <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+        msg.is_admin ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-gray-100 text-gray-800 rounded-tl-sm"
+      }`}>
         {msg.message}
       </div>
       <p className="text-[10px] text-gray-400 px-1">{msg.is_admin ? "Support Team" : msg.sender} · {msg.created_at}</p>
@@ -44,22 +65,31 @@ const Bubble = ({ msg, isAdmin }) => (
 const SupportPage = ({ apiPrefix }) => {
   const baseUrl = `${API_BASE}/${apiPrefix}/support-tickets`;
 
-  const [tickets,   setTickets]   = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [selected,  setSelected]  = useState(null);   // ticket detail
-  const [detailLoad,setDetailLoad]= useState(false);
-  const [showCreate,setShowCreate]= useState(false);
-  const [reply,     setReply]     = useState("");
-  const [sending,   setSending]   = useState(false);
-  const [toast,     setToast]     = useState(null);
+  const [tickets,    setTickets]    = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [selected,   setSelected]   = useState(null);
+  const [detailLoad, setDetailLoad] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [reply,      setReply]      = useState("");
+  const [sending,    setSending]    = useState(false);
+  const [ending,     setEnding]     = useState(false);
+  const [toast,      setToast]      = useState(null);
+  const [hovStar,    setHovStar]    = useState(0);
+  const [ratingDone, setRatingDone] = useState(false);
 
   const [form, setForm] = useState({ subject: "", category: "general", priority: "medium", message: "" });
   const [submitting, setSubmitting] = useState(false);
+  const msgEnd = useRef(null);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3500);
   };
+
+  /* Auto-scroll */
+  useEffect(() => {
+    if (selected?.messages) msgEnd.current?.scrollIntoView({ behavior: "smooth" });
+  }, [selected?.messages]);
 
   /* ── Fetch ── */
   const fetchTickets = useCallback(async () => {
@@ -78,10 +108,14 @@ const SupportPage = ({ apiPrefix }) => {
     setDetailLoad(true);
     setSelected({ id });
     setReply("");
+    setHovStar(0);
     try {
       const res  = await fetch(`${baseUrl}/${id}`, { headers: authHdrs() });
       const json = await res.json();
-      if (res.ok) setSelected(json.data);
+      if (res.ok) {
+        setSelected(json.data);
+        setRatingDone(json.data.rating !== null);
+      }
     } catch { showToast("Could not load ticket", "error"); }
     finally { setDetailLoad(false); }
   };
@@ -99,6 +133,7 @@ const SupportPage = ({ apiPrefix }) => {
         setShowCreate(false);
         setForm({ subject: "", category: "general", priority: "medium", message: "" });
         fetchTickets();
+        openDetail(json.data.id);
       } else showToast(json.message || "Failed to submit", "error");
     } catch { showToast("Network error", "error"); }
     finally { setSubmitting(false); }
@@ -121,14 +156,50 @@ const SupportPage = ({ apiPrefix }) => {
     finally { setSending(false); }
   };
 
+  /* ── End conversation ── */
+  const endConversation = async () => {
+    if (ending) return;
+    if (!window.confirm("End this conversation? You will be asked to rate your experience.")) return;
+    setEnding(true);
+    try {
+      const res  = await fetch(`${baseUrl}/${selected.id}/end`, { method: "POST", headers: authHdrs() });
+      const json = await res.json();
+      if (res.ok) {
+        setSelected(s => ({ ...s, status: "resolved", ended_by_user: true }));
+        fetchTickets();
+        showToast("Conversation ended. Please rate your experience!");
+      } else showToast(json.message || "Failed", "error");
+    } catch { showToast("Network error", "error"); }
+    finally { setEnding(false); }
+  };
+
+  /* ── Rate ── */
+  const submitRating = async (rating) => {
+    try {
+      const res  = await fetch(`${baseUrl}/${selected.id}/rate`, {
+        method: "POST", headers: authHdrs(), body: JSON.stringify({ rating }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        setSelected(s => ({ ...s, rating }));
+        setRatingDone(true);
+        fetchTickets();
+        showToast("Thank you for your feedback! ⭐");
+      } else showToast(json.message || "Failed", "error");
+    } catch { showToast("Network error", "error"); }
+  };
+
   const ss = selected ? (STATUS_STYLE[selected.status] || STATUS_STYLE.open) : null;
+  const canReply = selected && !selected.ended_by_user && !["closed"].includes(selected.status);
+  const canEnd   = selected && !selected.ended_by_user && ["open", "in_progress"].includes(selected.status);
+  const showRatingPrompt = selected?.ended_by_user && !ratingDone;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
 
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-semibold shadow-lg ${toast.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
+        <div className={`fixed top-5 right-5 z-50 px-4 py-3 rounded-xl text-sm font-semibold shadow-lg transition-all ${toast.type === "error" ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
           {toast.msg}
         </div>
       )}
@@ -137,10 +208,10 @@ const SupportPage = ({ apiPrefix }) => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Support Center</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Submit and track your support requests</p>
+          <p className="text-sm text-gray-500 mt-0.5">Submit and track your support conversations</p>
         </div>
         <button onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition">
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition shadow-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
           New Ticket
         </button>
@@ -150,7 +221,7 @@ const SupportPage = ({ apiPrefix }) => {
       <div className={`flex gap-5 ${selected ? "items-start" : ""}`}>
 
         {/* Ticket List */}
-        <div className={`bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden ${selected ? "w-[45%] flex-shrink-0" : "w-full"}`}>
+        <div className={`bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden ${selected ? "w-[42%] flex-shrink-0" : "w-full"}`}>
           {loading ? (
             <div className="p-10 text-center text-gray-400 text-sm animate-pulse">Loading tickets…</div>
           ) : tickets.length === 0 ? (
@@ -167,9 +238,9 @@ const SupportPage = ({ apiPrefix }) => {
                 const stl = STATUS_STYLE[t.status] || STATUS_STYLE.open;
                 return (
                   <button key={t.id} onClick={() => openDetail(t.id)}
-                    className={`w-full text-left px-4 py-3.5 hover:bg-gray-50 transition-all ${selected?.id === t.id ? "bg-indigo-50/60 border-l-2 border-indigo-500" : ""}`}>
+                    className={`w-full text-left px-4 py-3.5 hover:bg-gray-50 transition-all ${selected?.id === t.id ? "bg-indigo-50/60 border-l-[3px] border-indigo-500" : "border-l-[3px] border-transparent"}`}>
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <p className="text-sm font-semibold text-gray-800 truncate">{t.subject}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate flex-1">{t.subject}</p>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${PRIORITY_STYLE[t.priority]}`}>{t.priority}</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -178,7 +249,11 @@ const SupportPage = ({ apiPrefix }) => {
                       <span className="text-[10px] text-gray-400 capitalize">· {t.category}</span>
                     </div>
                     {t.last_message && <p className="text-xs text-gray-400 truncate mt-1">{t.last_message}</p>}
-                    <p className="text-[10px] text-gray-300 mt-1">{t.updated_at}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-[10px] text-gray-300">{t.updated_at}</p>
+                      {t.rating && <span className="text-[10px] text-amber-500">{"★".repeat(t.rating)}</span>}
+                      {t.ended_by_user && !t.rating && <span className="text-[9px] text-gray-400 italic">rate us?</span>}
+                    </div>
                   </button>
                 );
               })}
@@ -188,15 +263,21 @@ const SupportPage = ({ apiPrefix }) => {
 
         {/* Thread Panel */}
         {selected && (
-          <div className="flex-1 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 540 }}>
+          <div className="flex-1 bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 580 }}>
             {/* Header */}
-            <div className="px-4 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3">
+            <div className="px-4 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3 flex-shrink-0">
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-gray-900 text-sm truncate">{selected.subject}</p>
                 {ss && (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <div className={`w-1.5 h-1.5 rounded-full ${ss.dot}`} />
                     <span className={`text-[10px] font-semibold ${ss.text}`}>{selected.status?.replace("_"," ")}</span>
+                    {selected.rating && (
+                      <span className="text-[10px] text-amber-500 font-bold ml-1">{"★".repeat(selected.rating)} ({selected.rating}/5)</span>
+                    )}
+                    {selected.ended_by_user && !selected.rating && (
+                      <span className="text-[9px] text-gray-400 italic">· ended · awaiting rating</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -210,27 +291,67 @@ const SupportPage = ({ apiPrefix }) => {
               {detailLoad ? (
                 <div className="text-center text-gray-400 animate-pulse py-8 text-sm">Loading…</div>
               ) : (selected.messages || []).map(msg => <Bubble key={msg.id} msg={msg} />)}
+              <div ref={msgEnd} />
             </div>
 
-            {/* Reply */}
-            {!["resolved","closed"].includes(selected.status) && (
-              <div className="px-4 py-3 border-t border-gray-100 flex gap-2">
-                <textarea
-                  value={reply} onChange={e => setReply(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter" && e.ctrlKey) sendReply(); }}
-                  placeholder="Reply… (Ctrl+Enter to send)"
-                  rows={2}
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"
+            {/* Rating prompt */}
+            {showRatingPrompt && (
+              <div className="px-4 py-4 border-t border-amber-100 bg-amber-50 flex-shrink-0">
+                <p className="text-sm font-bold text-amber-800 mb-1">How satisfied were you with our support?</p>
+                <p className="text-xs text-amber-600 mb-3">Your feedback helps us improve</p>
+                <Stars
+                  value={0}
+                  hovered={hovStar}
+                  onHover={setHovStar}
+                  onClick={submitRating}
                 />
-                <button onClick={sendReply} disabled={sending || !reply.trim()}
-                  className="self-end px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition">
-                  {sending ? "…" : "Send"}
-                </button>
               </div>
             )}
-            {["resolved","closed"].includes(selected.status) && (
-              <div className="px-4 py-3 border-t border-gray-100 text-center text-xs text-gray-400">
-                This ticket is {selected.status}. Reply to re-open it.
+
+            {/* Rating given */}
+            {ratingDone && selected.rating && (
+              <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0 flex items-center gap-3">
+                <div className="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-amber-500 text-sm">★</span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-700">You rated this support</p>
+                  <p className="text-[10px] text-amber-500">{"★".repeat(selected.rating)}{"☆".repeat(5 - selected.rating)} · {selected.rating}/5</p>
+                </div>
+              </div>
+            )}
+
+            {/* Reply box */}
+            {canReply && (
+              <div className="px-4 py-3 border-t border-gray-100 flex-shrink-0">
+                <div className="flex gap-2">
+                  <textarea
+                    value={reply} onChange={e => setReply(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter" && e.ctrlKey) sendReply(); }}
+                    placeholder="Reply… (Ctrl+Enter to send)"
+                    rows={2}
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"
+                  />
+                  <div className="flex flex-col gap-1.5">
+                    <button onClick={sendReply} disabled={sending || !reply.trim()}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition">
+                      {sending ? "…" : "Send"}
+                    </button>
+                    {canEnd && (
+                      <button onClick={endConversation} disabled={ending}
+                        className="px-3 py-1.5 bg-gray-100 hover:bg-red-50 hover:text-red-500 text-gray-500 text-[10px] font-semibold rounded-xl transition">
+                        End Chat
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Closed notice */}
+            {!canReply && !showRatingPrompt && !ratingDone && (
+              <div className="px-4 py-3 border-t border-gray-100 text-center text-xs text-gray-400 flex-shrink-0">
+                {selected.status === "closed" ? "This ticket has been closed by admin." : "This conversation has ended."}
               </div>
             )}
           </div>
