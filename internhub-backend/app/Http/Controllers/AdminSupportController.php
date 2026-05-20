@@ -45,6 +45,7 @@ class AdminSupportController extends Controller
             'in_progress' => SupportTicket::where('status', 'in_progress')->count(),
             'resolved'    => SupportTicket::where('status', 'resolved')->count(),
             'total'       => SupportTicket::count(),
+            'avg_rating'  => round(SupportTicket::whereNotNull('rating')->avg('rating'), 1),
         ];
 
         return response()->json([
@@ -148,7 +149,10 @@ class AdminSupportController extends Controller
             'category'       => $t->category,
             'status'         => $t->status,
             'priority'       => $t->priority,
+            'rating'         => $t->rating,
+            'ended_by_user'  => (bool) $t->ended_by_user,
             'user'           => $t->user?->name ?? '—',
+            'user_role'      => $t->user?->role ?? '—',
             'messages_count' => $t->messages_count ?? 0,
             'last_message'   => $t->latestMessage?->message,
             'created_at'     => $t->created_at->format('d M Y'),

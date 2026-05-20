@@ -69,6 +69,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post ('/support-tickets',              [SupportTicketController::class, 'store']);
         Route::get  ('/support-tickets/{id}',         [SupportTicketController::class, 'show']);
         Route::post ('/support-tickets/{id}/reply',   [SupportTicketController::class, 'reply']);
+        Route::post ('/support-tickets/{id}/end',     [SupportTicketController::class, 'end']);
+        Route::post ('/support-tickets/{id}/rate',    [SupportTicketController::class, 'rate']);
     });
 
     // ── Company Routes ────────────────────────────────
@@ -103,6 +105,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post ('/support-tickets',              [SupportTicketController::class, 'store']);
         Route::get  ('/support-tickets/{id}',         [SupportTicketController::class, 'show']);
         Route::post ('/support-tickets/{id}/reply',   [SupportTicketController::class, 'reply']);
+        Route::post ('/support-tickets/{id}/end',     [SupportTicketController::class, 'end']);
+        Route::post ('/support-tickets/{id}/rate',    [SupportTicketController::class, 'rate']);
     });
 
     // ── Admin Routes ──────────────────────────────────

@@ -14,6 +14,7 @@ import Applicants from "./pages/Applicants";
 import CompanyProfile from "./pages/CompanyProfile";
 import Notifications from "./pages/Notifications";
 import SupportPage from "../shared/SupportPage";
+import ChatWidget from "../shared/ChatWidget";
 import { MOCK_JOBS } from "./data/mockData";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -129,6 +130,7 @@ export default function CompanyDashboard() {
       </div>
 
       <Toasts toasts={toasts} />
+      <ChatWidget apiPrefix="company" />
     </div>
   );
 }

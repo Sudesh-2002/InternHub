@@ -77,8 +77,12 @@ class SupportTicketController extends Controller
     {
         $ticket = SupportTicket::where('user_id', Auth::id())->findOrFail($id);
 
-        if (in_array($ticket->status, ['resolved', 'closed'])) {
+        if (in_array($ticket->status, ['closed'])) {
             return response()->json(['message' => 'This ticket is closed and cannot receive new messages.'], 403);
+        }
+
+        if ($ticket->ended_by_user) {
+            return response()->json(['message' => 'You have already ended this conversation.'], 403);
         }
 
         $data = $request->validate(['message' => 'required|string|max:5000']);
@@ -104,18 +108,60 @@ class SupportTicketController extends Controller
         ]]);
     }
 
+    // POST /api/{role}/support-tickets/{id}/end
+    public function end(int $id): JsonResponse
+    {
+        $ticket = SupportTicket::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($ticket->ended_by_user) {
+            return response()->json(['message' => 'Conversation already ended.'], 422);
+        }
+
+        if ($ticket->status === 'closed') {
+            return response()->json(['message' => 'This ticket has been closed by admin.'], 403);
+        }
+
+        $ticket->update([
+            'ended_by_user' => true,
+            'status'        => 'resolved',
+        ]);
+
+        return response()->json(['message' => 'Conversation ended.', 'data' => $this->format($ticket->fresh())]);
+    }
+
+    // POST /api/{role}/support-tickets/{id}/rate
+    public function rate(Request $request, int $id): JsonResponse
+    {
+        $ticket = SupportTicket::where('user_id', Auth::id())->findOrFail($id);
+
+        if (!$ticket->ended_by_user) {
+            return response()->json(['message' => 'You can only rate after ending the conversation.'], 422);
+        }
+
+        if ($ticket->rating !== null) {
+            return response()->json(['message' => 'You have already rated this conversation.'], 422);
+        }
+
+        $data = $request->validate(['rating' => 'required|integer|min:1|max:5']);
+        $ticket->update(['rating' => $data['rating']]);
+
+        return response()->json(['message' => 'Thank you for your feedback!', 'rating' => $ticket->rating]);
+    }
+
     private function format(SupportTicket $t): array
     {
         return [
-            'id'         => $t->id,
-            'subject'    => $t->subject,
-            'category'   => $t->category,
-            'status'     => $t->status,
-            'priority'   => $t->priority,
+            'id'             => $t->id,
+            'subject'        => $t->subject,
+            'category'       => $t->category,
+            'status'         => $t->status,
+            'priority'       => $t->priority,
+            'rating'         => $t->rating,
+            'ended_by_user'  => (bool) $t->ended_by_user,
             'messages_count' => $t->messages_count ?? 0,
             'last_message'   => $t->latestMessage?->message,
-            'created_at' => $t->created_at->format('d M Y'),
-            'updated_at' => $t->updated_at->format('d M Y, H:i'),
+            'created_at'     => $t->created_at->format('d M Y'),
+            'updated_at'     => $t->updated_at->format('d M Y, H:i'),
         ];
     }
 }
