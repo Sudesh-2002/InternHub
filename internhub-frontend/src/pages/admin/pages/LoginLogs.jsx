@@ -166,7 +166,6 @@ const LoginLogs = () => {
     }
   }, [search, eventF, roleF]);
 
-  // Re-fetch when filters/page change
   useEffect(() => {
     const t = setTimeout(() => fetchLogs(1), 350);
     return () => clearTimeout(t);
@@ -249,7 +248,6 @@ const LoginLogs = () => {
           >
             {logs.map(log => (
               <Tr key={log.id}>
-                {/* User */}
                 <Td>
                   <div>
                     <p style={{ fontWeight: 600, color: "#111827", fontSize: "13px" }}>
@@ -261,27 +259,22 @@ const LoginLogs = () => {
                   </div>
                 </Td>
 
-                {/* Role */}
                 <Td><RoleBadge role={log.user?.role ?? "—"} /></Td>
 
-                {/* Event */}
                 <Td><EventBadge event={log.event} /></Td>
 
-                {/* IP */}
                 <Td>
                   <span style={{ fontFamily: "monospace", fontSize: "12px", color: "#374151" }}>
                     {log.ip_address ?? "—"}
                   </span>
                 </Td>
 
-                {/* Browser */}
                 <Td>
                   <span style={{ fontSize: "12px", color: "#6b7280" }}>
                     {parseBrowser(log.user_agent)}
                   </span>
                 </Td>
 
-                {/* Time */}
                 <Td>
                   <span style={{ fontSize: "12px", color: "#6b7280", whiteSpace: "nowrap" }}>
                     {formatDate(log.created_at)}

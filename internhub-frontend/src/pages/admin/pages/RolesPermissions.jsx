@@ -7,7 +7,6 @@ const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-/* Role config */
 const ROLES = [
   {
     key: "student",
@@ -35,7 +34,6 @@ const ROLES = [
   },
 ];
 
-/*  Toggle switch  */
 const Toggle = ({ checked, onChange, disabled }) => (
   <button
     type="button"
@@ -286,7 +284,6 @@ const RolesPermissions = () => {
                       {ROLES.map(role => (
                         <div key={role.key} className="flex justify-center">
                           {role.locked ? (
-                            // Admin — always on, locked
                             <div className="flex flex-col items-center gap-1">
                               <div className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center">
                                 <Ico d="M5 13l4 4L19 7" size={11} color="#7c3aed" sw={2.5} />
@@ -307,7 +304,6 @@ const RolesPermissions = () => {
             ))}
           </div>
 
-          {/* ── Legend ── */}
           <div className="flex items-center gap-6 px-1">
             <p className="text-xs text-gray-400 font-medium">Legend:</p>
             <div className="flex items-center gap-2">

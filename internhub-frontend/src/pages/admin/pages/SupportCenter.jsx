@@ -102,7 +102,6 @@ const SupportCenter = () => {
     finally { setLoading(false); }
   }, [fStatus, fPriority, fRole, search, page]);
 
-  /* ── Real-time polling every 3s when a thread is open ── */
   const pollMessages = useCallback(async () => {
     const cur = selectedRef.current;
     if (!cur?.id || cur.status === "closed") return;
@@ -119,7 +118,6 @@ const SupportCenter = () => {
     } catch { }
   }, [fetchTickets]);
 
-  /* Start / stop polling when a thread is selected */
   useEffect(() => {
     if (selected?.id && selected.status !== "closed") {
       pollRef.current = setInterval(pollMessages, 3000);
@@ -200,10 +198,8 @@ const SupportCenter = () => {
 
       <div className="flex gap-5" style={{ minHeight: 560 }}>
 
-        {/* ── Queue Panel ── */}
         <div className={`flex flex-col bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden transition-all ${selected ? "w-[42%] flex-shrink-0" : "flex-1"}`}>
 
-          {/* Filters */}
           <div className="p-4 border-b border-gray-100 space-y-3 flex-shrink-0">
             <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search conversations or users…" />
             <div className="flex flex-wrap gap-1.5">
@@ -229,7 +225,6 @@ const SupportCenter = () => {
             </div>
           </div>
 
-          {/* Conversation list */}
           <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
             {loading ? (
               <div className="p-8 text-center text-gray-400 text-sm animate-pulse">Loading conversations…</div>
@@ -310,7 +305,6 @@ const SupportCenter = () => {
                     )}
                   </div>
 
-                  {/* Star rating row */}
                   {selected.rating && (
                     <div className="flex items-center gap-2 mt-2 p-2 bg-amber-50 rounded-xl border border-amber-100">
                       <Ico d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 0 0 .95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 0 0-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 0 0-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 0 0-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 0 0 .951-.69l1.519-4.674z" size={14} color="#f59e0b" />
@@ -325,7 +319,6 @@ const SupportCenter = () => {
                   )}
                 </div>
 
-                {/* Status controls */}
                 <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">
                   {["open", "in_progress", "resolved", "closed"].map(s => (
                     <button key={s} disabled={selected.status === s} onClick={() => changeStatus(s)}
@@ -341,7 +334,6 @@ const SupportCenter = () => {
               </div>
             </div>
 
-            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {detailLoad ? (
                 <div className="text-center text-gray-400 text-sm animate-pulse py-12">Loading conversation…</div>
@@ -353,7 +345,6 @@ const SupportCenter = () => {
               <div ref={msgEnd} />
             </div>
 
-            {/* Reply box */}
             {!["closed"].includes(selected.status) ? (
               <div className="px-5 py-4 border-t border-gray-100 flex gap-3 flex-shrink-0 bg-gray-50/50">
                 <textarea
