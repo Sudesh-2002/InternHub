@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminCompanyVerificationController extends Controller
 {
-    // ── GET /api/admin/verifications ─────────────────────────────────────
-    // Returns all company profiles with their latest verification record
     public function index(Request $request): JsonResponse
     {
         $query = CompanyProfile::with([
@@ -24,12 +22,10 @@ class AdminCompanyVerificationController extends Controller
             'verification',
         ]);
 
-        // Filter by status: ?status=pending
         if ($request->filled('status')) {
             $query->where('verification_status', $request->status);
         }
 
-        // Search by name or email
         if ($request->filled('search')) {
             $query->where('company_name', 'like', '%' . $request->search . '%');
         }
@@ -39,8 +35,6 @@ class AdminCompanyVerificationController extends Controller
         return response()->json($companies);
     }
 
-    // ── GET /api/admin/verifications/{id} ────────────────────────────────
-    // Returns a single company profile with full verification history
     public function show(int $id): JsonResponse
     {
         $company = CompanyProfile::with([
@@ -51,8 +45,6 @@ class AdminCompanyVerificationController extends Controller
         return response()->json($this->format($company, full: true));
     }
 
-    // ── POST /api/admin/verifications/{id}/review ────────────────────────
-    // Admin approves, rejects, or requests resubmission
     public function review(Request $request, int $id): JsonResponse
     {
         $request->validate([
@@ -69,12 +61,9 @@ class AdminCompanyVerificationController extends Controller
         $newStatus = $statusMap[$request->action];
 
         DB::transaction(function () use ($id, $newStatus, $request) {
-            // 1. Update the denormalized status on company_profiles
             CompanyProfile::where('id', $id)->update([
                 'verification_status' => $newStatus,
             ]);
-
-            // 2. Create a new verification record (full audit trail)
             CompanyVerification::create([
                 'company_profile_id' => $id,
                 'reviewed_by'        => Auth::id(),
@@ -88,7 +77,6 @@ class AdminCompanyVerificationController extends Controller
         $company = CompanyProfile::with(['user:id,name,email', 'verification'])
             ->findOrFail($id);
 
-        // Record audit log
         AuditLog::record(
             $request->action,
             match($request->action) {
@@ -101,7 +89,6 @@ class AdminCompanyVerificationController extends Controller
             $company->company_name
         );
 
-        // Notify the company
         $msgMap = [
             'approve'  => ['Your company has been verified! You can now post internship listings.', 'verification'],
             'reject'   => ['Your company verification was rejected. Please review the admin notes and reapply.', 'verification'],
@@ -129,7 +116,6 @@ class AdminCompanyVerificationController extends Controller
         ]);
     }
 
-    // ── Private: format company for frontend ──────────────────────────────
     private function format(CompanyProfile $c, bool $full = false): array
     {
         $base = [

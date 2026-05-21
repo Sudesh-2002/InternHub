@@ -8,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loading, setLoading] = useState(true);
 
-  // On app load, fetch logged-in user if token exists
   useEffect(() => {
     if (token) {
       API.get("/me")

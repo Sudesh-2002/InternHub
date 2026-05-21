@@ -1,11 +1,9 @@
 import { useEffect, useRef, useCallback } from "react";
 import API from "../services/api";
 
-// Configuration 
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes idle → auto logout
 const WARNING_MS = 2 * 60 * 1000; // Show warning 2 minutes before
 
-// Activity events that reset the idle timer
 const ACTIVITY_EVENTS = [
   "mousedown", "mousemove", "keypress", "scroll", "touchstart", "click",
 ];
@@ -33,13 +31,11 @@ export function useSessionTimeout({ enabled = true, onWarning, onExpire, onReset
     clearTimers();
     warned.current = false;
 
-    // Schedule warning
     warnTimer.current = setTimeout(() => {
       warned.current = true;
       onWarning?.();
     }, IDLE_TIMEOUT_MS - WARNING_MS);
 
-    // Schedule forced logout
     expireTimer.current = setTimeout(async () => {
       try {
         await API.post("/timeout");

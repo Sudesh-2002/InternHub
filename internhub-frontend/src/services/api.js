@@ -11,7 +11,6 @@ const API = axios.create({
   },
 });
 
-// Attach token to every request automatically
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -19,8 +18,6 @@ API.interceptors.request.use((config) => {
   }
   return config;
 });
-
-// ── Student Profile ───────────────────────────────────────────────────────────
 
 export const fetchProfile = () =>
   API.get("/profile").then((res) => res.data);
@@ -59,8 +56,6 @@ export const applyJob = (formData) => {
   });
 };
 
-// ── Company: Internship Listings ──────────────────────────────────────────────
-
 export const fetchCompanyListings = (params = {}) =>
   API.get("/company/internships", { params }).then((res) => res.data);
 
@@ -75,8 +70,6 @@ export const updateListing = (id, payload) =>
 
 export const deleteListing = (id) =>
   API.delete(`/company/internships/${id}`).then((res) => res.data);
-
-// ── Admin: Student Management ─────────────────────────────────────────────────
 
 /**
  * Get all students with optional filters.
@@ -107,8 +100,6 @@ export const adminUpdateStudentStatus = (id, payload) =>
 export const adminDeleteStudent = (id) =>
   API.delete(`/admin/students/${id}`).then((res) => res.data);
 
-// ── Admin: Company Management ─────────────────────────────────────────────────
-
 /**
  * Get all companies with optional filters.
  * @param {{ search?: string, status?: string, page?: number }} params
@@ -137,8 +128,6 @@ export const adminUpdateCompanyStatus = (id, payload) =>
  */
 export const adminDeleteCompany = (id) =>
   API.delete(`/admin/companies/${id}`).then((res) => res.data);
-
-// ── Admin: Company Verification Queue ────────────────────────────────────────
 
 /**
  * Get all companies awaiting verification.
