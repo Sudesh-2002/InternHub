@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile/resume', [StudentProfileController::class, 'deleteResume']);
     Route::post  ('/profile/avatar', [StudentProfileController::class, 'uploadAvatar']);
     Route::delete('/profile/avatar', [StudentProfileController::class, 'deleteAvatar']);
+    Route::post  ('/profile/password', [StudentProfileController::class, 'changePassword']);
 
     Route::prefix('student')->middleware(['role:student', 'maintenance'])->group(function () {
         // Browse internships
@@ -81,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get   ('/profile',  [CompanyProfileController::class, 'show']);
         Route::post  ('/profile',  [CompanyProfileController::class, 'store']);
         Route::patch ('/profile',  [CompanyProfileController::class, 'update']);
+        Route::post  ('/profile/password', [CompanyProfileController::class, 'changePassword']);
 
         Route::get   ('/internships',                     [InternshipListingController::class, 'index']);
         Route::post  ('/internships',                     [InternshipListingController::class, 'store']);

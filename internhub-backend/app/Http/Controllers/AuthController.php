@@ -9,6 +9,7 @@ use App\Models\CompanyProfile;
 use App\Models\AdminNotification;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules\Password;
 
 use App\Models\SystemSetting;
 
@@ -20,7 +21,11 @@ class AuthController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)->mixedCase()->numbers(),
+            ],
             'role'     => 'required|in:student,company',
         ]);
 
