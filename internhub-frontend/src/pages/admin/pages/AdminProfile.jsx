@@ -3,6 +3,7 @@ import Icon from "../../student/components/Icon";
 import { icons } from "../../student/components/data/mockData";
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
+import PasswordStrengthChecker, { isPasswordStrong } from "../../../components/PasswordStrengthChecker";
 
 const apiFetch = async (url, options = {}) => {
   const csrf = decodeURIComponent(
@@ -133,6 +134,14 @@ const AdminProfile = () => {
   const avatarRef = useRef();
   const { refreshUser } = useAuth();
 
+  // Password change state
+  const [pwForm, setPwForm] = useState({ current_password: "", new_password: "", new_password_confirmation: "" });
+  const [pwError, setPwError] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const loadProfile = () => {
     setLoading(true);
     setError(null);
@@ -173,6 +182,34 @@ const AdminProfile = () => {
       showToast(e.message || "Failed to save.", "error");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    setPwError("");
+    if (!isPasswordStrong(pwForm.new_password)) {
+      return setPwError("Password does not meet the requirements below.");
+    }
+    if (pwForm.new_password !== pwForm.new_password_confirmation) {
+      return setPwError("New passwords do not match.");
+    }
+    setPwSaving(true);
+    try {
+      await apiFetch("/admin/profile/password", {
+        method: "POST",
+        body: JSON.stringify({
+          current_password: pwForm.current_password,
+          new_password: pwForm.new_password,
+          new_password_confirmation: pwForm.new_password_confirmation,
+        }),
+      });
+      showToast("Password changed successfully.", "success");
+      closeModal();
+      setPwForm({ current_password: "", new_password: "", new_password_confirmation: "" });
+    } catch (e) {
+      setPwError(e.message || "Failed to change password.");
+    } finally {
+      setPwSaving(false);
     }
   };
 
@@ -363,6 +400,21 @@ const AdminProfile = () => {
           </p>
         </Section>
 
+        {/* Change Password */}
+        <Section
+          title="Security"
+          action={
+            <button
+              onClick={() => { setPwError(""); setModal("password"); }}
+              className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium hover:text-indigo-700 transition"
+            >
+              <Icon d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" size={13} /> Change Password
+            </button>
+          }
+        >
+          <p className="text-sm text-gray-400 italic">Password is hidden for security.</p>
+        </Section>
+
         {/* Edit modals */}
         {modal === "info" && (
           <Modal
@@ -432,6 +484,94 @@ const AdminProfile = () => {
                 value={draft.bio || ""}
                 onChange={(e) => setDraft((p) => ({ ...p, bio: e.target.value }))}
               />
+            </Field>
+          </Modal>
+        )}
+
+        {modal === "password" && (
+          <Modal
+            title="Change Password"
+            saving={pwSaving}
+            onClose={() => { closeModal(); setPwForm({ current_password: "", new_password: "", new_password_confirmation: "" }); }}
+            onSave={handlePasswordChange}
+          >
+            {pwError && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2.5 rounded-lg">
+                {pwError}
+              </div>
+            )}
+
+            <Field label="Current Password">
+              <div className="relative">
+                <Input
+                  type={showCurrent ? "text" : "password"}
+                  placeholder="Enter your current password"
+                  value={pwForm.current_password}
+                  onChange={(e) => setPwForm((p) => ({ ...p, current_password: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  <Icon d={showCurrent ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+                </button>
+              </div>
+            </Field>
+
+            <Field label="New Password">
+              <div className="relative">
+                <Input
+                  type={showNew ? "text" : "password"}
+                  placeholder="Min 8 chars, A–Z, a–z, 0–9"
+                  value={pwForm.new_password}
+                  onChange={(e) => setPwForm((p) => ({ ...p, new_password: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNew(!showNew)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  <Icon d={showNew ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+                </button>
+              </div>
+              <PasswordStrengthChecker password={pwForm.new_password} />
+            </Field>
+
+            <Field label="Confirm New Password">
+              <div className="relative">
+                <Input
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Repeat new password"
+                  value={pwForm.new_password_confirmation}
+                  onChange={(e) => setPwForm((p) => ({ ...p, new_password_confirmation: e.target.value }))}
+                  style={{
+                    borderColor:
+                      pwForm.new_password_confirmation.length > 0
+                        ? pwForm.new_password === pwForm.new_password_confirmation
+                          ? "#22c55e"
+                          : "#ef4444"
+                        : undefined,
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  tabIndex={-1}
+                >
+                  <Icon d={showConfirm ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+                </button>
+              </div>
+              {pwForm.new_password_confirmation.length > 0 && (
+                <p className={`text-xs mt-1 flex items-center gap-1 ${
+                  pwForm.new_password === pwForm.new_password_confirmation ? "text-green-600" : "text-red-500"
+                }`}>
+                  {pwForm.new_password === pwForm.new_password_confirmation ? "✓ Passwords match" : "✗ Passwords do not match"}
+                </p>
+              )}
             </Field>
           </Modal>
         )}

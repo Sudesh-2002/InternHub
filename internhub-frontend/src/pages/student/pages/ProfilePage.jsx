@@ -4,6 +4,7 @@ import { icons } from "../components/data/mockData";
 import { fetchProfile, updateProfile, uploadResume, deleteResume, uploadAvatar, deleteAvatar } from "../../../services/api";
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
+import PasswordStrengthChecker, { isPasswordStrong } from "../../../components/PasswordStrengthChecker";
 
 const Section = ({ title, action, children }) => (
   <div className="bg-white border border-gray-100 rounded-2xl p-6">
@@ -80,6 +81,14 @@ const ProfilePage = ({ user }) => {
   const avatarRef = useRef();
   const { refreshUser } = useAuth();
 
+  // Password change state
+  const [pwForm, setPwForm] = useState({ current_password: "", new_password: "", new_password_confirmation: "" });
+  const [pwError, setPwError] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   useEffect(() => {
     fetchProfile()
       .then((profile) => {
@@ -103,6 +112,45 @@ const ProfilePage = ({ user }) => {
 
   const showToast = (message, type = "success") => setToast({ message, type });
   const hideToast = () => setToast(null);
+
+  const handlePasswordChange = async () => {
+    setPwError("");
+    if (!isPasswordStrong(pwForm.new_password)) {
+      return setPwError("Password does not meet the requirements below.");
+    }
+    if (pwForm.new_password !== pwForm.new_password_confirmation) {
+      return setPwError("New passwords do not match.");
+    }
+    setPwSaving(true);
+    const token = localStorage.getItem("token") ?? "";
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/profile/password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          current_password: pwForm.current_password,
+          new_password: pwForm.new_password,
+          new_password_confirmation: pwForm.new_password_confirmation,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setPwError(json.message || "Failed to change password.");
+      } else {
+        showToast("Password changed successfully.", "success");
+        closeModal();
+        setPwForm({ current_password: "", new_password: "", new_password_confirmation: "" });
+      }
+    } catch {
+      setPwError("Network error. Please try again.");
+    } finally {
+      setPwSaving(false);
+    }
+  };
 
   //  Sync to server 
   const syncToServer = async (newData) => {
@@ -522,6 +570,21 @@ const ProfilePage = ({ user }) => {
         </div>
       </Section>
 
+      {/* Change Password Section */}
+      <Section
+        title="Security"
+        action={
+          <button
+            onClick={() => { setPwError(""); setModal("password"); }}
+            className="flex items-center gap-1.5 text-xs text-indigo-600 font-medium hover:text-indigo-700 transition"
+          >
+            <Icon d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" size={13} /> Change Password
+          </button>
+        }
+      >
+        <p className="text-sm text-gray-400 italic">Password is hidden for security.</p>
+      </Section>
+
       {modal === "basic" && (
         <Modal title="Edit Basic Info" onClose={closeModal}
           onSave={() => { syncToServer({ ...data, ...draft }); closeModal(); }}>
@@ -580,6 +643,94 @@ const ProfilePage = ({ user }) => {
           <Field label="Description"><Textarea rows={3} value={draft.description || ""} onChange={e => setDraft(p => ({ ...p, description: e.target.value }))} /></Field>
           <Field label="Technologies Used"><Input placeholder="React, Laravel, MySQL" value={draft.tech || ""} onChange={e => setDraft(p => ({ ...p, tech: e.target.value }))} /></Field>
           <Field label="GitHub Link (optional)"><Input value={draft.github || ""} onChange={e => setDraft(p => ({ ...p, github: e.target.value }))} /></Field>
+        </Modal>
+      )}
+
+      {modal === "password" && (
+        <Modal
+          title="Change Password"
+          onClose={() => { closeModal(); setPwForm({ current_password: "", new_password: "", new_password_confirmation: "" }); }}
+          onSave={handlePasswordChange}
+        >
+          {pwSaving && <div className="text-xs text-indigo-600 mb-1">Saving…</div>}
+          {pwError && (
+            <div className="text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2.5 rounded-lg">
+              {pwError}
+            </div>
+          )}
+
+          <Field label="Current Password">
+            <div className="relative">
+              <Input
+                type={showCurrent ? "text" : "password"}
+                placeholder="Enter your current password"
+                value={pwForm.current_password}
+                onChange={(e) => setPwForm((p) => ({ ...p, current_password: e.target.value }))}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent(!showCurrent)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                <Icon d={showCurrent ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+              </button>
+            </div>
+          </Field>
+
+          <Field label="New Password">
+            <div className="relative">
+              <Input
+                type={showNew ? "text" : "password"}
+                placeholder="Min 8 chars, A–Z, a–z, 0–9"
+                value={pwForm.new_password}
+                onChange={(e) => setPwForm((p) => ({ ...p, new_password: e.target.value }))}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew(!showNew)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                <Icon d={showNew ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+              </button>
+            </div>
+            <PasswordStrengthChecker password={pwForm.new_password} />
+          </Field>
+
+          <Field label="Confirm New Password">
+            <div className="relative">
+              <Input
+                type={showConfirm ? "text" : "password"}
+                placeholder="Repeat new password"
+                value={pwForm.new_password_confirmation}
+                onChange={(e) => setPwForm((p) => ({ ...p, new_password_confirmation: e.target.value }))}
+                style={{
+                  borderColor:
+                    pwForm.new_password_confirmation.length > 0
+                      ? pwForm.new_password === pwForm.new_password_confirmation
+                        ? "#22c55e"
+                        : "#ef4444"
+                      : undefined,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(!showConfirm)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                <Icon d={showConfirm ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"} size={15} />
+              </button>
+            </div>
+            {pwForm.new_password_confirmation.length > 0 && (
+              <p className={`text-xs mt-1 flex items-center gap-1 ${
+                pwForm.new_password === pwForm.new_password_confirmation ? "text-green-600" : "text-red-500"
+              }`}>
+                {pwForm.new_password === pwForm.new_password_confirmation ? "✓ Passwords match" : "✗ Passwords do not match"}
+              </p>
+            )}
+          </Field>
         </Modal>
       )}
 
