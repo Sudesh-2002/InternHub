@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['intern-hub-olive.vercel.app', 'http://localhost:3000'],
+    'allowed_origins' => [
+        'https://intern-hub-olive.vercel.app',
+        'http://localhost:3000',
+    ],
 
     'allowed_origins_patterns' => [],
 
