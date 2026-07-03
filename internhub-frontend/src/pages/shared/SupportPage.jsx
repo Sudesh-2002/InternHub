@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import API_BASE_URL from "../../config";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = API_BASE_URL;
 
 const STATUS_STYLE = {
   open: { bg: "bg-emerald-100", text: "text-emerald-700", dot: "bg-emerald-500" },

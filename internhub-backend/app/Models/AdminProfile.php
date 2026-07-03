@@ -50,7 +50,7 @@ class AdminProfile extends Model
     public function getAvatarUrlAttribute(): ?string
     {
         return $this->avatar_path
-            ? asset('storage/' . $this->avatar_path)
+            ? secure_asset('storage/' . $this->avatar_path)
             : null;
     }
 }
