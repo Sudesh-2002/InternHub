@@ -12,7 +12,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            AdminSeeder::class,
+            AdminSeeder::class,           // Creates admin user + admin_profiles row
+            RolePermissionSeeder::class,  // Seeds permissions + role_permissions defaults
+            SystemSettingsSeeder::class,  // Seeds all system_settings defaults
         ]);
     }
 }
