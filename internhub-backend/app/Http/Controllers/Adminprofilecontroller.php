@@ -106,7 +106,7 @@ class AdminProfileController extends Controller
             ], 422);
         }
 
-        $admin->update(['password' => $request->new_password]);
+        $admin->update(['password' => Hash::make($request->new_password)]);
 
         return response()->json([
             'success' => true,
@@ -147,10 +147,24 @@ class AdminProfileController extends Controller
 
     /**
      * Get or auto-create the admin_profiles row for this user.
+     * We must supply admin_id explicitly because firstOrCreate() does not
+     * trigger the model's 'creating' boot hook when called with an empty
+     * attributes array, leaving the non-nullable column unset → DB error.
      */
     private function getOrCreate(User $admin): AdminProfile
     {
-        return AdminProfile::firstOrCreate(['user_id' => $admin->id]);
+        $existing = AdminProfile::where('user_id', $admin->id)->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        $next    = (AdminProfile::max('id') ?? 0) + 1;
+        $adminId = 'ADM-' . str_pad($next, 6, '0', STR_PAD_LEFT);
+
+        return AdminProfile::create([
+            'user_id'  => $admin->id,
+            'admin_id' => $adminId,
+        ]);
     }
 
     /**
