@@ -21,14 +21,24 @@ class AdminProfileController extends Controller
      * ─────────────────────────────────────────────────── */
     public function show(): JsonResponse
     {
-        /** @var User $admin */
-        $admin   = Auth::user();
-        $profile = $this->getOrCreate($admin);
+        try {
+            /** @var User $admin */
+            $admin   = Auth::user();
+            $profile = $this->getOrCreate($admin);
 
-        return response()->json([
-            'success' => true,
-            'data'    => $this->format($admin, $profile),
-        ]);
+            return response()->json([
+                'success' => true,
+                'data'    => $this->format($admin, $profile),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('AdminProfile@show failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load admin profile: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /* ────────────────────────────────────────────────────
@@ -172,6 +182,17 @@ class AdminProfileController extends Controller
      */
     private function format(User $admin, AdminProfile $profile): array
     {
+        // Safe stats — don't crash if tables are empty or missing
+        try {
+            $stats = [
+                'total_students'    => User::where('role', 'student')->count(),
+                'total_companies'   => User::where('role', 'company')->count(),
+                'total_internships' => \App\Models\InternshipListing::count(),
+            ];
+        } catch (\Throwable $e) {
+            $stats = ['total_students' => 0, 'total_companies' => 0, 'total_internships' => 0];
+        }
+
         return [
             'name'       => $admin->name,
             'email'      => $admin->email,
@@ -185,11 +206,7 @@ class AdminProfileController extends Controller
             'bio'        => $profile->bio,
             'location'   => $profile->location,
 
-            'stats' => [
-                'total_students'    => User::where('role', 'student')->count(),
-                'total_companies'   => User::where('role', 'company')->count(),
-                'total_internships' => \App\Models\InternshipListing::count(),
-            ],
+            'stats' => $stats,
         ];
     }
 }
