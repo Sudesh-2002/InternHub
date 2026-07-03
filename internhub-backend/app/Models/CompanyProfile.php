@@ -75,26 +75,26 @@ class CompanyProfile extends Model
     {
         if (!$this->logo_path) return null;
         if (str_starts_with($this->logo_path, 'http')) return $this->logo_path;
-        return asset('storage/' . $this->logo_path);
+        return secure_asset('storage/' . $this->logo_path);
     }
 
     public function getBusinessCertUrlAttribute(): ?string
     {
-        return $this->business_cert_path ? asset('storage/' . $this->business_cert_path) : null;
+        return $this->business_cert_path ? secure_asset('storage/' . $this->business_cert_path) : null;
     }
 
     public function getTaxDocsUrlAttribute(): ?string
     {
-        return $this->tax_docs_path ? asset('storage/' . $this->tax_docs_path) : null;
+        return $this->tax_docs_path ? secure_asset('storage/' . $this->tax_docs_path) : null;
     }
 
     public function getVerificationDocUrlAttribute(): ?string
     {
-        return $this->verification_doc_path ? asset('storage/' . $this->verification_doc_path) : null;
+        return $this->verification_doc_path ? secure_asset('storage/' . $this->verification_doc_path) : null;
     }
 
     public function getHrAuthUrlAttribute(): ?string
     {
-        return $this->hr_auth_path ? asset('storage/' . $this->hr_auth_path) : null;
+        return $this->hr_auth_path ? secure_asset('storage/' . $this->hr_auth_path) : null;
     }
 }

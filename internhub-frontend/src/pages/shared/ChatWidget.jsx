@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import API_BASE_URL from "../../config";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = API_BASE_URL;
 const hdrs = () => ({
   "Content-Type": "application/json",
   Authorization: `Bearer ${localStorage.getItem("token")}`,

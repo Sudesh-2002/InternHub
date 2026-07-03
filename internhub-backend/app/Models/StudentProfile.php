@@ -44,7 +44,7 @@ class StudentProfile extends Model
     public function getResumeUrlAttribute(): ?string
     {
         return $this->resume_path
-            ? asset('storage/' . $this->resume_path)
+            ? secure_asset('storage/' . $this->resume_path)
             : null;
     }
 
@@ -54,7 +54,7 @@ class StudentProfile extends Model
     public function getAvatarUrlAttribute(): ?string
     {
         return $this->avatar_path
-            ? asset('storage/' . $this->avatar_path)
+            ? secure_asset('storage/' . $this->avatar_path)
             : null;
     }
 }
