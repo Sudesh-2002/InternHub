@@ -16,9 +16,11 @@ import Notifications from "./pages/Notifications";
 import SupportPage from "../shared/SupportPage";
 import ChatWidget from "../shared/ChatWidget";
 import { MOCK_JOBS } from "./data/mockData";
+import API_BASE_URL from "../../config";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = API_BASE_URL;
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
+
 
 export default function CompanyDashboard() {
   const { user, logout } = useAuth();

@@ -5,6 +5,7 @@ import { fetchProfile, updateProfile, uploadResume, deleteResume, uploadAvatar, 
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
 import PasswordStrengthChecker, { isPasswordStrong } from "../../../components/PasswordStrengthChecker";
+import API_BASE_URL from "../../../config";
 
 const Section = ({ title, action, children }) => (
   <div className="bg-white border border-gray-100 rounded-2xl p-6">
@@ -124,7 +125,7 @@ const ProfilePage = ({ user }) => {
     setPwSaving(true);
     const token = localStorage.getItem("token") ?? "";
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/profile/password", {
+      const res = await fetch(`${API_BASE_URL}/profile/password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

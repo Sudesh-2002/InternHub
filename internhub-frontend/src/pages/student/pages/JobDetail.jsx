@@ -4,6 +4,7 @@ import Avatar from "../components/Avatar";
 import Icon from "../components/Icon";
 import { icons } from "../components/data/mockData";
 import axios from "axios";
+import API_BASE_URL from "../../../config";
 
 const JobDetail = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const JobDetail = () => {
     const checkApplication = async () => {
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/student/applications/check/${job.id}`,
+          `${API_BASE_URL}/student/applications/check/${job.id}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         setApplied(res.data.applied);

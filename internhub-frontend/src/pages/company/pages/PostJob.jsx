@@ -2,6 +2,7 @@ import { Ico } from "../components/Shared";
 import { createListing } from "../../../services/api";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../../../config";
 
 const Field = ({ label, optional, children }) => (
   <div className="group">
@@ -87,7 +88,7 @@ const PostJob = ({ onPosted, toast }) => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/company/profile", {
+        const res = await axios.get(`${API_BASE_URL}/company/profile`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

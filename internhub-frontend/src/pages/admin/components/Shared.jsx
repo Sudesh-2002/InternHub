@@ -301,7 +301,7 @@ export const AdminLayout = ({ children }) => {
   // Fetch unread admin notification count on mount
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/api/admin/notifications", {
+      .get(`${process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api"}/admin/notifications`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then(r => setNotifUnread(r.data.unread_count ?? 0))

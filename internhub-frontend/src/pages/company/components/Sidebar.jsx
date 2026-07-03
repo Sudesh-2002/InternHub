@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import axios from "axios";
 import LogoutConfirmModal from "../../../components/LogoutConfirmModal";
+import API_BASE_URL from "../../../config";
 
 const Sidebar = ({ unread, isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Sidebar = ({ unread, isOpen, onClose }) => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/company/profile",
+          `${API_BASE_URL}/company/profile`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
