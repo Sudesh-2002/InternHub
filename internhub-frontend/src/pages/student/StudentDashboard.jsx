@@ -39,7 +39,7 @@ const StudentDashboard = () => {
   const location = useLocation();
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/student/notifications", {
+    axios.get(`${process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api"}/student/notifications`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     }).then(r => setNotifCount(r.data.unread_count ?? 0)).catch(() => { });
   }, []);

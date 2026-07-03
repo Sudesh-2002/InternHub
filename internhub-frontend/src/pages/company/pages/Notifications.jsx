@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Ico } from "../components/Shared";
+import API_BASE_URL from "../../../config";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = API_BASE_URL;
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("token")}` });
 
 const TYPE = {

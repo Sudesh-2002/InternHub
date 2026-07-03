@@ -4,7 +4,7 @@ import axios from "axios";
 // it is used to create the shared API instance. Do not remove.
 
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api",
+  baseURL: process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api",  // Set REACT_APP_API_URL in .env.production
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

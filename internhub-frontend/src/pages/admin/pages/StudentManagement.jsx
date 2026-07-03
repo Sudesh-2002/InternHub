@@ -3,9 +3,10 @@ import {
   Page, SectionHeader, Table, Tr, Td, Badge, Avatar,
   SearchBar, FilterPills, Btn, Modal, Ico, useToast, Toast,
 } from "../components/Shared";
+import API_BASE_URL from "../../../config";
 
 const TOKEN = () => localStorage.getItem("token") ?? "";
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = API_BASE_URL;
 
 const apiFetch = (url, opts = {}) =>
   fetch(`${API_BASE}${url}`, {

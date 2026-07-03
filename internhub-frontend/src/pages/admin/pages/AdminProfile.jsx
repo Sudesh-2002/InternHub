@@ -4,13 +4,14 @@ import { icons } from "../../student/components/data/mockData";
 import Toast from "../../../components/Toast";
 import { useAuth } from "../../../context/AuthContext";
 import PasswordStrengthChecker, { isPasswordStrong } from "../../../components/PasswordStrengthChecker";
+import API_BASE_URL from "../../../config";
 
 const apiFetch = async (url, options = {}) => {
   const csrf = decodeURIComponent(
     document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ""
   );
   const isFormData = options.body instanceof FormData;
-  const res = await fetch(`http://127.0.0.1:8000/api${url}`, {
+  const res = await fetch(`${API_BASE_URL}${url}`, {
     headers: {
       Accept: "application/json",
       Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,

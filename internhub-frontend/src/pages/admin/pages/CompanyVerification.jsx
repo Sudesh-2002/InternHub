@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Page, SectionHeader, Badge, Avatar, Btn, Ico, Textarea, useToast, Toast } from "../components/Shared";
+import API_BASE_URL from "../../../config";
 
-const API = "http://127.0.0.1:8000";
+const API = API_BASE_URL.replace("/api", ""); // strip /api since this file builds the path manually
 
-const BASE = `${API}/api/admin/verifications`;
+const BASE = `${API_BASE_URL}/admin/verifications`;
 
 const TOKEN = () => localStorage.getItem("token") ?? "";
 

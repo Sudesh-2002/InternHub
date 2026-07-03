@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { Ico, StatusBadge } from "../components/Shared";
+import API_BASE_URL from "../../../config";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = API_BASE_URL;
 const token = () => localStorage.getItem("token");
 const api = (path, opts = {}) =>
   axios({ url: `${API_BASE}${path}`, headers: { Authorization: `Bearer ${token()}` }, ...opts });

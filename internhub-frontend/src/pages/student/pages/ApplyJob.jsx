@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import Icon from "../components/Icon";
 import { icons } from "../components/data/mockData";
+import API_BASE_URL from "../../../config";
 
 const ApplyJob = () => {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ const ApplyJob = () => {
       formData.append("resume", resume);
       if (note.trim()) formData.append("note", note.trim());
 
-      const res = await fetch("http://127.0.0.1:8000/api/student/apply", {
+      const res = await fetch(`${API_BASE_URL}/student/apply`, {
         method: "POST",
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         body: formData,
